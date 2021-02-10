@@ -96,7 +96,6 @@ public enum CriteriaType {
     /**
      * Check if PartType is NOT supported.
      *
-     * @param partType
      * @return True if unsupported, or false.
      */
     public static boolean isPartTypeUnSupported(@NonNull
@@ -107,7 +106,6 @@ public enum CriteriaType {
     /**
      * Check if PartType is supported.
      *
-     * @param partType
      * @return True if supported, or false.
      */
     public static boolean isPartTypeSupported(@NonNull Part.Type partType) {
@@ -125,10 +123,9 @@ public enum CriteriaType {
     }
 
     /**
-     * Check if CriteriaType operation is closure, with format of (A ops A -> A).
+     * Check if CriteriaType operation is closure, with format of (A ops A -&gt; A).
      * Example: AND, OR.
      *
-     * @param type
      * @return True if match, or false.
      */
     public static boolean isClosed(CriteriaType type) {
@@ -142,10 +139,9 @@ public enum CriteriaType {
     }
 
     /**
-     * Check if CriteriaType operation is binary, with format of (A ops A -> B).
+     * Check if CriteriaType operation is binary, with format of (A ops A -&gt; B).
      * Example: IS_EQUAL, AFTER.
      *
-     * @param type
      * @return True if match, or false.
      */
     public static boolean isBinary(CriteriaType type) {
@@ -177,7 +173,6 @@ public enum CriteriaType {
     /**
      * Check if CriteriaType operation is a function.
      *
-     * @param type
      * @return True if match, or false.
      */
     public static boolean isFunction(CriteriaType type) {
@@ -198,9 +193,8 @@ public enum CriteriaType {
     }
 
     /**
-     * Check if CriteriaType operation is unary, with format of (ops A -> B).
+     * Check if CriteriaType operation is unary, with format of (ops A -&gt; B).
      *
-     * @param type
      * @return True if match, or false.
      */
     public static boolean isUnary(CriteriaType type) {

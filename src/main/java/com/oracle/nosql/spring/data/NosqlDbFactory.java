@@ -112,12 +112,12 @@ public class NosqlDbFactory {
      * Returns the precision of the Timestamp NoSQL DB type when creating a
      * new table. By default this is set to
      * {@link Constants#DEFAULT_TIMESTAMP_PRECISION}.
-     * <br/>
+     * <br>
      * In the context of a CREATE TABLE statement, a precision must be
      * explicitly specified. This restriction is to prevent users from
      * inadvertently creating TIMESTAMP values with precision 9 (which takes
      * more space) when in reality they don't need that high precision.
-     * <br/>
+     * <br>
      * See <a href="https://docs.oracle.com/en/database/other-databases/nosql-database/20.2/sqlreferencefornosql/data-type-definitions.html">Timestamp documentation</a> for more details.
      */
     public int getTimestampPrecision() {

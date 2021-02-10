@@ -256,6 +256,11 @@
                         <exclude>
                         </exclude>
                     </sourceFileExcludes>
+                    <additionalparam>-Xdoclint:all -Xdoclint:-missing</additionalparam>
+                    <additionalJOptions>
+                        <additionalJOption>-Xdoclint:all</additionalJOption>
+                        <additionalJOption>-Xdoclint:-missing</additionalJOption>
+                    </additionalJOptions>
                 </configuration>
                 <executions>
                     <execution>
