@@ -1,4 +1,4 @@
-# Oracle NoSQL Database SDK for Spring Data 1.1.0
+# Oracle NoSQL Database SDK for Spring Data 1.1.1-SNAPSHOT
 
 ## About
 
@@ -20,10 +20,10 @@ page.
 
     ```
     mvn install:install-file \
-    -DpomFile=spring-data-oracle-nosql-1.1.0.pom \
-    -Dfile=spring-data-oracle-nosql-1.1.0.jar \
-    -Dsources=spring-data-oracle-nosql-1.1.0-sources.jar \
-    -Djavadoc=spring-data-oracle-nosql-1.1.0-javadoc.jar
+    -DpomFile=spring-data-oracle-nosql-x.y.z.pom \
+    -Dfile=spring-data-oracle-nosql-x.y.z.jar \
+    -Dsources=spring-data-oracle-nosql-x.y.z-sources.jar \
+    -Djavadoc=spring-data-oracle-nosql-x.y.z-javadoc.jar
     ```
   
 * To use the SDK in your project add maven dependency to your project's pom.xml:
