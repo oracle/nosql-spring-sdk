@@ -272,5 +272,33 @@ Tests can be also be run on:
     mvn -B -Ptest-cloudsim test -DargLine="-Dtest.endpoint=$CLOUDSIM_ENDPOINT"
     ```
  
- 
+
+## Help
+
+* Open an issue in the [Issues](https://github.com/oracle/nosql-spring-sdk/issues) page
+* Post your question on the [Oracle NoSQL Database Community](https://community.oracle.com/community/groundbreakers/database/nosql_database).
+* [Email to nosql\_sdk\_help\_grp@oracle.com](mailto:nosql_sdk_help_grp@oracle.com)
+
+When requesting help please be sure to include as much detail as possible,
+including version of the SDK and **simple**, standalone example code as needed.
+
+## Contributing
+
+This project welcomes contributions from the community. Before submitting a pull
+request, please [review our contribution guide](./CONTRIBUTING.md).
+
+## Security
+
+Please consult the [security guide](./SECURITY.md) for our responsible security
+vulnerability disclosure process.
+
+## Licenses
+
+See the [LICENSE](LICENSE.txt) file.
+
+The [THIRD\_PARTY\_LICENSES](THIRD_PARTY_LICENSES.txt) file contains third
+party notices and licenses.
+
+
+
 Enjoy.
