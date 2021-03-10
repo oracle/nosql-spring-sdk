@@ -205,28 +205,35 @@ public class TestDynamicQuery {
         Assert.assertArrayEquals(new Customer[]{c1, c2, c3}, list.toArray());
     }
 
-//todo: ignore case
-//    @Test
-//    public void testIgnoreCase() {
-//        List<Customer> list;
-//
-//        System.out.println("List all findByLastNameIgnoreCase(\"smIth\"):");
-//        list = nosqlRepo.findByLastNameIgnoreCase("smIth");
-//        for (Customer c : list) {
-//            System.out.println("  " + c);
-//        }
-//        Assert.assertTrue(list.containsAll(Arrays.asList(c1, c2, c3)));
-//
-//        // findByLastNameAndFirstNameAllIgnoreCase("smIth", "alIce")
-//        System.out.println("List all findByLastNameAndFirstNameAllIgnoreCase(\"smIth\",\n" +
-//            "            \"alIce\"):");
-//        list = nosqlRepo.findByLastNameAndFirstNameAllIgnoreCase("smIth",
-//            "alIce");
-//        for (Customer c : list) {
-//            System.out.println("  " + c);
-//        }
-//        Assert.assertTrue(list.containsAll(Arrays.asList(c1)));
-//    }
+    @Test
+    public void testIgnoreCase() {
+        List<Customer> list;
+
+        list = nosqlRepo.findByLastNameIgnoreCase("smIth");
+        Assert.assertEquals(3, list.size());
+        Assert.assertTrue(list.containsAll(Arrays.asList(c1, c2, c3)));
+
+        // ignore case applies to all fields
+        list = nosqlRepo.findByLastNameAndFirstNameAllIgnoreCase("smIth", "alIce");
+        Assert.assertEquals(1, list.size());
+        Assert.assertTrue(list.containsAll(Arrays.asList(c1)));
+
+        // ignore case applies only to firstName field
+        list = nosqlRepo.findByLastNameAndFirstNameIgnoreCase("Smith", "alIce");
+        Assert.assertEquals(1, list.size());
+        Assert.assertTrue(list.containsAll(Arrays.asList(c1)));
+
+        // ignore case for IN or NOT_IN expressions
+        list = nosqlRepo.findByAddressCityIsInAllIgnoreCase(
+            Arrays.asList("metropolis", "ParaDise isLand", "cenTral cITy"));
+        Assert.assertEquals(3, list.size());
+        Assert.assertTrue(list.containsAll(Arrays.asList(c5, c6, c7)));
+
+        // ignore case for BETWEEN expressions
+        list = nosqlRepo.findByLastNameBetweenIgnoreCase("A", "KZZZ");
+        Assert.assertEquals(3, list.size());
+        Assert.assertTrue(list.containsAll(Arrays.asList(c4, c5, c6)));
+    }
 
     @Test
     public void testTraverseProperty() {
@@ -234,6 +241,7 @@ public class TestDynamicQuery {
 
         list = nosqlRepo.findByAddressCity("Metropolis");
 
+        Assert.assertEquals(1, list.size());
         Assert.assertTrue(list.containsAll(Arrays.asList(c5)));
     }
 

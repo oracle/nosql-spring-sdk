@@ -68,12 +68,17 @@ public interface CustomerRepository
     List<Customer> queryByLastNameOrderByFirstNameDesc(String lastname);
     List<Customer> getByLastNameOrderByFirstNameAsc(String lastname);
 
-    // not implemented
-//    // Enabling ignoring case for an individual property
-//    List<Customer> findByLastNameIgnoreCase(String lastname);
-//    // Enabling ignoring case for all suitable properties
-//    List<Customer> findByLastNameAndFirstNameAllIgnoreCase(String lastname,
-//        String firstname);
+    // Enabling ignoring case for an individual property
+    List<Customer> findByLastNameIgnoreCase(String lastname);
+    // Enabling ignoring case for all suitable properties
+    List<Customer> findByLastNameAndFirstNameAllIgnoreCase(String lastname,
+        String firstname);
+    // Enable ignore case only for firstName field
+    List<Customer> findByLastNameAndFirstNameIgnoreCase(String lastname,
+        String firstname);
+    List<Customer> findByAddressCityIsInAllIgnoreCase(List<String> cities);
+    List<Customer> findByLastNameBetweenIgnoreCase(String from, String to);
+
 
     // traversing nested properties
     List<Customer> findByAddressCity(String city);
@@ -120,14 +125,6 @@ public interface CustomerRepository
 
     List<Customer> readDistinctByFirstNameOrderByCustomerId(String first);
     long countDistinctByFirstName(String first);
-
-    // Distinct usage makes sense with projections which are not implemented.
-//    List<NameOnly> readByFirstNameOrderByCustomerId(String first);
-//
-//    public interface NameOnly {
-//        String getFirstName();
-//        String getLastName();
-//    }
 
     // Pageable, Sort, Slice
     Page<Customer> findByLastName(String lastname, Pageable pageable);

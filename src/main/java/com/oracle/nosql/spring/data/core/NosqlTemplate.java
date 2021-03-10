@@ -864,7 +864,7 @@ public class NosqlTemplate implements NosqlOperations, ApplicationContextAware {
         }
 
         log.debug("Q: {}", sql);
-//        System.out.println("Q: " + sql);
+        //System.out.println("Q: " + sql);
         Iterable<MapValue> results = doQuery(qReq);
 
         Stream<MapValue> resStream =
