@@ -296,6 +296,9 @@ public class MappingNosqlConverter
             convertedValue = new TimestampValue(
                 ((Instant) javaObj).toEpochMilli());
             break;
+        case ENUM:
+            convertedValue = new StringValue(((Enum) javaObj).name());
+            break;
         case GEO_JSON_POINT:
             Point point = (Point) javaObj;
             MapValue geoPoint = new MapValue();
@@ -792,6 +795,12 @@ public class MappingNosqlConverter
                 break;
             case INSTANT:
                 objValue = (T) fieldValue.asTimestamp().getValue().toInstant();
+                break;
+            case ENUM:
+                String strValue = fieldValue.asString().getValue();
+
+                objValue = (T) Enum.valueOf((Class) prop.getType(),
+                    strValue.trim().toUpperCase());
                 break;
             default:
                 throw new IllegalArgumentException("Conversion unknown from: " +
