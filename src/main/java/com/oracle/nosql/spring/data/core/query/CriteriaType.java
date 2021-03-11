@@ -24,7 +24,7 @@ public enum CriteriaType {
     BEFORE("<"),
     AFTER(">"),
     IN("IN"),
-    NOT_IN("IN"),
+    NOT_IN("IN"),               // NOT(...) applied outside
     IS_NULL("IS NULL"),
     IS_NOT_NULL("IS NOT NULL"),
     LESS_THAN("<"),

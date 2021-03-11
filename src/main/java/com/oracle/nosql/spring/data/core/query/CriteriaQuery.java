@@ -219,11 +219,11 @@ public class CriteriaQuery extends NosqlQuery {
         case AND:
             Assert.isTrue(crt.getSubCriteria().size() == 2,
                 "AND, OR criteria should have two children.");
-            return " (" +
-                generateSql(crt.getSubCriteria().get(0), parameters) + " " +
-                    crt.getType().getSqlKeyword() + " " +
-                    generateSql(crt.getSubCriteria().get(1),
-                        parameters) + ") ";
+            String op1 = generateSql(crt.getSubCriteria().get(0), parameters);
+            String op2 = generateSql(crt.getSubCriteria().get(1), parameters);
+
+            return " (" + op1 + " " + crt.getType().getSqlKeyword() + " " +
+                op2 + ") ";
 
 
         case IS_EQUAL:
@@ -246,12 +246,17 @@ public class CriteriaQuery extends NosqlQuery {
             Assert.isTrue(CriteriaType.isBinary(crt.getType()), "Criteria " +
                 "type should be binary operation");
 
-            final String subject = getSqlFieldWithCast(crt);
+            String subject = getSqlFieldWithCast(crt);
             final Object subjectValue = crt.getSubjectValues().get(0);
-            final String parameter = generateQueryParameter(crt.getSubject(),
+            String parameter = generateQueryParameter(crt.getSubject(),
                 parameters);
 
             parameters.put(parameter, subjectValue);
+
+            if (crt.isIgnoreCase()) {
+                subject = "lower(" + subject + ")";
+                parameter = "lower(" + parameter + ")";
+            }
 
             if (CriteriaType.isFunction(crt.getType())) {
                 return String.format("%s(%s, %s)",
@@ -271,13 +276,21 @@ public class CriteriaQuery extends NosqlQuery {
                     "Collection type in parameters");
             }
 
-            final String inParameter = generateQueryParameter(crt.getSubject(),
+            String inParameter = generateQueryParameter(crt.getSubject(),
                 parameters);
             final Object inSubjectValue = crt.getSubjectValues().get(0);
             parameters.put(inParameter, inSubjectValue);
+            inParameter = inParameter + "[]";
 
-            String result = String.format("%s %s (%s[])",
-                getSqlFieldWithCast(crt),
+            String sqlFieldWithCast = getSqlFieldWithCast(crt);
+
+            if (crt.isIgnoreCase()) {
+                sqlFieldWithCast = "lower(" + sqlFieldWithCast + ")";
+                inParameter = "seq_transform(" + inParameter + ", lower($))";
+            }
+
+            String result = String.format("%s %s (%s)",
+                sqlFieldWithCast,
                 crt.getType().getSqlKeyword(),
                 inParameter);
 
@@ -292,13 +305,19 @@ public class CriteriaQuery extends NosqlQuery {
 
             final Object bwSubjectValue1 = crt.getSubjectValues().get(0);
             final Object bwSubjectValue2 = crt.getSubjectValues().get(1);
-            final String bwParameter1 = generateQueryParameter(crt.getSubject(),
+            String bwParameter1 = generateQueryParameter(crt.getSubject(),
                 parameters);
             parameters.put(bwParameter1, bwSubjectValue1);
-            final String bwParameter2 = generateQueryParameter(crt.getSubject(),
+            String bwParameter2 = generateQueryParameter(crt.getSubject(),
                 parameters);
             parameters.put(bwParameter2, bwSubjectValue2);
-            final String bwField = getSqlFieldWithCast(crt);
+            String bwField = getSqlFieldWithCast(crt);
+
+            if (crt.isIgnoreCase()) {
+                bwField = "lower(" + bwField + ")";
+                bwParameter1 = "lower(" + bwParameter1 + ")";
+                bwParameter2 = "lower(" + bwParameter2 + ")";
+            }
 
             return String.format("(%s >= %s AND %s <= %s)",
                 bwField, bwParameter1, bwField, bwParameter2);
@@ -347,7 +366,6 @@ public class CriteriaQuery extends NosqlQuery {
                 wField,
                 wGeoShape);
 
-            //todo spring data mongo driver also supports: IgnoreCase
         default:
             throw new IllegalArgumentException("Unsupported Criteria type: " +
                 crt.getType());
