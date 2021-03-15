@@ -32,6 +32,7 @@ public interface NosqlPersistentProperty
         GEO_JSON_POINT(23),     // org.springframework.data.geo.Point
         GEO_JSON_POLYGON(24),   // org.springframework.data.geo.Polygon
         FIELD_VALUE(25),        // any of oracle.nosql.driver.values.FieldValue
+        ENUM(26),               // any enum class
 
         // array like  100 .. 199
         ARRAY(100),      // <?>[]

@@ -115,6 +115,8 @@ public class BasicNosqlPersistentProperty
             return TypeCode.OBJECT;
         } else if (FieldValue.class.isAssignableFrom(cls)) {
             return TypeCode.FIELD_VALUE;
+        } else if (Enum.class.isAssignableFrom(cls)) {
+            return TypeCode.ENUM;
         } else {
             return TypeCode.POJO;
         }
@@ -158,6 +160,8 @@ public class BasicNosqlPersistentProperty
             return TypeCode.OBJECT;
         } else if (FieldValue.class.isAssignableFrom(cls)) {
             return TypeCode.FIELD_VALUE;
+        } else if (Enum.class.isAssignableFrom(cls)) {
+            return TypeCode.ENUM;
         } else {
             return TypeCode.POJO;
         }

@@ -42,7 +42,7 @@ public class TestApplication {
     private CustomerRepository repo;
 
     @Test
-    public void testAtomicTypes() {
+    public <T> void testAtomicTypes() {
         repo.setTimeout(20000);
         repo.deleteAll();
 
@@ -56,6 +56,7 @@ public class TestApplication {
         c1.bdField = BigDecimal.ONE;
         c1.vanilla = true;
         c1.code = new byte[] {1, 1, 0, 0, 1};
+        c1.priority = Customer.Priority.HIGH;
 
         repo.save(c1);
 
@@ -69,6 +70,7 @@ public class TestApplication {
         c2.bdField = BigDecimal.TEN;
         c2.vanilla = false;
         c2.code = new byte[] {2, 2, 0, 0, 2};
+        c2.priority = Customer.Priority.LOW;
 
         repo.save(c2);
 

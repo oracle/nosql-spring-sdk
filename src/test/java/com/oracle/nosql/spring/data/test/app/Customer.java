@@ -44,6 +44,14 @@ public class Customer {
     public List<Object> list;
     public Object[] arr;
 
+    public enum Priority {
+        HIGH,
+        MEDIUM,
+        LOW
+    }
+
+    public Priority priority;
+
     public Customer() {}
 
     public Customer(String firstName, String lastName, List<Address> addresses) {
@@ -59,20 +67,21 @@ public class Customer {
                 "kids=%s, length=%s, weight=%s, coins=%s, " +
                 "biField=%s, bdField=%s, vanilla=%s, code=%s, birthDay='%s'" +
                 "address=%s, addList='%s', addArray=%s, list=%s, " +
-                "arr=%s}",
+                "arr=%s, priority=%s}",
             customerId, firstName, lastName, kids, length, weight,
             coins, biField, bdField, vanilla,
             Arrays.toString(code),
             (birthDay != null ? birthDay.toInstant() : ""),
             address, addList,
-            Arrays.toString(addArray), list, Arrays.toString(arr));
+            Arrays.toString(addArray), list, Arrays.toString(arr), priority);
     }
 
     @Override
     public int hashCode() {
         int result = Objects
             .hash(customerId, firstName, lastName, kids, length, weight, coins,
-                biField, bdField, vanilla, birthDay, address, addList, list);
+                biField, bdField, vanilla, birthDay, address, addList, list,
+                priority);
         result = 31 * result + Arrays.hashCode(code);
         result = 31 * result + Arrays.hashCode(addArray);
         result = 31 * result + Arrays.hashCode(arr);
@@ -107,7 +116,9 @@ public class Customer {
             (list == null && c.list != null) ||
             (list != null && c.list == null) ||
             (arr == null && c.arr != null) ||
-            (arr != null && c.arr == null)
+            (arr != null && c.arr == null) ||
+            (priority == null && c.priority != null) ||
+            (priority != null && c.priority == null)
         ) {
             return false;
         }
@@ -135,7 +146,8 @@ public class Customer {
             listEquals(addList, addList) &&
             Arrays.equals(addArray, c.addArray) &&
             listEquals(list, c.list) &&
-            Arrays.equals(arr, c.arr);
+            Arrays.equals(arr, c.arr) &&
+            priority == c.priority;
     }
 
     private boolean listEquals(Collection<?> c1, Collection<?> c2) {
