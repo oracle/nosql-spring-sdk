@@ -30,7 +30,7 @@ $ cd <nosql-spring-sdk>
 $ mvn clean javadoc:javadoc
 ```
 
-The doc ends up in driver/target/apidocs, copy it to the gh-pages branch
+The doc ends up in /target/site/apidocs/, copy it to the gh-pages branch
 
 ``` bash
 $ cp -r <nosql-spring-sdk>/target/site/apidocs/* <nosql-spring-sdk-doc>
