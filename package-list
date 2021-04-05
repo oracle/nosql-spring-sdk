@@ -1,0 +1,10 @@
+com.oracle.nosql.spring.data
+com.oracle.nosql.spring.data.config
+com.oracle.nosql.spring.data.core
+com.oracle.nosql.spring.data.core.convert
+com.oracle.nosql.spring.data.core.mapping
+com.oracle.nosql.spring.data.core.query
+com.oracle.nosql.spring.data.repository
+com.oracle.nosql.spring.data.repository.config
+com.oracle.nosql.spring.data.repository.query
+com.oracle.nosql.spring.data.repository.support
