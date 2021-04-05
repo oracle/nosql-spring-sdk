@@ -458,7 +458,7 @@ public class CriteriaQuery extends NosqlQuery {
             return "*";
         }
 
-        List<String> inputProperties = returnedType.getInputProperties();
+        List<String> inputProperties = new ArrayList<>();
 
         final NosqlPersistentEntity<?> entity = (NosqlPersistentEntity<?>)
             mappingContext.getPersistentEntity(returnedType.getReturnedType());

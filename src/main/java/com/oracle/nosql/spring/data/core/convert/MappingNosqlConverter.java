@@ -734,7 +734,12 @@ public class MappingNosqlConverter
                     return convertFieldValueToObject( value, prop);
                 }
             };
-        return instantiator.createInstance(entity, paramProvider);
+        try {
+            return instantiator.createInstance(entity, paramProvider);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Failed to instantiate entity type: " +
+                entity.getType() + ". Check available public constructors.", e);
+        }
     }
 
     private <E> void setPojoProperties(NosqlPersistentEntity<E> entity,

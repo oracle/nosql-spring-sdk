@@ -806,16 +806,17 @@ public class NosqlTemplate implements NosqlOperations, ApplicationContextAware {
         Class<T> targetType,
         NosqlQuery query) {
 
+        Class entityType = entityInformation.getJavaType();
+        Class<?> typeToRead = targetType.isInterface() ||
+            targetType.isAssignableFrom(entityType)
+            ? entityType
+            : targetType;
+
         Iterable<MapValue> results = executeMapValueQuery(entityInformation,
             query);
 
         Stream<T> resStream = IterableUtil.getStreamFromIterable(results)
             .map(d -> {
-                Class entityType = entityInformation.getJavaType();
-                Class<?> typeToRead = targetType.isInterface() ||
-                    targetType.isAssignableFrom(entityType)
-                    ? entityType
-                    : targetType;
                 Object source = getConverter().read(typeToRead, d);
                 T result = targetType.isInterface()
                     ? projectionFactory.createProjection(targetType, source)
@@ -865,12 +866,7 @@ public class NosqlTemplate implements NosqlOperations, ApplicationContextAware {
 
         log.debug("Q: {}", sql);
 //        System.out.println("Q: " + sql);
-        Iterable<MapValue> results = doQuery(qReq);
-
-        Stream<MapValue> resStream =
-            IterableUtil.getStreamFromIterable(results);
-
-        return IterableUtil.getIterableFromStream(resStream);
+        return doQuery(qReq);
     }
 
     private PreparedStatement getPreparedStatement(
