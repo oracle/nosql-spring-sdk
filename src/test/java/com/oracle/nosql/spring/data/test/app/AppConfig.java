@@ -6,6 +6,8 @@
  */
 package com.oracle.nosql.spring.data.test.app;
 
+import java.io.IOException;
+
 import com.oracle.nosql.spring.data.config.NosqlDbConfig;
 import com.oracle.nosql.spring.data.repository.config.EnableNosqlRepositories;
 
@@ -58,8 +60,18 @@ public class AppConfig extends AppConfigBase {
                 nosqlDBConfig = NosqlDbConfig.createProxyConfig(endpoint);
             }
         } else {
-            /* cloud simulator */
-            nosqlDBConfig = NosqlDbConfig.createCloudSimConfig(endpoint);
+            if (secure) {
+                try {
+                    /* cloud */
+                    nosqlDBConfig = NosqlDbConfig.createCloudConfig(endpoint,
+                        cloudConfig);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                /* cloud simulator */
+                nosqlDBConfig = NosqlDbConfig.createCloudSimConfig(endpoint);
+            }
         }
 
         nosqlDBConfig.setTableReqTimeout(DEFAULT_REQ_TIMEOUT);

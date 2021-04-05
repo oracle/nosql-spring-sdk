@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.oracle.nosql.spring.data.core.NosqlTemplate;
 import com.oracle.nosql.spring.data.test.app.Address;
@@ -446,11 +447,22 @@ public class TestDynamicQuery {
 
     @Test
     public void testFilterByPrimaryKey() {
+        List<Customer> customers = Arrays.asList(c);
+
+        List<Customer> expected = customers
+            .stream()
+            .map( c -> c.customerId)
+            .filter( id -> id < c4.customerId ? true : false)
+            .sorted()
+            .map( id -> customers.stream()
+                .filter(c -> c.customerId == id).findAny().get() )
+            .collect(Collectors.toList());
+
         List<Customer> list;
         list = nosqlRepo.findAllByCustomerIdLessThan(c4.customerId);
 
-        Assert.assertEquals(3, list.size());
-        Assert.assertTrue(list.containsAll(Arrays.asList(c1, c2, c3)));
+        Assert.assertEquals(expected.size(), list.size());
+        Assert.assertTrue(list.containsAll(expected));
     }
 
     @Test

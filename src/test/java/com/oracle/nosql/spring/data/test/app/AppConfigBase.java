@@ -14,10 +14,12 @@ public class AppConfigBase extends AbstractNosqlConfiguration {
     protected static final String ST_ONPREM = "onprem";
     protected static final String ST_ONPREM_SECURE = "onprem-secure";
     protected static final String ST_CLOUDSIM = "cloudsim";
+    protected static final String ST_CLOUD = "cloud";
     protected static final String USER = "test.user";
     protected static final String TRUST_STORE = "test.trust";
     protected static final String TRUST_STORE_PASSWORD = "test.trust.password";
     protected static final String PASSWORD = "test.password";
+    protected static final String CLOUD_CONFIG = "test.config";
     protected static final int DEFAULT_REQ_TIMEOUT = 15000;
     protected static final int DEFAULT_REQ_POLL_INTERVAL = 500;
 
@@ -29,6 +31,8 @@ public class AppConfigBase extends AbstractNosqlConfiguration {
     protected static String password;   // only if onprem && secure
     protected static String trustStore; // only if onprem && secure
     protected static String trustStorePassword; // only if onprem && secure
+    protected static String cloudConfig; // only for cloud
+
 
     public static void staticSetup() {
         serverType = System.getProperty(SERVER_TYPE);
@@ -74,6 +78,11 @@ public class AppConfigBase extends AbstractNosqlConfiguration {
                 break;
 
             case ST_CLOUDSIM:
+                break;
+
+            case ST_CLOUD:
+                secure = true;
+                cloudConfig = System.getProperty(CLOUD_CONFIG);
                 break;
 
             default:

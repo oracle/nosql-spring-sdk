@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.oracle.nosql.spring.data.test.app.Customer;
 
@@ -36,8 +37,7 @@ public class TestReactiveApp {
     private CustomerReactiveRepository repo;
 
     @Test
-    public void testRepo()
-        throws InterruptedException {
+    public void testRepo() {
         // get/setTimout()
         repo.setTimeout(20000);
         Assert.assertEquals(20000, repo.getTimeout());
@@ -95,12 +95,23 @@ public class TestReactiveApp {
         StepVerifier.create(flux).expectNext(c3, c4).verifyComplete();
 
 
+        List<Customer> expected = Arrays.asList(c1, c2, c3, c4)
+            .stream()
+            .sorted(Comparator.comparingLong(cst -> cst.customerId))
+            .collect(Collectors.toList());
+
         // findAll(Sort)
         flux = repo.findAll(Sort.by("customerId").ascending());
-        StepVerifier.create(flux).expectNext(c1, c2, c3, c4).verifyComplete();
+        StepVerifier.create(flux).expectNextSequence(expected).verifyComplete();
+
+        expected = Arrays.asList(c1, c2, c3, c4)
+            .stream()
+            .sorted((cst1, cst2) ->
+                Long.compare(cst2.customerId, cst1.customerId))
+            .collect(Collectors.toList());
 
         flux = repo.findAll(Sort.by("customerId").descending());
-        StepVerifier.create(flux).expectNext(c4, c3, c2, c1).verifyComplete();
+        StepVerifier.create(flux).expectNextSequence(expected).verifyComplete();
 
         flux = repo.findAll(Sort.by("kids").ascending());
         StepVerifier.create(flux).expectNext(c1, c2, c3, c4).verifyComplete();
