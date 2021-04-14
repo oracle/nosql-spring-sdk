@@ -16,6 +16,17 @@ The Oracle NoSQL SDK for Spring Data requires at least Java SE 8. It has been
 tested with Spring Framework version 5.2.9 and with Spring Data version 2.3.4.
 
 
+= New Features in v1.2.0 =
+
+- Support for projection on derived queries. Returned type, instance or
+class, must be a subset of entity type properties. Only the top level properties
+of the entity are selected in the projection. Note: Projections using @Value
+annotations are not supported. Dynamic projections, when returns type is
+parametrized, are also not supported.
+- Support for IgnoreCase and AllIgnoreCase keywords for derived query methods.
+- Support for fields of Java enumeration types.
+
+
 = Supported Features in v1.1.0 =
 
 - Generic CRUD operations on a repository using methods in the CrudRepository
@@ -29,7 +40,6 @@ interface. See <link: https://docs.spring.io/spring-data/commons/docs/current/ap
 
 = Known Issues =
 
-- Limited functionality when connected to Oracle NoSQL Cloud Service.
 - Automatic generation of UUID for String fields is not available in Cloud
 service. The workaround is to have "@NosqlId(generated = false)" and application
 should make sure the field has a valid value when used.
