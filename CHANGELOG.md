@@ -3,9 +3,9 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## Unpublished
+## [Unreleased]
 
-## 1.2.0 - 2021-04-06
+## [1.2.0] - 2021-04-06
 ### Added
 - Exception message for instantiate failures
 - New profile in pom.xml for cloud testing
@@ -24,5 +24,5 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - Optimize types outside of loop in find queries
 - Avoid creating extra stream when executing queries.
 
-## 1.1.0 - 2020-12-20
+## [1.1.0] - 2020-12-20
 The initial release of Oracle NoSQL SDK for Spring Data.
