@@ -6,7 +6,7 @@
 
     <groupId>com.oracle.nosql.sdk</groupId>
     <artifactId>spring-data-oracle-nosql</artifactId>
-    <version>1.1.2-SNAPSHOT</version>
+    <version>1.2.0</version>
 
     <name>Oracle NoSQL Database SDK for Spring Data</name>
     <description>Oracle NoSQL Database SDK for Spring Data</description>

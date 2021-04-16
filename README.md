@@ -1,4 +1,4 @@
-# Oracle NoSQL Database SDK for Spring Data 1.1.1-SNAPSHOT
+# Oracle NoSQL Database SDK for Spring Data 1.2.0
 
 ## About
 
@@ -11,29 +11,27 @@ cluster or to
 
 ## Usage
 
-* Download the latest release from 
-[Oracle NoSQL Database downloads](https://www.oracle.com/database/technologies/nosql-database-server-downloads.html)
-page.
-
-* Manually install the downloaded project into your local maven repository 
-(-sources and -javadoc files are optional):
-
-    ```
-    mvn install:install-file \
-    -DpomFile=spring-data-oracle-nosql-x.y.z.pom \
-    -Dfile=spring-data-oracle-nosql-x.y.z.jar \
-    -Dsources=spring-data-oracle-nosql-x.y.z-sources.jar \
-    -Djavadoc=spring-data-oracle-nosql-x.y.z-javadoc.jar
-    ```
-  
 * To use the SDK in your project add maven dependency to your project's pom.xml:
 
     ```xml
     <dependency>
         <groupId>com.oracle.nosql.sdk</groupId>
         <artifactId>spring-data-oracle-nosql</artifactId>
-        <version>x.y.z</version>
+        <version>1.2.0</version>
     </dependency>
+    ```
+    
+  Note: Packages can be manually installed in a local maven repository by 
+  downloading from 
+  [releases page](https://github.com/oracle/nosql-spring-sdk/releases), and 
+  running the following command (-sources and -javadoc files are optional):
+        
+    ```
+    mvn install:install-file \
+    -DpomFile=spring-data-oracle-nosql-1.2.0.pom \
+    -Dfile=spring-data-oracle-nosql-1.2.0.jar \
+    -Dsources=spring-data-oracle-nosql-1.2.0-sources.jar \
+    -Djavadoc=spring-data-oracle-nosql-1.2.0-javadoc.jar
     ```
     
 * The example below also requires an additional dependency:
@@ -275,6 +273,8 @@ Tests can be also be run on:
 
 ## Help
 
+* [API documentation](https://oracle.github.io/nosql-spring-sdk/)
+* [Developer's Guide](https://docs.oracle.com/en/database/other-databases/nosql-database/20.3/java-driver-table/spring-sdk1.html)
 * Open an issue in the [Issues](https://github.com/oracle/nosql-spring-sdk/issues) page
 * Post your question on the [Oracle NoSQL Database Community](https://community.oracle.com/community/groundbreakers/database/nosql_database).
 * [Email to nosql\_sdk\_help\_grp@oracle.com](mailto:nosql_sdk_help_grp@oracle.com)
