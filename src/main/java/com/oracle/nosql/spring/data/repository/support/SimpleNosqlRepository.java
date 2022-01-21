@@ -154,6 +154,11 @@ public class SimpleNosqlRepository <T, ID extends Serializable>
             entityInformation.getId(entity));
     }
 
+    @Override
+    public void deleteAllById(Iterable<? extends ID> ids) {
+        ids.forEach(this::deleteById);
+    }
+
     /**
      * Delete all rows from table.
      */

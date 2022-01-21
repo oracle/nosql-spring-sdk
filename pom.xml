@@ -45,17 +45,17 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>MM-dd-HH-mm-ss</maven.build.timestamp.format>
 
-        <nosqldriver.version>5.2.26</nosqldriver.version>
+        <nosqldriver.version>5.2.29</nosqldriver.version>
 
-        <spring.springframework.version>5.2.9.RELEASE</spring.springframework.version>
-        <spring.data.version>2.3.4.RELEASE</spring.data.version>
-        <org.apache.commons.commons-lang3.version>3.11</org.apache.commons.commons-lang3.version>
-        <reactor.core.version>3.3.10.RELEASE</reactor.core.version>
+        <spring.springframework.version>5.3.15</spring.springframework.version>
+        <spring.data.version>2.6.1</spring.data.version>
+        <org.apache.commons.commons-lang3.version>3.12.0</org.apache.commons.commons-lang3.version>
+        <reactor.core.version>3.4.14</reactor.core.version>
 
-        <spring.boot.starter.test.version>2.3.4.RELEASE</spring.boot.starter.test.version>
-        <junit.junit.version>4.13.1</junit.junit.version>
-        <project.reactor.test.version>3.3.0.RELEASE</project.reactor.test.version>
-        <slf4j.version>1.7.30</slf4j.version>
+        <spring.boot.starter.test.version>2.6.3</spring.boot.starter.test.version>
+        <junit.junit.version>4.13.2</junit.junit.version>
+        <project.reactor.test.version>3.4.14</project.reactor.test.version>
+        <slf4j.version>1.7.33</slf4j.version>
     </properties>
 
     <dependencies>
@@ -418,8 +418,8 @@
          or a running cloud simulator. Required information:
             o endpoint
          Examples:
-           mvn -Ptest-cloudsim test -DargLine="test.endpoint=http://localhost:8080"
-           mvn -Ptest-onprem test -DargLine="test.endpoint=http://localhost:8090"
+           mvn -Ptest-cloudsim test -DargLine="-Dtest.endpoint=http://localhost:8080"
+           mvn -Ptest-onprem test -DargLine="-Dtest.endpoint=http://localhost:8090"
 
         These tests are not designed to work directly against the cloud service
         as they require a high rate of DDL operations and generally use more
