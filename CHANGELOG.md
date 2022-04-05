@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Changed
+- Updated library dependency versions.
+- Updated copyrights to 2022
 
 ## [1.2.0] - 2021-04-06
 ### Added

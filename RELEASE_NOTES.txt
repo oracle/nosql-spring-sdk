@@ -1,5 +1,4 @@
-      Oracle NoSQL SDK for Spring Data 
-                 V1.1.0
+      Oracle NoSQL SDK for Spring Data
               Release Notes
 
 = INTRODUCTION =
