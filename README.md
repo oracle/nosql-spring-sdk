@@ -1,4 +1,4 @@
-# Oracle NoSQL Database SDK for Spring Data 1.2.0
+# Oracle NoSQL Database SDK for Spring Data
 
 ## About
 
@@ -17,7 +17,7 @@ cluster or to
     <dependency>
         <groupId>com.oracle.nosql.sdk</groupId>
         <artifactId>spring-data-oracle-nosql</artifactId>
-        <version>1.2.0</version>
+        <version>x.y.z</version>
     </dependency>
     ```
     
@@ -28,10 +28,10 @@ cluster or to
         
     ```
     mvn install:install-file \
-    -DpomFile=spring-data-oracle-nosql-1.2.0.pom \
-    -Dfile=spring-data-oracle-nosql-1.2.0.jar \
-    -Dsources=spring-data-oracle-nosql-1.2.0-sources.jar \
-    -Djavadoc=spring-data-oracle-nosql-1.2.0-javadoc.jar
+    -DpomFile=spring-data-oracle-nosql-x.y.z.pom \
+    -Dfile=spring-data-oracle-nosql-x.y.z.jar \
+    -Dsources=spring-data-oracle-nosql-x.y.z-sources.jar \
+    -Djavadoc=spring-data-oracle-nosql-x.y.z-javadoc.jar
     ```
     
 * The example below also requires an additional dependency:
@@ -40,7 +40,7 @@ cluster or to
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
-      <version>2.3.4.RELEASE</version>
+      <version>2.6.3</version>
     </dependency>
     ``` 
 
