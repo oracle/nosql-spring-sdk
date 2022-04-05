@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2021 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -152,6 +152,11 @@ public class SimpleNosqlRepository <T, ID extends Serializable>
 
         operation.deleteById(entityInformation,
             entityInformation.getId(entity));
+    }
+
+    @Override
+    public void deleteAllById(Iterable<? extends ID> ids) {
+        ids.forEach(this::deleteById);
     }
 
     /**

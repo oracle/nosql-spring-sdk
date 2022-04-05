@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2021 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -153,6 +153,11 @@ public class SimpleReactiveNosqlRepository <T, ID extends Serializable>
 
         final ID id = entityInformation.getId(entity);
         return nosqlOperations.deleteById(entityInformation, id);
+    }
+
+    @Override
+    public Mono<Void> deleteAllById(Iterable<? extends ID> ids) {
+        return Flux.fromIterable(ids).flatMap(this::deleteById).then();
     }
 
     @Override
