@@ -8,6 +8,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - Updated library dependency versions.
 - Updated copyrights to 2022
 
+### Added
+- Support for deleteAllById() in Simple[Reactive]NosqlRepository classes.
+
+### Changed
+- Updated library dependency versions.
+- Updated copyrights to 2022
+
 ## [1.2.0] - 2021-04-06
 ### Added
 - Exception message for instantiate failures

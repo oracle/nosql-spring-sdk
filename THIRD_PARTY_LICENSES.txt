@@ -5,6 +5,13 @@ Copyright Notices
 
 Spring-Framework
 
+Libraries used from Framework
+spring-core
+spring-beans
+spring-context
+spring-tx
+spring-expression
+
 Copyright 2002-2019 the original author or authors.
 Copyright (c) 2002-2019 Pivotal, Inc.
 
@@ -23,7 +30,7 @@ SLF4J-API
 
  Copyright (c) 2004-2017 QOS.ch
  All rights reserved.
- 
+
   Permission is hereby granted, free  of charge, to any person obtaining
   a  copy  of this  software  and  associated  documentation files  (the
   "Software"), to  deal in  the Software without  restriction, including
@@ -31,10 +38,10 @@ SLF4J-API
   distribute,  sublicense, and/or sell  copies of  the Software,  and to
   permit persons to whom the Software  is furnished to do so, subject to
   the following conditions:
- 
+
   The  above  copyright  notice  and  this permission  notice  shall  be
   included in all copies or substantial portions of the Software.
- 
+
   THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
   EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
   MERCHANTABILITY,    FITNESS    FOR    A   PARTICULAR    PURPOSE    AND
@@ -44,7 +51,7 @@ SLF4J-API
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ---------------------------------
-Commons-Lang3 v3.11
+Commons-Lang3
 
 Apache Commons Lang
 Copyright 2001-2020 The Apache Software Foundation
