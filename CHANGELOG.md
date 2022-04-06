@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## [Unreleased]
+
+### Added
+- Support for deleteAllById() in Simple[Reactive]NosqlRepository classes.
+
 ### Changed
 - Updated library dependency versions.
 - Updated copyrights to 2022
