@@ -256,7 +256,7 @@ public class NosqlTemplate implements NosqlOperations, ApplicationContextAware {
             putReq.setTimeout(entityInformation.getTimeout());
         }
 
-        //todo set durability when supported by API
+        putReq.setDurability(entityInformation.getDurability());
 
         PutResult putRes;
         try {
@@ -387,7 +387,7 @@ public class NosqlTemplate implements NosqlOperations, ApplicationContextAware {
             wmReq.setTimeout(entityInformation.getTimeout());
         }
 
-        //todo set durability when supported by API
+        wmReq.setDurability(entityInformation.getDurability());
 
         String idColumnName = getIdColumnName(entityClass);
 
@@ -547,7 +547,7 @@ public class NosqlTemplate implements NosqlOperations, ApplicationContextAware {
             delReq.setTimeout(entityInformation.getTimeout());
         }
 
-        //todo add durability setting when supported by API
+        delReq.setDurability(entityInformation.getDurability());
 
         DeleteResult delRes;
 

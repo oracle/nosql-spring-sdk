@@ -13,6 +13,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import oracle.nosql.driver.Consistency;
+import oracle.nosql.driver.Durability;
 import oracle.nosql.driver.ops.TableLimits;
 
 import com.oracle.nosql.spring.data.Constants;
@@ -42,9 +43,27 @@ public @interface NosqlTable {
     boolean autoCreateTable() default Constants.DEFAULT_AUTO_CREATE_TABLE;
 
     /**
+     * Sets the capacity more when table is created. This applies only in cloud
+     * or cloud sim scenarios.<p>
+     *
+     * For {@link TableLimits} to be set one of the following two
+     * conditions must be met:<ul><li>
+     *   capacityMode is set to PROVISIONED and all three: readUnits,
+     *     writeUnits and storageGB must be greater than 0,</li><li>
+     *   or capacityMode is set to ON_DEMAND and storageGB must be greater than
+     * 0.</li></ul><p>
+     *
+     * If not set the default value is {@link NosqlCapacityMode#PROVISIONED}.
+     * Note, for limits to be set readUnits, writeUnits and storageGB must
+     * also be greater than 0.
+     * @since 1.3.0
+     */
+    NosqlCapacityMode capacityMode() default NosqlCapacityMode.PROVISIONED;
+
+    /**
      * Sets the read units when table is created. Valid values are only
-     * values greater than 0. This applies only in cloud or cloud
-     * sim scenarios.
+     * values greater than 0. This property applies only in cloud or cloud
+     * sim scenarios and capacity mode is {@link NosqlCapacityMode#PROVISIONED}.
      * If not set the default value is -1, which means that there will
      * be no table limit set. All three: readUnits, writeUnits and storageGB
      * must be greater than 0 to set a valid {@link TableLimits}.
@@ -53,7 +72,8 @@ public @interface NosqlTable {
 
     /**
      * Sets the write units when table is created. Valid values are only
-     * values greater than 0. This applies only in cloud or cloud sim scenarios.
+     * values greater than 0. This applies only in cloud or cloud sim scenarios
+     * and capacity mode is {@link NosqlCapacityMode#PROVISIONED}.
      * If not set the default value is -1, which means that there will
      * be no table limit set. All three: readUnits, writeUnits and storageGB
      * must be greater than 0 to set a valid {@link TableLimits}.
@@ -62,7 +82,8 @@ public @interface NosqlTable {
 
     /**
      * Sets the storage units when table is created. Valid values are only
-     * values greater than 0. This applies only in cloud or cloud sim scenarios.
+     * values greater than 0. This applies only in cloud or cloud sim scenarios
+     * and capacity mode is {@link NosqlCapacityMode#PROVISIONED}.
      * If not set the default value is -1, which means that there will
      * be no table limit set. All three: readUnits, writeUnits and storageGB
      * must be greater than 0 to set a valid {@link TableLimits}.
@@ -75,6 +96,13 @@ public @interface NosqlTable {
      * If not set the default value for this is EVENTUAL.
      */
     String consistency() default Constants.DEFAULT_TABLE_CONSISTENCY;
+
+    /**
+     * Sets the default durability for all write operations applied to this
+     * table. Valid values for this are defined in {@link Durability}.
+     * If not set the default value for this is COMMIT_NO_SYNC.
+     */
+    String durability() default Constants.DEFAULT_TABLE_CONSISTENCY;
 
     /**
      * Sets the default timeout in milliseconds for all operations applied on
