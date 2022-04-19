@@ -3,17 +3,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## [Unreleased]
+## [1.3.0]
 ### Changed
-- Updated library dependency versions.
+- Updated library dependency versions and updated THIRD_PARTY_LICENSES.txt 
+and THIRD_PARTY_LICENSES_DEV.txt.
 - Updated copyrights to 2022
 
 ### Added
 - Support for deleteAllById() in Simple[Reactive]NosqlRepository classes.
-
-### Changed
-- Updated library dependency versions.
-- Updated copyrights to 2022
 
 ## [1.2.0] - 2021-04-06
 ### Added

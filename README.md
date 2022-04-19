@@ -40,7 +40,7 @@ cluster or to
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
-      <version>2.6.3</version>
+      <version>2.6.6</version>
     </dependency>
     ``` 
 
