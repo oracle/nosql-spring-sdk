@@ -6,7 +6,7 @@
 
     <groupId>com.oracle.nosql.sdk</groupId>
     <artifactId>spring-data-oracle-nosql</artifactId>
-    <version>1.2.1</version>
+    <version>1.3.0</version>
 
     <name>Oracle NoSQL Database SDK for Spring Data</name>
     <description>Oracle NoSQL Database SDK for Spring Data</description>
@@ -52,7 +52,7 @@
         <org.apache.commons.commons-lang3.version>3.12.0</org.apache.commons.commons-lang3.version>
         <reactor.core.version>3.4.14</reactor.core.version>
 
-        <spring.boot.starter.test.version>2.6.3</spring.boot.starter.test.version>
+        <spring.boot.starter.test.version>2.6.6</spring.boot.starter.test.version>
         <junit.junit.version>4.13.2</junit.junit.version>
         <project.reactor.test.version>3.4.14</project.reactor.test.version>
         <slf4j.version>1.7.36</slf4j.version>
