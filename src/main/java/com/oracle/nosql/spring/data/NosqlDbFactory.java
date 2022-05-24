@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import oracle.nosql.driver.AuthorizationProvider;
 import oracle.nosql.driver.NoSQLHandle;
+import oracle.nosql.driver.NoSQLHandleConfig;
 import oracle.nosql.driver.NoSQLHandleFactory;
 import oracle.nosql.driver.ops.Request;
 
@@ -17,7 +18,13 @@ import com.oracle.nosql.spring.data.config.NosqlDbConfig;
 
 import org.springframework.util.Assert;
 
+/**
+ * Factory class for connecting to an Oracle NoSQL Database on premise
+ * database or cloud service.
+ */
 public class NosqlDbFactory {
+
+    private static String libraryVersion = findVersion();
 
     private final NosqlDbConfig config;
     private NoSQLHandle handle;
@@ -111,17 +118,35 @@ public class NosqlDbFactory {
     /**
      * Returns the precision of the Timestamp NoSQL DB type when creating a
      * new table. By default this is set to
-     * {@link Constants#DEFAULT_TIMESTAMP_PRECISION}.
-     * <br>
+     * {@link Constants#DEFAULT_TIMESTAMP_PRECISION}.<p>
+     *
      * In the context of a CREATE TABLE statement, a precision must be
      * explicitly specified. This restriction is to prevent users from
      * inadvertently creating TIMESTAMP values with precision 9 (which takes
-     * more space) when in reality they don't need that high precision.
-     * <br>
-     * See <a href="https://docs.oracle.com/en/database/other-databases/nosql-database/20.2/sqlreferencefornosql/data-type-definitions.html">Timestamp documentation</a> for more details.
+     * more space) when in reality they don't need that high precision.<p>
+     *
+     * See <a href="https://docs.oracle.com/en/database/other-databases/nosql-database/20.2/sqlreferencefornosql/data-type-definitions.html">
+     * Timestamp documentation</a> for more details.
      */
     public int getTimestampPrecision() {
         return config.getTimestampPrecision();
+    }
+
+
+    /**
+     * Pulls the version string from the manifest. The version is added
+     * by maven.
+     */
+    private static String findVersion() {
+        return  NoSQLHandleConfig.class.getPackage().getImplementationVersion();
+    }
+
+    /**
+     * Returns the current version of the NoSQL DB Sprint Data SDK, as a
+     * string in a x.y.z format.
+     */
+    public static String getLibraryVersion() {
+        return libraryVersion;
     }
 
     /**

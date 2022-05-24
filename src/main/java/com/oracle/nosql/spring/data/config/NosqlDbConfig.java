@@ -33,6 +33,8 @@ public class NosqlDbConfig {
 
     public NosqlDbConfig(NoSQLHandleConfig nosqlHandleConfig) {
         this.nosqlHandleConfig = nosqlHandleConfig;
+        this.nosqlHandleConfig.setExtensionUserAgent(
+            "NoSQL-SpringSDK/" + NosqlDbFactory.getLibraryVersion());
     }
 
     public static NosqlDbConfig createCloudConfig(String endpoint,
