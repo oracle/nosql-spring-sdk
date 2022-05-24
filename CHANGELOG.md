@@ -5,7 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## [Unreleased]
 ### Added
-- 
+- Add a way to return the library version using NosqlDbFactory.getLibraryVersion().
+- Set extension in user agent http header.
 
 ## [1.3.0]
 ### Changed
