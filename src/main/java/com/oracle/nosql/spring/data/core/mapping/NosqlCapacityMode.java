@@ -8,8 +8,11 @@ package com.oracle.nosql.spring.data.core.mapping;
 
 /**
  * Cloud only, selector for how capacity is set when creating new tables.
+ *
+ * @see oracle.nosql.driver.ops.TableLimits.CapacityMode
  */
 public enum NosqlCapacityMode {
+
     PROVISIONED,
     ON_DEMAND
 }

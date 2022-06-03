@@ -17,6 +17,7 @@ import oracle.nosql.driver.Durability;
 import oracle.nosql.driver.ops.TableLimits;
 
 import com.oracle.nosql.spring.data.Constants;
+import com.oracle.nosql.spring.data.config.NosqlDbConfig;
 import com.oracle.nosql.spring.data.repository.NosqlRepository;
 
 import org.springframework.data.annotation.Persistent;
@@ -43,7 +44,7 @@ public @interface NosqlTable {
     boolean autoCreateTable() default Constants.DEFAULT_AUTO_CREATE_TABLE;
 
     /**
-     * Sets the capacity more when table is created. This applies only in cloud
+     * Sets the capacity mode when table is created. This applies only in cloud
      * or cloud sim scenarios.<p>
      *
      * For {@link TableLimits} to be set one of the following two
@@ -81,12 +82,17 @@ public @interface NosqlTable {
     int writeUnits() default Constants.NOTSET_TABLE_WRITE_UNITS;
 
     /**
-     * Sets the storage units when table is created. Valid values are only
-     * values greater than 0. This applies only in cloud or cloud sim scenarios
-     * and capacity mode is {@link NosqlCapacityMode#PROVISIONED}.
-     * If not set the default value is -1, which means that there will
-     * be no table limit set. All three: readUnits, writeUnits and storageGB
-     * must be greater than 0 to set a valid {@link TableLimits}.
+     * Sets the storageGB when table is created. This applies only in cloud or
+     * cloud sim scenarios.<p>
+     * If not set, the value of {@link NosqlDbConfig#getDefaultStorageGB()} is
+     * used. A negative value means that there will be no table limit set.<p>
+     *
+     * For {@link TableLimits} to be set one of the following two
+     * conditions must be met:<ul><li>
+     *   capacityMode is set to PROVISIONED and all three: readUnits,
+     *      writeUnits and storageGB must be greater than 0,</li><li>
+     *   or capacityMode is set to ON_DEMAND and storageGB must be greater than
+     *      0.</li></ul>
      */
     int storageGB() default Constants.NOTSET_TABLE_STORAGE_GB;
 

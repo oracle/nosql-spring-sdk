@@ -132,6 +132,14 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- To avoid javadoc warnings. -->
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>3.0.2</version>
+            <scope>compile</scope>
+        </dependency>
+
 
         <!-- Test -->
         <dependency>
@@ -248,7 +256,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.4</version>
+                <version>3.4.0</version>
                 <configuration>
                     <show>protected</show>
                     <failOnError>false</failOnError>
@@ -256,11 +264,11 @@
                         <exclude>
                         </exclude>
                     </sourceFileExcludes>
-                    <additionalparam>-Xdoclint:all -Xdoclint:-missing</additionalparam>
-                    <additionalJOptions>
-                        <additionalJOption>-Xdoclint:all</additionalJOption>
-                        <additionalJOption>-Xdoclint:-missing</additionalJOption>
-                    </additionalJOptions>
+                    <doclint>all,-missing</doclint>
+                    <!--todo: enable this when java-sdk javadoc includes package-list file
+                    links>
+                        <link>https://github.com/oracle/nosql-java-sdk/tree/gh-pages</link>
+                    </links-->
                 </configuration>
                 <executions>
                     <execution>
@@ -268,9 +276,6 @@
                         <goals>
                             <goal>jar</goal>
                         </goals>
-                        <configuration>
-                            <additionalparam>${javadoc.opts}</additionalparam>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
