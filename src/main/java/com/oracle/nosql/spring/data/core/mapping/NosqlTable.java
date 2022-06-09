@@ -23,7 +23,13 @@ import com.oracle.nosql.spring.data.repository.NosqlRepository;
 import org.springframework.data.annotation.Persistent;
 
 /**
- * Annotation used to set options regarding the table used for entity.
+ * Optional annotation used to set options regarding the table used for entity.
+ * <p>
+ * If annotation is not explicitly used the {@link TableLimits} are determined
+ * by {@link NosqlDbConfig#getDefaultCapacityMode()},
+ * {@link NosqlDbConfig#getDefaultStorageGB()},
+ * {@link NosqlDbConfig#getDefaultReadUnits()}, and
+ * {@link NosqlDbConfig#getDefaultWriteUnits()}.
  */
 @Persistent
 @Inherited
@@ -55,8 +61,6 @@ public @interface NosqlTable {
      * 0.</li></ul><p>
      *
      * If not set the default value is {@link NosqlCapacityMode#PROVISIONED}.
-     * Note, for limits to be set readUnits, writeUnits and storageGB must
-     * also be greater than 0.
      * @since 1.3.0
      */
     NosqlCapacityMode capacityMode() default NosqlCapacityMode.PROVISIONED;
@@ -65,9 +69,9 @@ public @interface NosqlTable {
      * Sets the read units when table is created. Valid values are only
      * values greater than 0. This property applies only in cloud or cloud
      * sim scenarios and capacity mode is {@link NosqlCapacityMode#PROVISIONED}.
-     * If not set the default value is -1, which means that there will
-     * be no table limit set. All three: readUnits, writeUnits and storageGB
-     * must be greater than 0 to set a valid {@link TableLimits}.
+     * If not set the value {@link NosqlDbConfig#getDefaultReadUnits()} is used.
+     * All three: readUnits, writeUnits and storageGB must be greater than 0 to
+     * set a valid {@link TableLimits}.
      */
     int readUnits() default Constants.NOTSET_TABLE_READ_UNITS;
 
@@ -75,17 +79,21 @@ public @interface NosqlTable {
      * Sets the write units when table is created. Valid values are only
      * values greater than 0. This applies only in cloud or cloud sim scenarios
      * and capacity mode is {@link NosqlCapacityMode#PROVISIONED}.
-     * If not set the default value is -1, which means that there will
-     * be no table limit set. All three: readUnits, writeUnits and storageGB
-     * must be greater than 0 to set a valid {@link TableLimits}.
+     * If not set the value {@link NosqlDbConfig#getDefaultWriteUnits()} is
+     * used. All three: readUnits, writeUnits and storageGB must be greater than
+     * 0 to set a valid {@link TableLimits}.
      */
     int writeUnits() default Constants.NOTSET_TABLE_WRITE_UNITS;
 
     /**
      * Sets the storageGB when table is created. This applies only in cloud or
      * cloud sim scenarios.<p>
+     *
      * If not set, the value of {@link NosqlDbConfig#getDefaultStorageGB()} is
-     * used. A negative value means that there will be no table limit set.<p>
+     * used.<p>
+     *
+     * A 0 or less than -1 value will force no table limits, but they are
+     * required in cloud and cloudsim instalations.<p>
      *
      * For {@link TableLimits} to be set one of the following two
      * conditions must be met:<ul><li>
@@ -104,16 +112,18 @@ public @interface NosqlTable {
     String consistency() default Constants.DEFAULT_TABLE_CONSISTENCY;
 
     /**
-     * Sets the default durability for all write operations applied to this
-     * table. Valid values for this are defined in {@link Durability}.
-     * If not set the default value for this is COMMIT_NO_SYNC.
+     * Sets the default durability for all write operations
+     * applied to this table. Valid values for this are defined in
+     * {@link Durability}. If not set the default value for this is
+     * COMMIT_NO_SYNC.<p>
+     *
+     * Note: This applies to On-Prem installations only.
      */
-    String durability() default Constants.DEFAULT_TABLE_CONSISTENCY;
+    String durability() default Constants.DEFAULT_TABLE_DURABILITY;
 
     /**
      * Sets the default timeout in milliseconds for all operations applied on
-     * this table.
-     * If not set the default value is 0 which means it is ignored.
+     * this table. If not set the default value is 0 which means it is ignored.
      * Note: {@link NosqlRepository#setTimeout(int)} take precedence over
      * the set here.
      */

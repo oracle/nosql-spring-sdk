@@ -14,6 +14,7 @@ import oracle.nosql.driver.NoSQLHandleFactory;
 import oracle.nosql.driver.ops.Request;
 
 import com.oracle.nosql.spring.data.config.NosqlDbConfig;
+import com.oracle.nosql.spring.data.core.mapping.NosqlCapacityMode;
 
 import org.springframework.util.Assert;
 
@@ -144,6 +145,34 @@ public class NosqlDbFactory {
      */
     public int getTimestampPrecision() {
         return config.getTimestampPrecision();
+    }
+
+    /**
+     * Returns the config value {@link NosqlDbConfig#getDefaultStorageGB()}.
+     */
+    public int getDefaultStorageGB() {
+        return config.getDefaultStorageGB();
+    }
+
+    /**
+     * Returns the config value {@link NosqlDbConfig#getDefaultCapacityMode()}.
+     */
+    public NosqlCapacityMode getDefaultCapacityMode() {
+        return config.getDefaultCapacityMode();
+    }
+
+    /**
+     * Returns the config value {@link NosqlDbConfig#getDefaultReadUnits()}.
+     */
+    public int getDefaultReadUnits() {
+        return config.getDefaultReadUnits();
+    }
+
+    /**
+     * Returns the config value {@link NosqlDbConfig#getDefaultWriteUnits()}.
+     */
+    public int getDefaultWriteUnits() {
+        return config.getDefaultWriteUnits();
     }
 
     /**

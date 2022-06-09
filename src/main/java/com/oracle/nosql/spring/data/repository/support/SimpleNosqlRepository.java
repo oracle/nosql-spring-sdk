@@ -12,6 +12,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import oracle.nosql.driver.Durability;
+
 import com.oracle.nosql.spring.data.core.NosqlOperations;
 import com.oracle.nosql.spring.data.repository.NosqlRepository;
 
@@ -243,5 +245,35 @@ public class SimpleNosqlRepository <T, ID extends Serializable>
     @Override
     public void setConsistency(String consistency) {
         entityInformation.setConsistency(consistency);
+    }
+
+    /**
+     * @see NosqlRepository#getDurability()
+     */
+    @Override
+    public String getDurability() {
+        return convertDurability(entityInformation.getDurability());
+    }
+
+    static String convertDurability(Durability durability) {
+        if (durability == Durability.COMMIT_NO_SYNC) {
+            return "COMMIT_NO_SYNC";
+        }
+        if (durability == Durability.COMMIT_SYNC) {
+            return "COMMIT_SYNC";
+        }
+        if (durability == Durability.COMMIT_WRITE_NO_SYNC) {
+            return "COMMIT_WRITE_NO_SYNC";
+        }
+
+        return durability.toString();
+    }
+
+    /**
+     * @see NosqlRepository#setDurability(String)
+     */
+    @Override
+    public void setDurability(String durability) {
+        entityInformation.setDurability(durability);
     }
 }

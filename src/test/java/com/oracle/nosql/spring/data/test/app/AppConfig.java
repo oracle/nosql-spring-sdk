@@ -25,13 +25,13 @@ public class AppConfig extends AppConfigBase {
 
     /* Get values specified in application.properties file or use
     specified default otherwise. */
-    @Value("${com.oracle.nosql.spring.data.config.defaultStorageGB:25}")
+    @Value("${test.config.defaultStorageGB:25}")
     private int defaultStorageGB;
-    @Value(("${com.oracle.nosql.spring.data.config.defaultCapacityMode:PROVISIONED}"))
+    @Value(("${test.config.defaultCapacityMode:PROVISIONED}"))
     private String defaultCapacityMode;
-    @Value("${com.oracle.nosql.spring.data.config.defaultReadUnits:50}")
+    @Value("${test.config.defaultReadUnits:50}")
     private int defaultReadUnits;
-    @Value("${com.oracle.nosql.spring.data.config.defaultWriteUnits:50}")
+    @Value("${test.config.defaultWriteUnits:50}")
     private int defaultWriteUnits;
 
     public static NosqlDbConfig nosqlDBConfig;

@@ -7,9 +7,7 @@
 package com.oracle.nosql.spring.data.test.id;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Persistent;
 
-@Persistent
 public class SensorIdLong {
     String name;
 
