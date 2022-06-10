@@ -12,12 +12,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.oracle.nosql.spring.data.core.mapping.NosqlMappingContext;
+import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
-import org.springframework.data.annotation.Persistent;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -64,18 +64,22 @@ public abstract class NosqlConfigurationSupport {
             final ClassPathScanningCandidateComponentProvider componentProvider
                 = new ClassPathScanningCandidateComponentProvider(false);
 
+
             componentProvider.addIncludeFilter(new AnnotationTypeFilter(
-                Persistent.class));
+                NosqlTable.class));
+
+//            componentProvider.addIncludeFilter(new AnnotationTypeFilter(
+//                Persistent.class));
 
             for (final BeanDefinition candidate :
                 componentProvider.findCandidateComponents(basePackage)) {
                 final String className = candidate.getBeanClassName();
                 Assert.notNull(className, "Bean class name is null.");
 
-                initialEntitySet
-                    .add(ClassUtils
-                        .forName(className,
-                            NosqlConfigurationSupport.class.getClassLoader()));
+                initialEntitySet.add(
+                    ClassUtils.forName(className,
+                        NosqlConfigurationSupport.class.getClassLoader()
+                    ));
             }
         }
 

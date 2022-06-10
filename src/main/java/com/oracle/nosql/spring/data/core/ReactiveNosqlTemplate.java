@@ -7,27 +7,13 @@
 package com.oracle.nosql.spring.data.core;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
-import oracle.nosql.driver.NoSQLException;
-import oracle.nosql.driver.NoSQLHandle;
-import oracle.nosql.driver.TableNotFoundException;
-import oracle.nosql.driver.ops.DeleteRequest;
-import oracle.nosql.driver.ops.DeleteResult;
-import oracle.nosql.driver.ops.GetRequest;
 import oracle.nosql.driver.ops.GetResult;
-import oracle.nosql.driver.ops.PrepareRequest;
-import oracle.nosql.driver.ops.PrepareResult;
-import oracle.nosql.driver.ops.PreparedStatement;
-import oracle.nosql.driver.ops.PutRequest;
 import oracle.nosql.driver.ops.PutResult;
-import oracle.nosql.driver.ops.QueryRequest;
 import oracle.nosql.driver.ops.TableRequest;
 import oracle.nosql.driver.ops.TableResult;
-import oracle.nosql.driver.util.LruCache;
 import oracle.nosql.driver.values.FieldValue;
 import oracle.nosql.driver.values.MapValue;
 
@@ -39,8 +25,6 @@ import com.oracle.nosql.spring.data.core.query.NosqlQuery;
 import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 
 import org.reactivestreams.Publisher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -50,15 +34,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class ReactiveNosqlTemplate
+    extends  NosqlTemplateBase
     implements ReactiveNosqlOperations, ApplicationContextAware {
-
-    private static final Logger log =
-        LoggerFactory.getLogger(ReactiveNosqlTemplate.class);
-
-    private final NosqlDbFactory nosqlDbFactory;
-    private final NoSQLHandle nosqlClient;
-    private final MappingNosqlConverter mappingNosqlConverter;
-    private LruCache<String, PreparedStatement> psCache;
 
     public static ReactiveNosqlTemplate create(NosqlDbConfig nosqlDBConfig)
         throws ClassNotFoundException {
@@ -78,12 +55,8 @@ public class ReactiveNosqlTemplate
 
     public ReactiveNosqlTemplate(NosqlDbFactory nosqlDbFactory,
         MappingNosqlConverter mappingNosqlConverter) {
-        Assert.notNull(nosqlDbFactory, "NosqlDbFactory should not be null.");
-        this.nosqlDbFactory = nosqlDbFactory;
-        nosqlClient = nosqlDbFactory.getNosqlClient();
-        this.mappingNosqlConverter = mappingNosqlConverter;
-        psCache = new LruCache<>(nosqlDbFactory.getQueryCacheCapacity(),
-            nosqlDbFactory.getQueryCacheLifetime());
+
+        super(nosqlDbFactory, mappingNosqlConverter);
     }
     
     @Override
@@ -106,7 +79,7 @@ public class ReactiveNosqlTemplate
         NosqlEntityInformation<?, ?> information) {
         Assert.notNull(information, "Entity information should not be null");
 
-        return Mono.just(createTable(information));
+        return Mono.just(doCreateTableIfNotExists(information));
     }
 
     /**
@@ -120,7 +93,7 @@ public class ReactiveNosqlTemplate
         Assert.hasText(tableName, "Table name should not be null, " +
             "empty or only whitespaces");
 
-        String sql = String.format(NosqlTemplate.TEMPLATE_DROP_TABLE,
+        String sql = String.format(NosqlTemplateBase.TEMPLATE_DROP_TABLE,
             tableName );
 
         TableRequest tableReq = new TableRequest().setStatement(sql);
@@ -141,7 +114,7 @@ public class ReactiveNosqlTemplate
         Assert.hasText(tableName, "Table name should not be null, " +
             "empty or only whitespaces");
 
-        String sql = String.format(NosqlTemplate.TEMPLATE_SELECT_ALL,
+        String sql = String.format(NosqlTemplateBase.TEMPLATE_SELECT_ALL,
             tableName);
 
         return Flux
@@ -186,34 +159,6 @@ public class ReactiveNosqlTemplate
         return Mono.justOrEmpty(res);
     }
 
-    private GetResult doGet(NosqlEntityInformation<?, ?> entityInformation,
-        MapValue primaryKey) {
-
-        GetRequest getReq = new GetRequest()
-            .setTableName(entityInformation.getTableName())
-            .setKey(primaryKey);
-
-        if (entityInformation.getTimeout() > 0) {
-            getReq.setTimeout(entityInformation.getTimeout());
-        }
-
-        getReq.setConsistency(entityInformation.getConsistency());
-
-        GetResult getRes;
-
-        try {
-            getRes = nosqlClient.get(getReq);
-        } catch (NoSQLException nse) {
-            log.error("Get: table: {} key: {}", getReq.getTableName(),
-                primaryKey);
-            log.error(nse.getMessage());
-            throw MappingNosqlConverter.convert(nse);
-        }
-
-        assert getRes != null;
-        return getRes;
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public <T> Mono<T> insert(T objectToSave) {
@@ -241,7 +186,7 @@ public class ReactiveNosqlTemplate
         final MapValue row = mappingNosqlConverter.convertObjToRow(
             objectToSave, entityInformation.isAutoGeneratedId());
 
-        PutResult putRes = doPut(row, entityInformation, false);
+        PutResult putRes = doPut(entityInformation, row, false);
 
         FieldValue id;
         if (entityInformation.isAutoGeneratedId()) {
@@ -257,105 +202,6 @@ public class ReactiveNosqlTemplate
     private <T, ID> NosqlEntityInformation<T, ID> getNosqlEntityInformation(
         Class<T> domainClass) {
         return new NosqlEntityInformation<>(domainClass);
-    }
-
-    private PutResult doPut(MapValue row,
-        NosqlEntityInformation<?, ?> entityInformation, boolean ifPresent)
-    {
-        PutRequest putReq = new PutRequest()
-            .setTableName(entityInformation.getTableName())
-            .setValue(row);
-
-        if (ifPresent) {
-            putReq.setOption(PutRequest.Option.IfPresent);
-        }
-
-        if (entityInformation.isAutoGeneratedId()) {
-            putReq.setReturnRow(true);
-        }
-
-        if (entityInformation.getTimeout() > 0) {
-            putReq.setTimeout(entityInformation.getTimeout());
-        }
-
-        //todo add durability when putReq API adds support
-
-        PutResult putRes;
-        try {
-            try {
-                putRes = nosqlClient.put(putReq);
-            } catch (TableNotFoundException tnfe) {
-                if (entityInformation.isAutoCreateTable()) {
-                    createTable(entityInformation);
-                    putRes = nosqlClient.put(putReq);
-                } else {
-                    throw tnfe;
-                }
-            }
-        } catch (NoSQLException nse) {
-            log.error("Put: table: {} key: {}", putReq.getTableName(),
-                row.get(entityInformation.getIdColumnName()));
-            log.error(nse.getMessage());
-            throw MappingNosqlConverter.convert(nse);
-        }
-
-        assert putRes != null;
-        return putRes;
-    }
-
-    private boolean createTable(NosqlEntityInformation<?, ?> entityInformation)
-    {
-        String idColName = entityInformation.getIdField().getName();
-
-        String idColType = entityInformation.getIdNosqlType().toString();
-        if (entityInformation.getIdNosqlType() == FieldValue.Type.TIMESTAMP) {
-            // For example: CREATE TABLE IF NOT EXISTS SensorIdTimestamp
-            //     (time TIMESTAMP(3) , kv_json_ JSON, PRIMARY KEY( time ))
-            idColType += "(" + nosqlDbFactory.getTimestampPrecision() + ")";
-        }
-
-        String tableName = entityInformation.getTableName();
-
-        String sql = String.format(NosqlTemplate.TEMPLATE_CREATE_TABLE,
-            tableName,
-            idColName, idColType,
-            (entityInformation.isAutoGeneratedId() ?
-                NosqlTemplate.TEMPLATE_GENERATED_ALWAYS : ""), idColName);
-
-        TableRequest tableReq = new TableRequest().setStatement(sql)
-            .setTableLimits(entityInformation.getTableLimits());
-
-        TableResult tableRes = doTableRequest(entityInformation, tableReq);
-
-        TableResult.State tableState = tableRes.getTableState();
-//        if (tableState != TableResult.State.ACTIVE) {
-//            throw new RuntimeException("Table '" + tableName + "' not ACTIVE " +
-//                "after waitingForCompletion. Current state: " +
-//                tableState.name());
-//        }
-        return tableState == TableResult.State.ACTIVE;
-    }
-
-    private TableResult doTableRequest(NosqlEntityInformation<?, ?> entityInformation,
-        TableRequest tableReq) {
-
-        if (entityInformation != null &&
-            entityInformation.getTimeout() > 0) {
-            tableReq.setTimeout(entityInformation.getTimeout());
-        }
-
-        TableResult tableRes;
-        try {
-            log.debug("DDL: {}", tableReq.getStatement());
-            tableRes = nosqlClient.doTableRequest(tableReq,
-                nosqlDbFactory.getTableReqTimeout(),
-                nosqlDbFactory.getTableReqPollInterval());
-        } catch (NoSQLException nse) {
-            log.error("DDL: {}", tableReq.getStatement());
-            log.error(nse.getMessage());
-            throw MappingNosqlConverter.convert(nse);
-        }
-        return tableRes;
     }
 
     @SuppressWarnings("unchecked")
@@ -384,33 +230,9 @@ public class ReactiveNosqlTemplate
         final MapValue row = mappingNosqlConverter
             .convertObjToRow(object, false);
 
-        doUpdate(tableName, row, entityInformation);
+        doUpdate(entityInformation, row);
         return Mono.just(object);
     }
-
-    private <T, ID> void doUpdate(String tableName, MapValue row,
-        NosqlEntityInformation<T, ID> entityInformation)
-    {
-        // When id is autogenerated, it's required to do a SQL update query
-        if (entityInformation.isAutoGeneratedId()) {
-            final String idColumnName = entityInformation.getIdColumnName();
-            String sql = String.format(NosqlTemplate.TEMPLATE_UPDATE,
-                entityInformation.getIdNosqlType().name(), tableName,
-                idColumnName);
-
-            Map<String, FieldValue> params = new HashMap<>();
-            //todo implement composite keys
-            params.put("$id", row.get(idColumnName));
-            params.put("$json", row.get(NosqlTemplate.JSON_COLUMN));
-
-            // Must read at least one result to execute query!!!
-            runQueryNosqlParams(entityInformation, sql, params).iterator().next();
-        } else {
-            // otherwise do a regular put, which is faster, use less resources
-            doPut(row, entityInformation, true);
-        }
-    }
-
 
     @Override
     public <ID> Mono<Void> deleteById(
@@ -436,39 +258,12 @@ public class ReactiveNosqlTemplate
         return Mono.empty();
     }
 
-    private DeleteResult doDelete(NosqlEntityInformation<?, ?> entityInformation,
-        MapValue primaryKey) {
-        DeleteRequest delReq = new DeleteRequest()
-            .setTableName(entityInformation.getTableName())
-            .setKey(primaryKey);
-
-        if (entityInformation.getTimeout() > 0) {
-            delReq.setTimeout(entityInformation.getTimeout());
-        }
-
-        //todo add durability when API adds support
-
-        DeleteResult delRes;
-
-        try {
-            delRes = nosqlClient.delete(delReq);
-        } catch (NoSQLException nse) {
-            log.error("Delete: table: {} key: {}", delReq.getTableName(),
-                primaryKey);
-            log.error(nse.getMessage());
-            throw MappingNosqlConverter.convert(nse);
-        }
-
-        assert delRes != null;
-        return delRes;
-    }
-
     @Override
     public Mono<Void> deleteAll(NosqlEntityInformation<?, ?> entityInformation) {
         Assert.notNull(entityInformation, "EntityInformation should " +
             "not be null");
 
-        String sql = String.format(NosqlTemplate.TEMPLATE_DELETE_ALL,
+        String sql = String.format(NosqlTemplateBase.TEMPLATE_DELETE_ALL,
             entityInformation.getTableName());
 
         // Since this returns an Iterable the query isn't run until first
@@ -542,7 +337,7 @@ public class ReactiveNosqlTemplate
         Assert.hasText(tableName, "Table name should not be null, empty or " +
             "only whitespaces");
 
-        String sql = String.format(NosqlTemplate.TEMPLATE_COUNT, tableName);
+        String sql = String.format(NosqlTemplateBase.TEMPLATE_COUNT, tableName);
         log.debug("count(" + tableName + "): SQL: " + sql);
 
         Iterable<MapValue> res = runQuery(sql, entityInformation);
@@ -614,32 +409,12 @@ public class ReactiveNosqlTemplate
     /**
      * nosqlParams is a Map of param_name to FieldValue
      */
-    private Iterable<MapValue> runQueryNosqlParams(
-        NosqlEntityInformation<?, ?> entityInformation, String query,
+    public Iterable<MapValue> runQueryNosqlParams(
+        NosqlEntityInformation<?, ?> entityInformation,
+        String query,
         Map<String, FieldValue> nosqlParams) {
 
-        PreparedStatement preparedStatement =
-            getPreparedStatement(entityInformation, query);
-
-        if (nosqlParams != null) {
-            for (Map.Entry<String, FieldValue> e : nosqlParams.entrySet()) {
-                preparedStatement.setVariable(e.getKey(), e.getValue());
-            }
-        }
-
-        QueryRequest qReq = new QueryRequest()
-            .setPreparedStatement(preparedStatement);
-
-        if (entityInformation.getTimeout() > 0) {
-            qReq.setTimeout(entityInformation.getTimeout());
-        }
-
-        qReq.setConsistency(entityInformation.getConsistency());
-
-        log.debug("Q: {}", query);
-        Iterable<MapValue> results = doQuery(qReq);
-
-        return results;
+        return doRunQueryNosqlParams(entityInformation, query, nosqlParams);
     }
 
     /* Query execution */
@@ -657,71 +432,9 @@ public class ReactiveNosqlTemplate
     public <T> Flux<MapValue> executeMapValueQuery(NosqlQuery query,
         NosqlEntityInformation<T, ?> entityInformation)
     {
-        Assert.notNull(entityInformation, "EntityInformation should " +
-            "not be null");
-        String tableName = entityInformation.getTableName();
-        Assert.hasText(tableName, "Table name should not be null, empty or " +
-            "only whitespaces.");
-        Assert.notNull(query, "Query should not be null.");
-
-        Class<T> entityClass = entityInformation.getJavaType();
-        String idPropertyName = ( entityClass == null ||
-            mappingNosqlConverter.getIdProperty(entityClass) == null ? null :
-            mappingNosqlConverter.getIdProperty(entityClass).getName());
-
-        final Map<String, Object> params = new LinkedHashMap<>();
-        String sql = query.generateSql(tableName, params, idPropertyName);
-
-        PreparedStatement pStmt = getPreparedStatement(entityInformation, sql);
-
-        for (Map.Entry<String, Object> param : params.entrySet()) {
-            pStmt.setVariable(param.getKey(),
-                mappingNosqlConverter.convertObjToFieldValue(param.getValue(),
-                    null, false));
-        }
-
-        QueryRequest qReq = new QueryRequest().setPreparedStatement(pStmt);
-
-        if (entityInformation.getTimeout() > 0) {
-            qReq.setTimeout(entityInformation.getTimeout());
-        }
-
-        qReq.setConsistency(entityInformation.getConsistency());
-
-        log.debug("Q: {}", sql);
-        Iterable<MapValue> results = doQuery(qReq);
+        Iterable<MapValue> results = doExecuteMapValueQuery(query,
+            entityInformation);
 
         return Flux.fromIterable(results);
-    }
-
-    private PreparedStatement getPreparedStatement(
-        NosqlEntityInformation<?, ?> entityInformation, String query) {
-        PreparedStatement preparedStatement;
-
-        preparedStatement = psCache.get(query);
-        if (preparedStatement == null) {
-            PrepareRequest pReq = new PrepareRequest()
-                .setStatement(query);
-
-            if (entityInformation.getTimeout() > 0) {
-                pReq.setTimeout(entityInformation.getTimeout());
-            }
-
-            try {
-                log.debug("Prepare: {}", pReq.getStatement());
-                PrepareResult pRes = nosqlClient.prepare(pReq);
-                preparedStatement = pRes.getPreparedStatement();
-                psCache.put(query, preparedStatement);
-            } catch (NoSQLException nse) {
-                log.error("Prepare: {}", pReq.getStatement());
-                log.error(nse.getMessage());
-                throw MappingNosqlConverter.convert(nse);
-            }
-        }
-        return preparedStatement.copyStatement();
-    }
-
-    private Iterable<MapValue> doQuery(QueryRequest qReq) {
-        return new IterableUtil.IterableImpl(nosqlClient, qReq);
     }
 }

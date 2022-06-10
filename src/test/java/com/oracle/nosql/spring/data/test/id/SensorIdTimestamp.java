@@ -9,9 +9,7 @@ package com.oracle.nosql.spring.data.test.id;
 import java.sql.Timestamp;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Persistent;
 
-@Persistent
 public class SensorIdTimestamp {
     String name;
 

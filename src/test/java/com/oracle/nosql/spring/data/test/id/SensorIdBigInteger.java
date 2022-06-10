@@ -9,9 +9,7 @@ package com.oracle.nosql.spring.data.test.id;
 import java.math.BigInteger;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Persistent;
 
-@Persistent
 public class SensorIdBigInteger {
 
     String name;

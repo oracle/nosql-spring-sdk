@@ -47,10 +47,10 @@ public interface NosqlPersistentProperty
             this.code = code;
         }
 
-//        public boolean isAtomic() {
-//            return code < 100;
-//        }
-//
+        public boolean isAtomic() {
+            return code > 1 && code < 100;
+        }
+
 //        public boolean isArrayLike() {
 //            return code >= 100 && code < 200;
 //        }

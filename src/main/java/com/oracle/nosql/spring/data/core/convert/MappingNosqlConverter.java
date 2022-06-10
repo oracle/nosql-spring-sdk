@@ -48,7 +48,7 @@ import oracle.nosql.driver.values.NumberValue;
 import oracle.nosql.driver.values.StringValue;
 import oracle.nosql.driver.values.TimestampValue;
 
-import com.oracle.nosql.spring.data.core.NosqlTemplate;
+import com.oracle.nosql.spring.data.core.NosqlTemplateBase;
 import com.oracle.nosql.spring.data.core.mapping.BasicNosqlPersistentProperty;
 import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentEntity;
 import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentProperty;
@@ -202,7 +202,7 @@ public class MappingNosqlConverter
             persistentEntity.getIdProperty();
         MapValue row = new MapValue();
         MapValue valueMap = new MapValue();
-        row.put(NosqlTemplate.JSON_COLUMN, valueMap);
+        row.put(NosqlTemplateBase.JSON_COLUMN, valueMap);
 
         if (!skipSetId && idProperty != null) {
             //todo implement composite key
@@ -524,9 +524,9 @@ public class MappingNosqlConverter
                 }
 
                 MapValue jsonValue;
-                if (nosqlValue.asMap().get(NosqlTemplate.JSON_COLUMN) != null) {
+                if (nosqlValue.asMap().get(NosqlTemplateBase.JSON_COLUMN) != null) {
                     jsonValue = nosqlValue.asMap().
-                        get(NosqlTemplate.JSON_COLUMN).asMap();
+                        get(NosqlTemplateBase.JSON_COLUMN).asMap();
 
                     NosqlPersistentEntity<E> clsEntity =
                         updateEntity(entity, getInstanceClass(jsonValue));

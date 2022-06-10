@@ -8,9 +8,6 @@ package com.oracle.nosql.spring.data.test.id;
 
 import com.oracle.nosql.spring.data.core.mapping.NosqlId;
 
-import org.springframework.data.annotation.Persistent;
-
-@Persistent
 public class SensorIdStr {
     @NosqlId
     String name;

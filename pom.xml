@@ -132,8 +132,7 @@
             <scope>compile</scope>
         </dependency>
 
-
-        <!-- Test -->
+         <!-- Test -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -248,7 +247,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.4</version>
+                <version>3.4.0</version>
                 <configuration>
                     <show>protected</show>
                     <failOnError>false</failOnError>
@@ -256,11 +255,10 @@
                         <exclude>
                         </exclude>
                     </sourceFileExcludes>
-                    <additionalparam>-Xdoclint:all -Xdoclint:-missing</additionalparam>
-                    <additionalJOptions>
-                        <additionalJOption>-Xdoclint:all</additionalJOption>
-                        <additionalJOption>-Xdoclint:-missing</additionalJOption>
-                    </additionalJOptions>
+                    <doclint>all,-missing</doclint>
+                    <links>
+                        <link>https://oracle.github.io/nosql-java-sdk/</link>
+                    </links>
                 </configuration>
                 <executions>
                     <execution>
@@ -268,9 +266,6 @@
                         <goals>
                             <goal>jar</goal>
                         </goals>
-                        <configuration>
-                            <additionalparam>${javadoc.opts}</additionalparam>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

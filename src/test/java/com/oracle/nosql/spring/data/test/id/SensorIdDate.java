@@ -10,9 +10,7 @@ import java.util.Date;
 import java.util.Objects;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Persistent;
 
-@Persistent
 public class SensorIdDate {
     String name;
     int temp;

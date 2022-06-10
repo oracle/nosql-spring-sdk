@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 import oracle.nosql.driver.values.LongValue;
 
-import com.oracle.nosql.spring.data.core.NosqlTemplate;
+import com.oracle.nosql.spring.data.core.NosqlTemplateBase;
 import com.oracle.nosql.spring.data.core.convert.MappingNosqlConverter;
 import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentEntity;
 import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentProperty;
@@ -409,7 +409,7 @@ public class CriteriaQuery extends NosqlQuery {
             return "t." + field;
         }
 
-        return "t." + NosqlTemplate.JSON_COLUMN + "." + field;
+        return "t." + NosqlTemplateBase.JSON_COLUMN + "." + field;
     }
 
 
@@ -497,7 +497,7 @@ public class CriteriaQuery extends NosqlQuery {
             .map(f -> "'" + f.substring(f.lastIndexOf('.') + 1) +
                 "': " + f)
             .collect(Collectors.joining(", ", "{",
-                "} as " + NosqlTemplate.JSON_COLUMN));
+                "} as " + NosqlTemplateBase.JSON_COLUMN));
 
         return Stream.concat(keyFields.stream(),
             nonKeyFields.isEmpty() ? Stream.empty() : Stream.of(nonKeysProj))

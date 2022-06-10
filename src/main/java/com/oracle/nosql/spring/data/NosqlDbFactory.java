@@ -14,6 +14,7 @@ import oracle.nosql.driver.NoSQLHandleFactory;
 import oracle.nosql.driver.ops.Request;
 
 import com.oracle.nosql.spring.data.config.NosqlDbConfig;
+import com.oracle.nosql.spring.data.core.mapping.NosqlCapacityMode;
 
 import org.springframework.util.Assert;
 
@@ -54,6 +55,9 @@ public class NosqlDbFactory {
             "have a non-null authorization provider.");
     }
 
+    /**
+     * Creates a NosqlDbFactory object for a cloud service configuration.
+     */
     public static NosqlDbFactory createCloudFactory(String endpoint,
         String configFile)
         throws IOException
@@ -62,14 +66,33 @@ public class NosqlDbFactory {
             configFile));
     }
 
+    /**
+     * Creates a NosqlDbFactory object for a cloud service configuration.
+     */
+    public static NosqlDbFactory createCloudFactory(String endpoint,
+    String configFile, String profileName)
+        throws IOException {
+        return new NosqlDbFactory(NosqlDbConfig.createCloudConfig(endpoint,
+            configFile, profileName));
+    }
+
+    /**
+     * Creates a NosqlDbFactory object for a cloud sim configuration.
+     */
     public static NosqlDbFactory createCloudSimFactory(String endpoint) {
         return new NosqlDbFactory(NosqlDbConfig.createCloudSimConfig(endpoint));
     }
 
+    /**
+     * Creates a NosqlDbFactory object for an on-prem server configuration.
+     */
     public static NosqlDbFactory createProxyFactory(String endpoint) {
         return new NosqlDbFactory(NosqlDbConfig.createProxyConfig(endpoint));
     }
 
+    /**
+     * Creates a NosqlDbFactory object for an on-prem server configuration.
+     */
     public static NosqlDbFactory createProxyFactory(String endpoint,
         String user, char[] password) {
         return new NosqlDbFactory(NosqlDbConfig.createProxyConfig(endpoint,
@@ -122,6 +145,34 @@ public class NosqlDbFactory {
      */
     public int getTimestampPrecision() {
         return config.getTimestampPrecision();
+    }
+
+    /**
+     * Returns the config value {@link NosqlDbConfig#getDefaultStorageGB()}.
+     */
+    public int getDefaultStorageGB() {
+        return config.getDefaultStorageGB();
+    }
+
+    /**
+     * Returns the config value {@link NosqlDbConfig#getDefaultCapacityMode()}.
+     */
+    public NosqlCapacityMode getDefaultCapacityMode() {
+        return config.getDefaultCapacityMode();
+    }
+
+    /**
+     * Returns the config value {@link NosqlDbConfig#getDefaultReadUnits()}.
+     */
+    public int getDefaultReadUnits() {
+        return config.getDefaultReadUnits();
+    }
+
+    /**
+     * Returns the config value {@link NosqlDbConfig#getDefaultWriteUnits()}.
+     */
+    public int getDefaultWriteUnits() {
+        return config.getDefaultWriteUnits();
     }
 
     /**
