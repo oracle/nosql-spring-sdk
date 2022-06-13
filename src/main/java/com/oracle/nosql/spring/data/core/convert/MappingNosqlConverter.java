@@ -68,8 +68,8 @@ import org.springframework.data.convert.EntityConverter;
 import org.springframework.data.geo.Point;
 import org.springframework.data.geo.Polygon;
 import org.springframework.data.mapping.MappingException;
+import org.springframework.data.mapping.Parameter;
 import org.springframework.data.mapping.PersistentPropertyAccessor;
-import org.springframework.data.mapping.PreferredConstructor;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.mapping.model.ConvertingPropertyAccessor;
 import org.springframework.data.mapping.model.EntityInstantiator;
@@ -706,8 +706,7 @@ public class MappingNosqlConverter
             new ParameterValueProvider<NosqlPersistentProperty>() {
                 @Override
                 public <T> T getParameterValue(
-                    @NonNull PreferredConstructor.Parameter<T,
-                        NosqlPersistentProperty> parameter) {
+                    @NonNull Parameter<T, NosqlPersistentProperty> parameter) {
 
                     String paramName = parameter.getName();
                     // Sometimes isIdProperty is not set correctly hence the
