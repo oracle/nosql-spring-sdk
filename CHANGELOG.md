@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## [Unreleased]
+## [1.4.0]
 ### Added
 - On-premise only, added support for setting durability option on writes.
 - Add durability setter/getter on NosqlRepository and ReactiveNosqlRepository interfaces and implementing classes.
@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - Better error message when method parameters don't match the expected param for the query part.
 - Add file with configuration properties for test AppConfig (config properties can be changed without rebuilding code).
 - Update javadoc related to default table limits.
+- Update library dependency versions.
 
 ## [1.3.0]
 ### Changed
