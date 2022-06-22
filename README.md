@@ -40,7 +40,7 @@ cluster or to
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
-      <version>2.6.6</version>
+      <version>2.7.0</version>
     </dependency>
     ``` 
 
@@ -84,6 +84,14 @@ Note: Depending on individual scenario use the appropriate AuthorizationProvider
                         File privateKeyFile,
                         char[] passphrase)
     ```
+
+   * For cloud configuration when application is running in the same region 
+     use instance principal authentication. This requires a one-time 
+     [setup](https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/callingservicesfrominstances.htm).
+
+       ```java
+       SignatureProvider.createWithInstancePrincipal()
+       ```
 
  - For cloud simulator use: 
 

@@ -158,7 +158,7 @@ public class NosqlTemplate
             "should not be null.");
         Assert.notNull(objectToSave, "objectToSave should not be null");
 
-        log.debug("execute update in table {}", entityInformation.getTableName());
+        LOG.debug("execute update in table {}", entityInformation.getTableName());
         final MapValue row = mappingNosqlConverter
             .convertObjToRow(objectToSave, false);
 
@@ -231,8 +231,8 @@ public class NosqlTemplate
         try {
             nosqlClient.writeMultiple(wmReq);
         } catch (NoSQLException nse) {
-            log.error("WriteMultiple: table: {}", wmReq.getTableName());
-            log.error(nse.getMessage());
+            LOG.error("WriteMultiple: table: {}", wmReq.getTableName());
+            LOG.error(nse.getMessage());
             throw MappingNosqlConverter.convert(nse);
         }
     }
@@ -281,7 +281,7 @@ public class NosqlTemplate
             "should not be null.");
         Assert.notNull(id, "id should not be null");
 
-        log.debug("execute findById in table {}",
+        LOG.debug("execute findById in table {}",
             entityInformation.getTableName());
 
         final String idColumName = mappingNosqlConverter
@@ -319,7 +319,7 @@ public class NosqlTemplate
         Assert.notNull(entityInformation, "Entity information " +
             "should not be null.");        Assert.notNull(id, "id should not be null");
 
-        log.debug("execute deleteById in table {}",
+        LOG.debug("execute deleteById in table {}",
             entityInformation.getTableName());
 
         final String idColumnName = getIdColumnName(

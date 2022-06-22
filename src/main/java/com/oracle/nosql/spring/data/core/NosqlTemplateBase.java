@@ -42,8 +42,8 @@ public abstract class NosqlTemplateBase {
 
     public static final String JSON_COLUMN = "kv_json_";
 
-    protected static final Logger log =
-        LoggerFactory.getLogger(NosqlTemplate.class);
+    protected static final Logger LOG =
+        LoggerFactory.getLogger(NosqlTemplateBase.class);
     static final String TEMPLATE_CREATE_TABLE =
         "CREATE TABLE IF NOT EXISTS %s (%s %s %s, " +
             JSON_COLUMN + " JSON, PRIMARY KEY( %s ))";
@@ -89,13 +89,13 @@ public abstract class NosqlTemplateBase {
 
         TableResult tableRes;
         try {
-            log.debug("DDL: {}", tableReq.getStatement());
+            LOG.debug("DDL: {}", tableReq.getStatement());
             tableRes = nosqlClient.doTableRequest(tableReq,
                 nosqlDbFactory.getTableReqTimeout(),
                 nosqlDbFactory.getTableReqPollInterval());
         } catch (NoSQLException nse) {
-            log.error("DDL: {}", tableReq.getStatement());
-            log.error(nse.getMessage());
+            LOG.error("DDL: {}", tableReq.getStatement());
+            LOG.error(nse.getMessage());
             throw MappingNosqlConverter.convert(nse);
         }
         return tableRes;
@@ -154,9 +154,9 @@ public abstract class NosqlTemplateBase {
         try {
             delRes = nosqlClient.delete(delReq);
         } catch (NoSQLException nse) {
-            log.error("Delete: table: {} key: {}", delReq.getTableName(),
+            LOG.error("Delete: table: {} key: {}", delReq.getTableName(),
                 primaryKey);
-            log.error(nse.getMessage());
+            LOG.error(nse.getMessage());
             throw MappingNosqlConverter.convert(nse);
         }
 
@@ -197,9 +197,9 @@ public abstract class NosqlTemplateBase {
                 }
             }
         } catch (NoSQLException nse) {
-            log.error("Put: table: {} key: {}", putReq.getTableName(),
+            LOG.error("Put: table: {} key: {}", putReq.getTableName(),
                 row.get(entityInformation.getIdColumnName()));
-            log.error(nse.getMessage());
+            LOG.error(nse.getMessage());
             throw MappingNosqlConverter.convert(nse);
         }
 
@@ -225,9 +225,9 @@ public abstract class NosqlTemplateBase {
         try {
             getRes = nosqlClient.get(getReq);
         } catch (NoSQLException nse) {
-            log.error("Get: table: {} key: {}", getReq.getTableName(),
+            LOG.error("Get: table: {} key: {}", getReq.getTableName(),
                 primaryKey);
-            log.error(nse.getMessage());
+            LOG.error(nse.getMessage());
             throw MappingNosqlConverter.convert(nse);
         }
 
@@ -288,7 +288,7 @@ public abstract class NosqlTemplateBase {
             qReq.setConsistency(entityInformation.getConsistency());
         }
 
-        log.debug("Q: {}", query);
+        LOG.debug("Q: {}", query);
         Iterable<MapValue> results = doQuery(qReq);
 
         return results;
@@ -331,7 +331,7 @@ public abstract class NosqlTemplateBase {
             qReq.setLimit(1);
         }
 
-        log.debug("Q: {}", sql);
+        LOG.debug("Q: {}", sql);
 //        System.out.println("Q: " + sql);
         return doQuery(qReq);
     }
@@ -352,13 +352,13 @@ public abstract class NosqlTemplateBase {
             }
 
             try {
-                log.debug("Prepare: {}", pReq.getStatement());
+                LOG.debug("Prepare: {}", pReq.getStatement());
                 PrepareResult pRes = nosqlClient.prepare(pReq);
                 preparedStatement = pRes.getPreparedStatement();
                 psCache.put(query, preparedStatement);
             } catch (NoSQLException nse) {
-                log.error("Prepare: {}", pReq.getStatement());
-                log.error(nse.getMessage());
+                LOG.error("Prepare: {}", pReq.getStatement());
+                LOG.error(nse.getMessage());
                 throw MappingNosqlConverter.convert(nse);
             }
         }
