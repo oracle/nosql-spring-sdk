@@ -22,7 +22,7 @@ Clone the gh-pages branch of the SDK repository
 $ git clone --single-branch --branch gh-pages https://github.com/oracle/nosql-spring-sdk.git nosql-spring-sdk-doc
 ```
 
-Generate documentation in the master (or other designated) branch of the
+Generate documentation in the main (or other designated) branch of the
 repository
 
 ``` bash
