@@ -359,6 +359,64 @@
                 </executions>
             </plugin>
 
+            <!-- add license files to jar files -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>add license files to runtime jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>jar</executable>
+                            <workingDirectory>${basedir}/target</workingDirectory>
+                            <arguments>
+                                <argument>uf</argument>
+                                <argument>${project.artifactId}-${project.version}.jar</argument>
+                                <argument>../LICENSE.txt</argument>
+                                <argument>../THIRD_PARTY_LICENSES.txt</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add license file to javadoc jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>jar</executable>
+                            <workingDirectory>${basedir}/target</workingDirectory>
+                            <arguments>
+                                <argument>uf</argument>
+                                <argument>${project.artifactId}-${project.version}-javadoc.jar</argument>
+                                <argument>../LICENSE.txt</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add license file to source jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>jar</executable>
+                            <workingDirectory>${basedir}/target</workingDirectory>
+                            <arguments>
+                                <argument>uf</argument>
+                                <argument>${project.artifactId}-${project.version}-sources.jar</argument>
+                                <argument>../LICENSE.txt</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <!-- test plugin -->
                 <artifactId>maven-surefire-plugin</artifactId>
