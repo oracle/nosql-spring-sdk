@@ -13,6 +13,7 @@ import com.oracle.nosql.spring.data.core.query.Criteria;
 import com.oracle.nosql.spring.data.core.query.CriteriaQuery;
 import com.oracle.nosql.spring.data.core.query.CriteriaType;
 import com.oracle.nosql.spring.data.core.query.NosqlQuery;
+import com.oracle.nosql.spring.data.repository.NosqlRepository;
 import com.oracle.nosql.spring.data.repository.ReactiveNosqlRepository;
 
 import org.reactivestreams.Publisher;
@@ -223,5 +224,22 @@ public class SimpleReactiveNosqlRepository <T, ID extends Serializable>
      */
     public void setConsistency(String consistency) {
         entityInformation.setConsistency(consistency);
+    }
+
+    /**
+     * @see NosqlRepository#getDurability()
+     */
+    @Override
+    public String getDurability() {
+        return SimpleNosqlRepository.convertDurability(
+            entityInformation.getDurability());
+    }
+
+    /**
+     * @see NosqlRepository#setDurability(String)
+     */
+    @Override
+    public void setDurability(String durability) {
+        entityInformation.setDurability(durability);
     }
 }

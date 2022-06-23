@@ -9,14 +9,30 @@ package com.oracle.nosql.spring.data.test.app;
 import java.io.IOException;
 
 import com.oracle.nosql.spring.data.config.NosqlDbConfig;
+import com.oracle.nosql.spring.data.core.mapping.NosqlCapacityMode;
 import com.oracle.nosql.spring.data.repository.config.EnableNosqlRepositories;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 @Configuration
+/* Looks for configuration properties in a this file. */
+@PropertySource(value = "classpath:application.properties")
 @EnableNosqlRepositories
 public class AppConfig extends AppConfigBase {
+
+    /* Get values specified in application.properties file or use
+    specified default otherwise. */
+    @Value("${test.config.defaultStorageGB:25}")
+    private int defaultStorageGB;
+    @Value(("${test.config.defaultCapacityMode:PROVISIONED}"))
+    private String defaultCapacityMode;
+    @Value("${test.config.defaultReadUnits:50}")
+    private int defaultReadUnits;
+    @Value("${test.config.defaultWriteUnits:50}")
+    private int defaultWriteUnits;
 
     public static NosqlDbConfig nosqlDBConfig;
     static {
@@ -81,6 +97,14 @@ public class AppConfig extends AppConfigBase {
 
     @Bean
     public NosqlDbConfig nosqlDbConfig() {
+
+        nosqlDBConfig.setDefaultCapacityMode(
+            "ON_DEMAND".equals(this.defaultCapacityMode) ?
+                NosqlCapacityMode.ON_DEMAND : NosqlCapacityMode.PROVISIONED);
+        nosqlDBConfig.setDefaultStorageGB(this.defaultStorageGB);
+        nosqlDBConfig.setDefaultReadUnits(this.defaultReadUnits);
+        nosqlDBConfig.setDefaultWriteUnits(this.defaultWriteUnits);
+
         return nosqlDBConfig;
     }
 }

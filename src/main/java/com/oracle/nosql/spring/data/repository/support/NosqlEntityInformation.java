@@ -20,7 +20,8 @@ import oracle.nosql.driver.ops.TableLimits;
 import oracle.nosql.driver.values.FieldValue;
 
 import com.oracle.nosql.spring.data.Constants;
-import com.oracle.nosql.spring.data.core.NosqlTemplate;
+import com.oracle.nosql.spring.data.NosqlDbFactory;
+import com.oracle.nosql.spring.data.core.NosqlTemplateBase;
 import com.oracle.nosql.spring.data.core.mapping.NosqlCapacityMode;
 import com.oracle.nosql.spring.data.core.mapping.NosqlId;
 import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
@@ -42,6 +43,7 @@ public class NosqlEntityInformation <T, ID> extends
     private Durability durability;
     private int timeout;
     private FieldValue.Type idNosqlType;
+    private boolean useDefaultTableLimits = false;
 //    private boolean isComposite;
 
     public NosqlEntityInformation(Class<T> domainClass) {
@@ -190,9 +192,9 @@ public class NosqlEntityInformation <T, ID> extends
                 domainClass.getName());
         }
 
-        if (NosqlTemplate.JSON_COLUMN.equals(idField.getName())) {
+        if (NosqlTemplateBase.JSON_COLUMN.equals(idField.getName())) {
             throw new IllegalArgumentException("Id field can not be named '" +
-                NosqlTemplate.JSON_COLUMN + "' in " + domainClass.getName());
+                NosqlTemplateBase.JSON_COLUMN + "' in " + domainClass.getName());
         }
 
         return idField;
@@ -203,6 +205,7 @@ public class NosqlEntityInformation <T, ID> extends
         autoCreateTable = Constants.DEFAULT_AUTO_CREATE_TABLE;
         tableLimits = null;
         consistency = Consistency.EVENTUAL;
+        durability = Durability.COMMIT_NO_SYNC;
         timeout = Constants.NOTSET_TABLE_TIMEOUT_MS;
         tableName = domainClass.getSimpleName();
         if (domainClass.isArray()) {
@@ -216,13 +219,15 @@ public class NosqlEntityInformation <T, ID> extends
         if (annotation != null) {
             autoCreateTable = annotation.autoCreateTable();
 
-            if (annotation.capacityMode() == NosqlCapacityMode.PROVISIONED && (
-                annotation.readUnits() != Constants.NOTSET_TABLE_READ_UNITS ||
-                annotation.writeUnits() != Constants.NOTSET_TABLE_WRITE_UNITS ||
-                annotation.storageGB() != Constants.NOTSET_TABLE_STORAGE_GB)) {
+            // If storageGB is 0 or less than -1 no tableLimits are set.
+            if (annotation.capacityMode() == NosqlCapacityMode.PROVISIONED &&
+               (annotation.storageGB() > 0 || annotation.storageGB() ==
+                   Constants.NOTSET_TABLE_STORAGE_GB )) {
                 tableLimits = new TableLimits(annotation.readUnits(),
                     annotation.writeUnits(), annotation.storageGB());
-            } else if (annotation.capacityMode() == NosqlCapacityMode.ON_DEMAND)
+            } else if (annotation.capacityMode() == NosqlCapacityMode.ON_DEMAND
+                && (annotation.storageGB() > 0  || annotation.storageGB() ==
+                Constants.NOTSET_TABLE_STORAGE_GB ))
             {
                 tableLimits = new TableLimits(annotation.storageGB());
             }
@@ -235,6 +240,9 @@ public class NosqlEntityInformation <T, ID> extends
             if (!annotation.tableName().isEmpty()) {
                 tableName = annotation.tableName();
             }
+        } else {
+            // No annotation exists, use the values set in NosqlDbConfig
+            useDefaultTableLimits = true;
         }
     }
 
@@ -248,7 +256,31 @@ public class NosqlEntityInformation <T, ID> extends
         return Durability.COMMIT_NO_SYNC;
     }
 
-    public TableLimits getTableLimits() {
+    public TableLimits getTableLimits(NosqlDbFactory nosqlDbFactory) {
+        // set table limits for when no annotation exists
+        if (useDefaultTableLimits) {
+            if (nosqlDbFactory.getDefaultCapacityMode() ==
+                NosqlCapacityMode.ON_DEMAND) {
+                return new TableLimits(nosqlDbFactory.getDefaultStorageGB());
+            } else {
+                return new TableLimits(nosqlDbFactory.getDefaultReadUnits(),
+                    nosqlDbFactory.getDefaultWriteUnits(),
+                    nosqlDbFactory.getDefaultStorageGB());
+            }
+        }
+
+        if (tableLimits != null) {
+            if (tableLimits.getStorageGB() == Constants.NOTSET_TABLE_STORAGE_GB) {
+                tableLimits.setStorageGB(nosqlDbFactory.getDefaultStorageGB());
+            }
+            if (tableLimits.getReadUnits() == Constants.NOTSET_TABLE_READ_UNITS) {
+                tableLimits.setReadUnits(nosqlDbFactory.getDefaultReadUnits());
+            }
+            if (tableLimits.getWriteUnits() == Constants.NOTSET_TABLE_WRITE_UNITS) {
+                tableLimits.setWriteUnits(nosqlDbFactory.getDefaultWriteUnits());
+            }
+        }
+
         return tableLimits;
     }
 

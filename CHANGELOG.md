@@ -8,6 +8,22 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - Add a way to return the library version using NosqlDbFactory.getLibraryVersion().
 - Set extension in user agent http header.
 
+## [1.4.0]
+### Added
+- On-premise only, added support for setting durability option on writes.
+- Add durability setter/getter on NosqlRepository and ReactiveNosqlRepository interfaces and implementing classes.
+- Cloud only, added support for on-demand tables by setting NosqlTable.capacityMode to NosqlCapacityMode.ON_DEMAND.
+- Enable TableLimits defaults when no NosqlTable annotation is explicitly used.
+- Add getters for default storageGB, capacityMode, readUnits and writeUnits in NosqlDbConfig and NosqlDbFactory with default values of PROVISIONED, 25GB, 50 read units and 50 write units.
+- Avoid entity checking atomic field classes, this enables running under jdk 17.
+- Consider entity if NosqlTable annotation is present and don't account for Persistent annotation.
+
+### Changed
+- Better error message when method parameters don't match the expected param for the query part.
+- Add file with configuration properties for test AppConfig (config properties can be changed without rebuilding code).
+- Update javadoc related to default table limits.
+- Update library dependency versions.
+
 ## [1.3.0]
 ### Changed
 - Updated library dependency versions and updated THIRD_PARTY_LICENSES.txt 

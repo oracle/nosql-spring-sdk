@@ -15,8 +15,10 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import com.oracle.nosql.spring.data.NosqlDbFactory;
 import com.oracle.nosql.spring.data.core.NosqlOperations;
 import com.oracle.nosql.spring.data.core.NosqlTemplate;
+import com.oracle.nosql.spring.data.core.mapping.NosqlCapacityMode;
 import com.oracle.nosql.spring.data.test.app.Address;
 import com.oracle.nosql.spring.data.test.app.AppConfig;
 import com.oracle.nosql.spring.data.test.app.Customer;
@@ -424,5 +426,38 @@ public class TestApplication {
     @Test(expected = IllegalArgumentException.class)
     public void testFindAllNull() {
         repo.findAllById(null);
+    }
+
+    @Test
+    public void testDefaultValues() {
+        NosqlDbFactory factory = NosqlDbFactory.createCloudSimFactory("foo");
+        Assert.assertEquals(NosqlCapacityMode.PROVISIONED,
+            factory.getDefaultCapacityMode());
+        Assert.assertEquals(25, factory.getDefaultStorageGB());
+        Assert.assertEquals(50, factory.getDefaultReadUnits());
+        Assert.assertEquals(50, factory.getDefaultWriteUnits());
+
+
+        // Test AppConfig file settings
+        Assert.assertEquals(NosqlCapacityMode.PROVISIONED,
+            AppConfig.nosqlDBConfig.getDefaultCapacityMode());
+        Assert.assertEquals(2,
+            AppConfig.nosqlDBConfig.getDefaultStorageGB());
+        Assert.assertEquals(3,
+            AppConfig.nosqlDBConfig.getDefaultReadUnits());
+        Assert.assertEquals(4,
+            AppConfig.nosqlDBConfig.getDefaultWriteUnits());
+    }
+
+    @Test
+    public void testConsistencyDurability() {
+        Assert.assertEquals("EVENTUAL", repo.getConsistency());
+        repo.setConsistency("ABSOLUTE");
+        Assert.assertEquals("ABSOLUTE", repo.getConsistency());
+
+        Assert.assertEquals("COMMIT_NO_SYNC", repo.getDurability());
+        repo.setDurability("COMMIT_WRITE_NO_SYNC");
+        Assert.assertEquals("COMMIT_WRITE_NO_SYNC",
+            repo.getDurability());
     }
 }

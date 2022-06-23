@@ -7,6 +7,7 @@
 package com.oracle.nosql.spring.data.repository;
 
 import oracle.nosql.driver.Consistency;
+import oracle.nosql.driver.Durability;
 
 import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
 
@@ -43,4 +44,21 @@ public interface ReactiveNosqlRepository <T, K>
      * {@link NosqlTable#consistency()}.
      */
     void setConsistency(String consistency);
+
+
+    /**
+     * Returns the configured request durability value.
+     */
+    String getDurability();
+
+    /**
+     * Sets the request durability value. The value must be one of the defined
+     * Durability values: {@link Durability#COMMIT_NO_SYNC},
+     * {@link Durability#COMMIT_WRITE_NO_SYNC} or
+     * {@link Durability#COMMIT_SYNC}.<p>
+     * This set takes precedence over the one set when using
+     * {@link NosqlTable#durability()}.<p>
+     * Note: This applies to On-Prem installations only.
+     */
+    void setDurability(String durability);
 }
