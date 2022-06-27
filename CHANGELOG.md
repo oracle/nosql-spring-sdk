@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## [Unreleased]
+## [1.4.1]
 ### Added
 - Add a way to return the library version using NosqlDbFactory.getLibraryVersion().
 - Add NoSQL-SpringSDK/version as extension to http user agent.
