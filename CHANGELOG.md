@@ -6,7 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ## [Unreleased]
 ### Added
 - Add a way to return the library version using NosqlDbFactory.getLibraryVersion().
-- Set extension in user agent http header.
+- Add NoSQL-SpringSDK/version as extension to http user agent.
+- Added LICENSE.txt and THIRD_PARTY_LICENSES.txt to runtime jar file and LICENSE.txt to sources and javadoc jars.
 
 ## [1.4.0]
 ### Added
