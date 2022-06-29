@@ -12,7 +12,6 @@ package com.oracle.nosql.spring.data.core.mapping;
  * @see oracle.nosql.driver.ops.TableLimits.CapacityMode
  */
 public enum NosqlCapacityMode {
-
     PROVISIONED,
     ON_DEMAND
 }

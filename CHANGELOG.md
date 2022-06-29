@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [1.4.1]
+### Added
+- Add a way to return the library version using NosqlDbFactory.getLibraryVersion().
+- Add NoSQL-SpringSDK/version as extension to http user agent.
+- Added LICENSE.txt and THIRD_PARTY_LICENSES.txt to runtime jar file and LICENSE.txt to sources and javadoc jars.
+
 ## [1.4.0]
 ### Added
 - On-premise only, added support for setting durability option on writes.
