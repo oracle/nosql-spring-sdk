@@ -3,8 +3,8 @@
 ## About
 
 Oracle NoSQL SDK for Spring Data provides a Spring Data
-implementation module to connect to an 
-[Oracle NoSQL Database](https://www.oracle.com/database/technologies/related/nosql.html) 
+implementation module to connect to an
+[Oracle NoSQL Database](https://www.oracle.com/database/technologies/related/nosql.html)
 cluster or to
 [Oracle NoSQL Cloud Service](https://www.oracle.com/database/nosql-cloud.html).
 
@@ -20,12 +20,12 @@ cluster or to
         <version>x.y.z</version>
     </dependency>
     ```
-    
-  Note: Packages can be manually installed in a local maven repository by 
-  downloading from 
-  [releases page](https://github.com/oracle/nosql-spring-sdk/releases), and 
+
+  Note: Packages can be manually installed in a local maven repository by
+  downloading from
+  [releases page](https://github.com/oracle/nosql-spring-sdk/releases), and
   running the following command (-sources and -javadoc files are optional):
-        
+
     ```
     mvn install:install-file \
     -DpomFile=spring-data-oracle-nosql-x.y.z.pom \
@@ -33,16 +33,16 @@ cluster or to
     -Dsources=spring-data-oracle-nosql-x.y.z-sources.jar \
     -Djavadoc=spring-data-oracle-nosql-x.y.z-javadoc.jar
     ```
-    
+
 * The example below also requires an additional dependency:
-    
+
     ```xml
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
       <version>2.7.0</version>
     </dependency>
-    ``` 
+    ```
 
 * Define an AppConfig class that provides a nosqlDBConfig bean that returns an
 Oracle NoSQL DB configuration:
@@ -53,16 +53,16 @@ Oracle NoSQL DB configuration:
     import com.oracle.nosql.spring.data.config.AbstractNosqlConfiguration;
     import com.oracle.nosql.spring.data.config.NosqlDbConfig;
     import com.oracle.nosql.spring.data.repository.config.EnableNosqlRepositories;
-    
+
     import org.springframework.context.annotation.Bean;
     import org.springframework.context.annotation.Configuration;
-    
+
     import oracle.nosql.driver.kv.StoreAccessTokenProvider;
 
     @Configuration
     @EnableNosqlRepositories
     public class AppConfig extends AbstractNosqlConfiguration {
-       
+
         @Bean
         public NosqlDbConfig nosqlDbConfig() {
             return new NosqlDbConfig(
@@ -73,7 +73,7 @@ Oracle NoSQL DB configuration:
     ```
 
 Note: Depending on individual scenario use the appropriate AuthorizationProvider:
- - For cloud configuration use the following example or see 
+ - For cloud configuration use the following example or see
     [documentation](https://docs.oracle.com/en/cloud/paas/nosql-cloud/csnsd/connecting-using-java.html):
 
     ```java
@@ -85,37 +85,37 @@ Note: Depending on individual scenario use the appropriate AuthorizationProvider
                         char[] passphrase)
     ```
 
-   * For cloud configuration when application is running in the same region 
-     use instance principal authentication. This requires a one-time 
+   * For cloud configuration when application is running in the same region
+     use instance principal authentication. This requires a one-time
      [setup](https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/callingservicesfrominstances.htm).
 
        ```java
        SignatureProvider.createWithInstancePrincipal()
        ```
 
- - For cloud simulator use: 
+ - For cloud simulator use:
 
     ```java
     com.oracle.nosql.spring.data.NosqlDbFactory.CloudSimProvider.getProvider()
     ```
 
- - For on-prem configuration use one of the following examples or see 
-    [documentation](https://docs.oracle.com/en/database/other-databases/nosql-database/20.2/admin/creating-nosql-handle.html):
-   * For unsecure example: 
+ - For on-prem configuration use one of the following examples or see
+    [documentation](https://docs.oracle.com/en/database/other-databases/nosql-database/22.1/admin/creating-nosql-handle.html):
+   * For unsecure example:
 
      ```java
      new oracle.nosql.driver.kv.StoreAccessTokenProvider()
      ```
 
-   * For secure example use: 
+   * For secure example use:
 
      ```java
      new oracle.nosql.driver.kv.StoreAccessTokenProvider("username", "password".toCharArray())
      ```
 
-Note: For convenience one can use the following 
+Note: For convenience one can use the following
     com.oracle.nosql.spring.data.NosqlDbConfig methods:
-    
+
   - for cloud: NosqlDbConfig.createCloudConfig("endpoint", configFile);
   - for cloud simulator: NosqlDbConfig.createCloudSimConfig("endpoint");
   - for on-prem unsecure store: NosqlDbConfig.createProxyConfig("endpoint");
@@ -127,13 +127,13 @@ Note: For convenience one can use the following
   package org.example.app;
 
   import com.oracle.nosql.spring.data.core.mapping.NosqlId;
-  
+
   public class Customer {
       @NosqlId(generated = true)
       long customerId;
       String firstName;
       String lastName;
-  
+
       @Override
       public String toString() {
           return "Customer{" +
@@ -151,17 +151,17 @@ Note: For convenience one can use the following
     package org.example.app;
 
     import com.oracle.nosql.spring.data.repository.NosqlRepository;
-    
+
     public interface CustomerRepository
         extends NosqlRepository<Customer, Long>
     {
         Iterable<Customer> findByLastName(String lastname);
     }
     ```
-    
+
 * Write the main application class. This requires adding dependencies to org
 .springframework.boot:spring-boot and org.springframework
-.boot:spring-boot-autoconfigure. 
+.boot:spring-boot-autoconfigure.
 
   ```java
   package org.example.app;
@@ -171,13 +171,13 @@ Note: For convenience one can use the following
   import org.springframework.boot.SpringApplication;
   import org.springframework.boot.autoconfigure.SpringBootApplication;
   import org.springframework.context.ConfigurableApplicationContext;
-  
+
   @SpringBootApplication
   public class App implements CommandLineRunner
   {
       @Autowired
       private CustomerRepository repo;
-  
+
       public static void main( String[] args )
       {
           ConfigurableApplicationContext
@@ -186,36 +186,36 @@ Note: For convenience one can use the following
           ctx.close();
           System.exit(0);
       }
-  
+
       @Override
       public void run(String... args) throws Exception {
-  
+
           repo.deleteAll();
-  
+
           Customer s1 = new Customer();
           s1.firstName = "John";
           s1.lastName = "Doe";
-  
+
           repo.save(s1);
           System.out.println("\nsaved: " + s1); // customerId contains generated value
-          
+
           Customer s2 = new Customer();
           s2.firstName = "John";
           s2.lastName = "Smith";
-  
+
           repo.save(s2);
           System.out.println("\nsaved: " + s2); // customerId contains generated value
-  
+
           System.out.println("\nfindAll:");
           Iterable<Customer> customers = repo.findAll();
-  
+
           for (Customer s : customers) {
               System.out.println("  Customer: " + s);
           }
-  
+
           System.out.println("\nfindByLastName: Smith");
           customers = repo.findByLastName("Smith");
-  
+
           for (Customer s : customers) {
               System.out.println("  Customer: " + s);
           }
@@ -255,21 +255,21 @@ mvn exec:java -Dexec.mainClass="org.example.app.App" -Dlogging.level.com.oracle.
 
 ## Run unit tests
 
-Running tests require a running store and proxy. The test.serverType and 
+Running tests require a running store and proxy. The test.serverType and
 test.endpoint system properties must be specified.
 ```
 mvn test -Dtest.serverType=onprem -Dtest.endpoint=http://127.0.0.1:8080
 ```
 By default, if no option is specified, onprem serverType and http://127.0.0
-.1:8080 endpoint is assumed. 
+.1:8080 endpoint is assumed.
 
 Tests can be also be run on:
  - onprem:  
     ```
     mvn -B -Ptest-onprem test -DargLine="-Dtest.endpoint=$ONPREM_ENDPOINT"
     ```
- - onprem-secure: 
-    Must specify the user, password, trustfile and trust file access password. 
+ - onprem-secure:
+    Must specify the user, password, trustfile and trust file access password.
     ```
     mvn -B -Ptest-onprem-secure test -DargLine="-Dtest.endpoint=$ONPREM_SEC_ENDPOINT -Dtest.user=$DRIVER_USER -Dtest.trust=$DRIVER_TRUST_FILE -Dtest.password=$DRIVER_PASS -Dtest.trust.password=$DRIVER_TRUST_PASS"
     ```
@@ -277,12 +277,12 @@ Tests can be also be run on:
     ```
     mvn -B -Ptest-cloudsim test -DargLine="-Dtest.endpoint=$CLOUDSIM_ENDPOINT"
     ```
- 
+
 
 ## Help
 
 * [API documentation](https://oracle.github.io/nosql-spring-sdk/)
-* [Developer's Guide](https://docs.oracle.com/en/database/other-databases/nosql-database/20.3/java-driver-table/spring-sdk1.html)
+* [Developer's Guide](https://docs.oracle.com/en/database/other-databases/nosql-database/22.1/springsdk/index.html)
 * Open an issue in the [Issues](https://github.com/oracle/nosql-spring-sdk/issues) page
 * Post your question on the [Oracle NoSQL Database Community](https://community.oracle.com/community/groundbreakers/database/nosql_database).
 * [Email to nosql\_sdk\_help\_grp@oracle.com](mailto:nosql_sdk_help_grp@oracle.com)
