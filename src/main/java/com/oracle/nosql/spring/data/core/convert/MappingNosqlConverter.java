@@ -445,6 +445,12 @@ public class MappingNosqlConverter
     private <E> E convertFieldValueToObj(Class<?> type,
         final FieldValue nosqlValue, boolean isRoot) {
 
+        if (type != null && nosqlValue != null &&
+            FieldValue.class.isAssignableFrom(type) &&
+            type.isAssignableFrom(nosqlValue.getClass())) {
+            return (E) nosqlValue;
+        }
+
         if (nosqlValue == null || nosqlValue.isNull() ||
             nosqlValue.isJsonNull() || nosqlValue.isEMPTY()) {
             return null;
