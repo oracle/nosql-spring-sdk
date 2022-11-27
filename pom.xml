@@ -271,7 +271,7 @@
                             <goal>jar</goal>
                             <goal>javadoc</goal>
                         </goals>
-                        <phase>install</phase>
+                        <phase>prepare-package</phase>
                     </execution>
                 </executions>
             </plugin>
