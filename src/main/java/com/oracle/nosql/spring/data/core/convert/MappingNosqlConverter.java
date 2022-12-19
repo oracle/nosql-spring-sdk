@@ -791,9 +791,12 @@ public class MappingNosqlConverter
     private <E> List<Object> convertArrayValueToCollection(FieldValue nosqlValue,
            @Nullable TypeInformation<E> typeInfo) {
         List<Object> list = new ArrayList<>();
+        TypeInformation<E> componentType = (typeInfo == null) ? null :
+            (TypeInformation<E>) typeInfo.getComponentType();
         for (FieldValue item : nosqlValue.asArray()) {
             list.add(convertFieldValueToObj(Object.class,
-                item, false, typeInfo.getComponentType()));
+                item, false,
+                componentType));
         }
         return list;
     }
