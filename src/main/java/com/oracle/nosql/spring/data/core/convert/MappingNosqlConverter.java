@@ -379,7 +379,7 @@ public class MappingNosqlConverter
         }
 
         MapValue res = new MapValue();
-        for(Map.Entry<K, V> entry : javaObj.entrySet()) {
+        for (Map.Entry<K, V> entry : javaObj.entrySet()) {
             if (entry.getKey() == null) {
                 throw new IllegalArgumentException("Unsupported null map key: " +
                     prop);
@@ -713,7 +713,7 @@ public class MappingNosqlConverter
                 typeInfo.getType());
         }
 
-        for( Map.Entry<String, FieldValue> entry : mapValue.getMap().entrySet())
+        for (Map.Entry<String, FieldValue> entry : mapValue.getMap().entrySet())
         {
             K key;
             if (typeInfo != null && typeInfo.isMap() &&
