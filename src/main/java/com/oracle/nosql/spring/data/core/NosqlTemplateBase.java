@@ -66,7 +66,7 @@ public abstract class NosqlTemplateBase {
     protected final NosqlDbFactory nosqlDbFactory;
     protected final NoSQLHandle nosqlClient;
     protected final MappingNosqlConverter mappingNosqlConverter;
-    protected LruCache<String, PreparedStatement> psCache;
+    protected final LruCache<String, PreparedStatement> psCache;
 
     protected NosqlTemplateBase(NosqlDbFactory nosqlDbFactory,
         MappingNosqlConverter mappingNosqlConverter) {
@@ -289,9 +289,8 @@ public abstract class NosqlTemplateBase {
         }
 
         LOG.debug("Q: {}", query);
-        Iterable<MapValue> results = doQuery(qReq);
 
-        return results;
+        return doQuery(qReq);
     }
 
     protected <T> Iterable<MapValue> doExecuteMapValueQuery(NosqlQuery query,

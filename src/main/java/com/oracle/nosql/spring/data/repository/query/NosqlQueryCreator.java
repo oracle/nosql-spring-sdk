@@ -120,13 +120,11 @@ public class NosqlQueryCreator  extends
     @Override
     protected NosqlQuery complete(@Nullable Criteria criteria, Sort sort) {
 
-        CriteriaQuery query = new CriteriaQuery(criteria, mappingContext)
+        return new CriteriaQuery(criteria, mappingContext)
             .with(sort)
             .setCount(tree.isCountProjection())
             .setDistinct(tree.isDistinct())
             .limit(tree.getMaxResults())
             .project(returnedType);
-
-        return query;
     }
 }

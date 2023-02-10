@@ -34,7 +34,7 @@ import org.springframework.util.ReflectionUtils;
 public class NosqlEntityInformation <T, ID> extends
     AbstractEntityInformation<T, ID> {
 
-    private Field id;
+    private final Field id;
     private String tableName;
     private boolean autoCreateTable;
     private TableLimits tableLimits;
@@ -42,7 +42,7 @@ public class NosqlEntityInformation <T, ID> extends
     private Consistency consistency;
     private Durability durability;
     private int timeout;
-    private FieldValue.Type idNosqlType;
+    private final FieldValue.Type idNosqlType;
     private boolean useDefaultTableLimits = false;
 //    private boolean isComposite;
 
@@ -75,6 +75,7 @@ public class NosqlEntityInformation <T, ID> extends
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public ID getId(T entity) {
         return (ID) ReflectionUtils.getField(id, entity);
     }
@@ -88,6 +89,7 @@ public class NosqlEntityInformation <T, ID> extends
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public Class<ID> getIdType() {
         return (Class<ID>) id.getType();
     }

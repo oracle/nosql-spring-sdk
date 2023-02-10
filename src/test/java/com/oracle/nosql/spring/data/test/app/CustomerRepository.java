@@ -29,7 +29,7 @@ public interface CustomerRepository
     // Simple by field
     List<Customer> findByFirstName(String firstName);
     List<Customer> findByLastName(String lastName);
-    // AND expresion
+    // AND expression
     List<Customer> findByFirstNameAndLastName(String firstName,
         String lastName);
     // OR expression
@@ -65,17 +65,17 @@ public interface CustomerRepository
 
 
     // Enabling static ORDER BY for a query
-    List<Customer> queryByLastNameOrderByFirstNameDesc(String lastname);
-    List<Customer> getByLastNameOrderByFirstNameAsc(String lastname);
+    List<Customer> queryByLastNameOrderByFirstNameDesc(String lastName);
+    List<Customer> getByLastNameOrderByFirstNameAsc(String lastName);
 
     // Enabling ignoring case for an individual property
-    List<Customer> findByLastNameIgnoreCase(String lastname);
+    List<Customer> findByLastNameIgnoreCase(String lastName);
     // Enabling ignoring case for all suitable properties
-    List<Customer> findByLastNameAndFirstNameAllIgnoreCase(String lastname,
-        String firstname);
+    List<Customer> findByLastNameAndFirstNameAllIgnoreCase(String lastName,
+        String firstName);
     // Enable ignore case only for firstName field
-    List<Customer> findByLastNameAndFirstNameIgnoreCase(String lastname,
-        String firstname);
+    List<Customer> findByLastNameAndFirstNameIgnoreCase(String lastName,
+        String firstName);
     List<Customer> findByAddressCityIsInAllIgnoreCase(List<String> cities);
 
     // traversing nested properties
@@ -125,13 +125,13 @@ public interface CustomerRepository
     long countDistinctByFirstName(String first);
 
     // Pageable, Sort, Slice
-    Page<Customer> findByLastName(String lastname, Pageable pageable);
-    Slice<Customer> findByFirstName(String lastname, Pageable pageable);
-    List<Customer> findByLastName(String lastname, Sort sort);
+    Page<Customer> findByLastName(String lastName, Pageable pageable);
+    Slice<Customer> findByFirstName(String lastName, Pageable pageable);
+    List<Customer> findByLastName(String lastName, Sort sort);
     List<Customer> findByAddressCity(String city, Pageable pageable);
 
     // exists
-    boolean existsByLastName(String lastname);
+    boolean existsByLastName(String lastName);
     List<Customer> findByAddressCityExists();
 
     // count

@@ -26,14 +26,17 @@ public class SimpleNosqlEntityMetadata<T>
         this.entityInformation = entityInformation;
     }
 
+    @Override
     public Class<T> getJavaType() {
         return type;
     }
 
+    @Override
     public String getTableName() {
         return entityInformation.getTableName();
     }
 
+    @Override
     public NosqlEntityInformation<T, ?> getNosqlEntityInformation() {
         return entityInformation;
     }

@@ -191,7 +191,7 @@ public class TestIdTypes {
         Assert.assertEquals(1, idBIRepo.count());
 
         Assert.assertEquals("key1", r.name);
-        Assert.assertTrue(BigInteger.valueOf(100).equals(r.temp));
+        Assert.assertEquals(BigInteger.valueOf(100), r.temp);
         Assert.assertEquals(1, r.time);
     }
 
@@ -206,7 +206,7 @@ public class TestIdTypes {
         Assert.assertEquals(1, idBDRepo.count());
 
         Assert.assertEquals("key1", r.name);
-        Assert.assertTrue(BigDecimal.valueOf(100.001).equals(r.temp));
+        Assert.assertEquals(BigDecimal.valueOf(100.001), r.temp);
         Assert.assertEquals(1, r.time);
     }
 

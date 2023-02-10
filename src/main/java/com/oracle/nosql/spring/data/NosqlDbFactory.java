@@ -145,7 +145,7 @@ public class NosqlDbFactory {
 
     /**
      * Returns the table request poll interval in milliseconds. By default, this
-     * is  set to {@link Constants#DEFAULT_TABLE_REQ_POLL_INTEVEL_MS}
+     * is  set to {@link Constants#DEFAULT_TABLE_RED_POLL_INTERVAL_MS}
      */
     public int getTableReqPollInterval() {
         return config.getTableReqPollInterval();

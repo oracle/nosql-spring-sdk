@@ -42,7 +42,7 @@ public interface NosqlPersistentProperty
         // POJO like 1000 .. 1999
         POJO(1000);      // ?
 
-        private int code;
+        private final int code;
         TypeCode(int code) {
             this.code = code;
         }

@@ -41,6 +41,7 @@ public class NosqlRepositoryConfigurationExtension extends
         return Constants.NOSQLDB_MODULE_PREFIX;
     }
 
+    @Override
     public String getRepositoryFactoryBeanClassName() {
         return NosqlRepositoryFactoryBean.class.getName();
     }

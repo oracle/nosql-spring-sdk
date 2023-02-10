@@ -27,13 +27,13 @@ public class Criteria {
         this.subCriteria = new ArrayList<>();
     }
 
-    public static Criteria getInstance(Part part, boolean isIgnorecase,
+    public static Criteria getInstance(Part part, boolean isIgnoreCase,
         @NonNull String subject, @NonNull List<Object> values) {
         final Criteria criteria =
             new Criteria(CriteriaType.toCriteriaType(part.getType()));
 
         criteria.part = part;
-        criteria.ignoreCase = isIgnorecase;
+        criteria.ignoreCase = isIgnoreCase;
         criteria.subject = subject;
         criteria.subjectValues = values;
 

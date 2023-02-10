@@ -19,7 +19,7 @@ import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.SliceImpl;
-import org.springframework.data.repository.support.PageableExecutionUtils;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.lang.NonNull;
 
 public interface NosqlQueryExecution {
@@ -27,12 +27,12 @@ public interface NosqlQueryExecution {
     Object execute(NosqlQuery query);
 
 
-    abstract class AbstratExecution<T> implements NosqlQueryExecution {
+    abstract class AbstractExecution<T> implements NosqlQueryExecution {
         protected final NosqlOperations operations;
         protected final NosqlEntityInformation<T, ?> entityInformation;
         protected final NosqlQueryMethod queryMethod;
 
-        AbstratExecution(NosqlOperations operations,
+        AbstractExecution(NosqlOperations operations,
             NosqlEntityInformation<T, ?> entityInformation,
             NosqlQueryMethod queryMethod) {
             this.operations = operations;
@@ -44,7 +44,7 @@ public interface NosqlQueryExecution {
         public abstract Object execute(NosqlQuery query);
     }
 
-    final class CollectionExecution<T> extends AbstratExecution<T> {
+    final class CollectionExecution<T> extends AbstractExecution<T> {
         CollectionExecution(NosqlOperations operations,
             NosqlEntityInformation<T, ?> entityInformation,
             NosqlQueryMethod queryMethod) {
@@ -60,7 +60,7 @@ public interface NosqlQueryExecution {
         }
     }
 
-    final class ExistsExecution<T> extends AbstratExecution<T> {
+    final class ExistsExecution<T> extends AbstractExecution<T> {
         ExistsExecution(NosqlOperations operations,
             NosqlEntityInformation<T, ?> entityInformation,
             NosqlQueryMethod queryMethod) {
@@ -82,7 +82,7 @@ public interface NosqlQueryExecution {
         }
     }
 
-    final class DeleteExecution<T> extends AbstratExecution<T> {
+    final class DeleteExecution<T> extends AbstractExecution<T> {
         DeleteExecution(NosqlOperations operations,
             NosqlEntityInformation<T, ?> entityInformation,
             NosqlQueryMethod queryMethod) {
@@ -95,7 +95,7 @@ public interface NosqlQueryExecution {
         }
     }
 
-    final class PagedExecution<T> extends AbstratExecution<T> {
+    final class PagedExecution<T> extends AbstractExecution<T> {
         private final Pageable pageable;
 
         PagedExecution(NosqlOperations operations,
@@ -125,7 +125,7 @@ public interface NosqlQueryExecution {
         }
     }
 
-    final class SlicedExecution<T> extends AbstratExecution<T> {
+    final class SlicedExecution<T> extends AbstractExecution<T> {
         @NonNull
         private final Pageable pageable;
 
@@ -158,7 +158,7 @@ public interface NosqlQueryExecution {
         }
     }
 
-    final class CountExecution<T> extends AbstratExecution<T> {
+    final class CountExecution<T> extends AbstractExecution<T> {
         CountExecution(NosqlOperations operations,
             NosqlEntityInformation<T, ?> entityInformation,
             NosqlQueryMethod queryMethod) {

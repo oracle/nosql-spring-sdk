@@ -46,7 +46,7 @@ public enum CriteriaType {
     WITHIN("geo_inside");
 
 
-    private String sqlKeyword;
+    private final String sqlKeyword;
 
     private static final Map<Part.Type, CriteriaType> PART_TREE_TYPE_TO_CRITERIA;
 

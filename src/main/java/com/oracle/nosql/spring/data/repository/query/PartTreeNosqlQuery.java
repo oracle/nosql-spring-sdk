@@ -40,9 +40,7 @@ public class PartTreeNosqlQuery extends AbstractNosqlQuery {
         final NosqlQueryCreator creator =
             new NosqlQueryCreator(tree, accessor, mappingContext, returnedType);
 
-        final NosqlQuery query = creator.createQuery();
-
-        return query;
+        return creator.createQuery();
     }
 
     @Override

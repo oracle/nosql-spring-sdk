@@ -16,7 +16,7 @@ public class Constants {
     public static final String DEFAULT_REPOSITORY_IMPLEMENT_POSTFIX = "Impl";
     public static final String NOSQL_XML_TEMPLATE_REF = "nosql-template-ref";
     public static final int DEFAULT_TABLE_REQ_TIMEOUT_MS = 60000;
-    public static final int DEFAULT_TABLE_REQ_POLL_INTEVEL_MS = 500;
+    public static final int DEFAULT_TABLE_RED_POLL_INTERVAL_MS = 500;
     public static final int DEFAULT_QUERY_CACHE_CAPACITY = 1000;
     public static final int DEFAULT_QUERY_CACHE_LIFETIME_MS = 1000 * 60 * 10; // 10min
     public static final int DEFAULT_TIMESTAMP_PRECISION = 3;

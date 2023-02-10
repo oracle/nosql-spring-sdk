@@ -23,11 +23,11 @@ import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
 
 public class NosqlDbConfig {
 
-    private NoSQLHandleConfig nosqlHandleConfig;
+    private final NoSQLHandleConfig nosqlHandleConfig;
     private int queryCacheCapacity = Constants.DEFAULT_QUERY_CACHE_CAPACITY;
     private int queryCacheLifetime = Constants.DEFAULT_QUERY_CACHE_LIFETIME_MS;
     private int tableReqTimeout = Constants.DEFAULT_TABLE_REQ_TIMEOUT_MS;
-    private int tableReqPollInterval = Constants.DEFAULT_TABLE_REQ_POLL_INTEVEL_MS;
+    private int tableReqPollInterval = Constants.DEFAULT_TABLE_RED_POLL_INTERVAL_MS;
     private int timestampPrecision = Constants.DEFAULT_TIMESTAMP_PRECISION;
     private int defaultStorageGB = 25;
     private NosqlCapacityMode defaultCapacityMode = NosqlCapacityMode.PROVISIONED;
@@ -167,7 +167,7 @@ public class NosqlDbConfig {
      * only ever removed because the cache has reached capacity.
      */
     NosqlDbConfig setQueryCacheLifetime(int lifetime) {
-        queryCacheCapacity = lifetime;
+        queryCacheLifetime = lifetime;
         return this;
     }
 
@@ -187,14 +187,14 @@ public class NosqlDbConfig {
     }
 
     /** Returns the table request poll interval in milliseconds. By default this
-     *  is set to {@link Constants#DEFAULT_TABLE_REQ_POLL_INTEVEL_MS}
+     *  is set to {@link Constants#DEFAULT_TABLE_RED_POLL_INTERVAL_MS}
      */
     public int getTableReqPollInterval() {
         return tableReqPollInterval;
     }
 
     /** Sets the table request poll interval in milliseconds. By default
-     * this is set to {@link Constants#DEFAULT_TABLE_REQ_POLL_INTEVEL_MS}
+     * this is set to {@link Constants#DEFAULT_TABLE_RED_POLL_INTERVAL_MS}
      */
     public NosqlDbConfig setTableReqPollInterval(int pollInterval) {
         this.tableReqPollInterval = pollInterval;
