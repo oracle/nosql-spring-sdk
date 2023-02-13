@@ -57,7 +57,8 @@ public class NosqlEntityInformation <T, ID> extends
     private int timeout;
     private FieldValue.Type idNosqlType;
     private boolean useDefaultTableLimits = false;
-//    private boolean isComposite;
+    private String defaultNamespace;
+    //    private boolean isComposite;
 
     public NosqlEntityInformation(ApplicationContext applicationContext,
                                   Class<T> domainClass) {
@@ -372,5 +373,13 @@ public class NosqlEntityInformation <T, ID> extends
                 "value.");
         }
         timeout = milliseconds;
+    }
+
+    public void setDefaultNamespace(String defaultNamespace) {
+        this.defaultNamespace = defaultNamespace;
+    }
+
+    public String getDefaultNamespace() {
+        return defaultNamespace;
     }
 }

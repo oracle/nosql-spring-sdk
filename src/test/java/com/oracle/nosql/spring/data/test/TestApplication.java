@@ -484,9 +484,6 @@ public class TestApplication {
         c2.enumMap = new HashMap<>();
         c2.enumMap.put(Customer.Priority.LOW, null);
         c2.enumMap.put(Customer.Priority.MEDIUM, "medium priority");
-        //c2.enumMap.put(Customer.Priority.HIGH, "high priority");
-        //c2.enumMap.put(Customer.Priority.LOW, new HashMap<>());
-        //c2.enumMap.put(Customer.Priority.MEDIUM, new Object[]{});
         c2.enumMap.put(Customer.Priority.HIGH, new ArrayList<>());
 
         c2.classicMap = new HashMap<>();

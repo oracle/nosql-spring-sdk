@@ -77,11 +77,6 @@ public class NosqlTemplate
         this.projectionFactory = new SpelAwareProxyProjectionFactory();
     }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext)
-        throws BeansException {
-    }
-
     public String getTableName(Class<?> domainClass) {
         Assert.notNull(domainClass, "domainClass should not be null");
 

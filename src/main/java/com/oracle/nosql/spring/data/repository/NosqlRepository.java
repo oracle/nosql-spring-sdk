@@ -12,6 +12,7 @@ import java.util.Optional;
 import oracle.nosql.driver.Consistency;
 import oracle.nosql.driver.Durability;
 
+import com.oracle.nosql.spring.data.config.NosqlDbConfig;
 import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
 
 import org.springframework.data.domain.Page;
@@ -160,4 +161,17 @@ public interface NosqlRepository<T, ID extends Serializable> extends
      * Note: This applies to On-Prem installations only.
      */
     void setDurability(String durability);
+
+    /**
+     * Returns the configured default namespace used for requests.
+     */
+    String getDefaultNamespace();
+
+    /**
+     * Sets the default namespace value used for requests.
+     * This set takes precedence over the one set when using
+     * {@link NosqlDbConfig#setDefaultNamespace(String)}.<p>
+     * Note: This applies to On-Prem installations only.
+     */
+    void setDefaultNamespace(String defaultNamespace);
 }

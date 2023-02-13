@@ -276,4 +276,12 @@ public class SimpleNosqlRepository <T, ID extends Serializable>
     public void setDurability(String durability) {
         entityInformation.setDurability(durability);
     }
+
+    public void setDefaultNamespace(String defaultNamespace) {
+        entityInformation.setDefaultNamespace(defaultNamespace);
+    }
+
+    public String getDefaultNamespace() {
+        return entityInformation.getDefaultNamespace();
+    }
 }

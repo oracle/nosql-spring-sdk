@@ -45,7 +45,7 @@ public @interface NosqlTable {
 
     /**
      * Flag that indicates if automatic creation of table is enabled. By
-     * default this is set to {@link Constants#DEFAULT_AUTO_CREATE_TABLE}.
+     * default, this is set to {@link Constants#DEFAULT_AUTO_CREATE_TABLE}.
      */
     boolean autoCreateTable() default Constants.DEFAULT_AUTO_CREATE_TABLE;
 

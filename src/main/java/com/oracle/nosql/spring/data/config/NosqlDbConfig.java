@@ -34,6 +34,8 @@ public class NosqlDbConfig {
     private int defaultReadUnits = 50;
     private int defaultWriteUnits = 50;
 
+    private String defaultNamespace = null;
+
     public NosqlDbConfig(String endpoint,
         AuthorizationProvider authorizationProvider) {
         this(new NoSQLHandleConfig(endpoint).setAuthorizationProvider(authorizationProvider));
@@ -324,7 +326,7 @@ public class NosqlDbConfig {
 
     /**
      * Sets the default write units when table is created if
-     * {@link NosqlTable} annotation is not present or it doesn't specify a
+     * {@link NosqlTable} annotation is not present, or it doesn't specify a
      * writeUnits value. Valid values are only values greater than 0. This
      * applies only in cloud or cloud sim scenarios.
      * When in PROVISIONED mode all three: storageGB, readUnits and writeUnits
@@ -345,5 +347,30 @@ public class NosqlDbConfig {
      */
     public int getDefaultWriteUnits() {
         return defaultWriteUnits;
+    }
+
+    /**
+     * Sets the default write units when table is created if
+     * {@link NosqlTable} annotation is not present, or it doesn't specify a
+     * writeUnits value. Valid values are only values greater than 0. This
+     * applies only in cloud or cloud sim scenarios.
+     * When in PROVISIONED mode all three: storageGB, readUnits and writeUnits
+     * must be greater than 0 to be valid.
+     * {@link oracle.nosql.driver.ops.TableLimits}.<p>
+     * If not set the default value is 50.<p>
+     *
+     * Note: StorageBG, capacity mode and read/write units can later be
+     * configured from the OCI console or using the API.
+     */
+    public NosqlDbConfig setDefaultNamespace(String defaultNamespace) {
+        this.defaultNamespace = defaultNamespace;
+        return this;
+    }
+
+    /**
+     * Returns the value that was set for default write units or 50 otherwise.
+     */
+    public String getDefaultNamespace() {
+        return defaultNamespace;
     }
 }

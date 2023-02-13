@@ -380,4 +380,8 @@ public abstract class NosqlTemplateBase
     private Iterable<MapValue> doQuery(QueryRequest qReq) {
         return new IterableUtil.IterableImpl(nosqlClient, qReq);
     }
+
+    public NoSQLHandle getNoSQLHandle() {
+        return nosqlClient;
+    }
 }

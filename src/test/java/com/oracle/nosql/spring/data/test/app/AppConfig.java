@@ -104,7 +104,7 @@ public class AppConfig extends AppConfigBase {
         nosqlDBConfig.setDefaultStorageGB(this.defaultStorageGB);
         nosqlDBConfig.setDefaultReadUnits(this.defaultReadUnits);
         nosqlDBConfig.setDefaultWriteUnits(this.defaultWriteUnits);
-
+        //nosqlDBConfig.getNosqlHandleConfig().setDefaultCompartment(defaultNamespace);
         return nosqlDBConfig;
     }
 }
