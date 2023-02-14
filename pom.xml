@@ -269,7 +269,9 @@
                         <id>attach-javadocs</id>
                         <goals>
                             <goal>jar</goal>
+                            <goal>javadoc</goal>
                         </goals>
+                        <phase>prepare-package</phase>
                     </execution>
                 </executions>
             </plugin>
