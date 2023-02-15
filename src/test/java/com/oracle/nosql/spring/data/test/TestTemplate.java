@@ -46,8 +46,8 @@ public class TestTemplate {
 
         NosqlTemplate template = NosqlTemplate.create(AppConfig.nosqlDBConfig);
 
-        NosqlEntityInformation<Customer, Long> customerEntInfo =
-            new NosqlEntityInformation<>(Customer.class);
+        NosqlEntityInformation<Customer, ?> customerEntInfo =
+            template.getNosqlEntityInformation(Customer.class);
 
         customerEntInfo.setTimeout(10000);
         template.deleteAll(customerEntInfo);

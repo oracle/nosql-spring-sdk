@@ -28,6 +28,14 @@ import oracle.nosql.driver.values.BinaryValue;
 import com.oracle.nosql.spring.data.core.mapping.NosqlId;
 import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
 
+
+//@NosqlTable(tableName = "#{ systemProperties['sys_ns']}:Customer")  //  works where sys_ns is a jvm system property, empty if property doesn't exist hence default namespace is used
+//@NosqlTable(tableName = "#{ @environment.getProperty('ENV_NS')}:Customer") // works where ENV_NS is an environment property, empty if var doesn't exist hence default namespace is used
+//@NosqlTable(tableName = "${app.ns}:Customer") // works with app.ns property in application.properties, not replaced if property doesn't exist hence error
+//@NosqlTable(tableName = "${app.ns:ns2}:Customer") // works with app.ns property in application.properties, if property doesn't exist 'ns2' is used
+// works, first tries sys_ns jvm system property, than ENV_NS environment variable, than app.ns property in application.properties file and if none was available uses 'srcNs' as namespace of Cust table
+//@NosqlTable(tableName = "#{ systemProperties['sys_ns'] != null ? systemProperties['sys_ns'] : @environment.getProperty('ENV_NS') != null ? @environment.getProperty('ENV_NS') : '${app.ns:srcNs}' }:Cust")
+//@NosqlTable(tableName = ":Customer")  // works only when # and $ are used
 @NosqlTable(readUnits = 100, writeUnits = 50, storageGB = 1)
 public class Customer {
 

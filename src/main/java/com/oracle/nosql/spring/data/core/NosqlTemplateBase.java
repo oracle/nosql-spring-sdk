@@ -36,9 +36,14 @@ import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
 
-public abstract class NosqlTemplateBase {
+
+public abstract class NosqlTemplateBase
+    implements ApplicationContextAware {
 
     public static final String JSON_COLUMN = "kv_json_";
 
@@ -67,6 +72,7 @@ public abstract class NosqlTemplateBase {
     protected final NoSQLHandle nosqlClient;
     protected final MappingNosqlConverter mappingNosqlConverter;
     protected LruCache<String, PreparedStatement> psCache;
+    protected ApplicationContext applicationContext;
 
     protected NosqlTemplateBase(NosqlDbFactory nosqlDbFactory,
         MappingNosqlConverter mappingNosqlConverter) {
@@ -77,6 +83,11 @@ public abstract class NosqlTemplateBase {
         this.mappingNosqlConverter = mappingNosqlConverter;
         psCache = new LruCache<>(nosqlDbFactory.getQueryCacheCapacity(),
             nosqlDbFactory.getQueryCacheLifetime());
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 
     protected TableResult doTableRequest(NosqlEntityInformation<?, ?> entityInformation,
@@ -122,8 +133,9 @@ public abstract class NosqlTemplateBase {
             }
         }
 
+        String tableName = entityInformation.getTableName();
         String sql = String.format(TEMPLATE_CREATE_TABLE,
-            entityInformation.getTableName(),
+            tableName,
             idColName, idColType, autogen, idColName);
 
         TableRequest tableReq = new TableRequest().setStatement(sql)
