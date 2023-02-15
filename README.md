@@ -101,7 +101,7 @@ Note: Depending on individual scenario use the appropriate AuthorizationProvider
     ```
 
  - For on-prem configuration use one of the following examples or see
- [documentation](https://docs.oracle.com/en/database/other-databases/nosql-database/22.3/admin/creating-nosql-handle.html).
+ [documentation](https://docs.oracle.com/en/database/other-databases/nosql-database/22.3/admin/obtaining-nosql-handle.html).
    * For unsecure example:
 
      ```java
