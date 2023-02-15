@@ -20,7 +20,9 @@ import org.springframework.context.annotation.PropertySource;
 @Configuration
 /* Looks for configuration properties in a this file. */
 @PropertySource(value = "classpath:application.properties")
-@EnableNosqlRepositories
+@EnableNosqlRepositories(basePackageClasses =
+        {com.oracle.nosql.spring.data.test.TestTTL.class},
+        considerNestedRepositories = true)
 public class AppConfig extends AppConfigBase {
 
     /* Get values specified in application.properties file or use

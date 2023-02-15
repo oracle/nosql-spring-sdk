@@ -46,7 +46,7 @@ public abstract class NosqlTemplateBase {
         LoggerFactory.getLogger(NosqlTemplateBase.class);
     static final String TEMPLATE_CREATE_TABLE =
         "CREATE TABLE IF NOT EXISTS %s (%s %s %s, " +
-            JSON_COLUMN + " JSON, PRIMARY KEY( %s ))";
+            JSON_COLUMN + " JSON, PRIMARY KEY( %s )) %s";
     static final String TEMPLATE_GENERATED_ALWAYS =
         "GENERATED ALWAYS as IDENTITY (NO CYCLE)";
     static final String TEMPLATE_GENERATED_UUID =
@@ -62,6 +62,7 @@ public abstract class NosqlTemplateBase {
     static final String TEMPLATE_UPDATE =
         "DECLARE $id %s; $json JSON; " +
         "UPDATE %s t SET t." + JSON_COLUMN + " = $json WHERE t.%s = $id";
+    static final String TEMPLATE_TTL_CREATE = "USING TTL %s";
 
     protected final NosqlDbFactory nosqlDbFactory;
     protected final NoSQLHandle nosqlClient;
@@ -122,9 +123,16 @@ public abstract class NosqlTemplateBase {
             }
         }
 
+        String ttl =    "";
+        if (entityInformation.getTtl() != null &&
+                entityInformation.getTtl().getValue() != 0) {
+            ttl = String.format(TEMPLATE_TTL_CREATE,
+                    entityInformation.getTtl().toString());
+        }
+
         String sql = String.format(TEMPLATE_CREATE_TABLE,
             entityInformation.getTableName(),
-            idColName, idColType, autogen, idColName);
+            idColName, idColType, autogen, idColName, ttl);
 
         TableRequest tableReq = new TableRequest().setStatement(sql)
             .setTableLimits(entityInformation.getTableLimits(nosqlDbFactory));

@@ -16,6 +16,7 @@ import java.util.List;
 
 import oracle.nosql.driver.Consistency;
 import oracle.nosql.driver.Durability;
+import oracle.nosql.driver.TimeToLive;
 import oracle.nosql.driver.ops.TableLimits;
 import oracle.nosql.driver.values.FieldValue;
 
@@ -44,6 +45,7 @@ public class NosqlEntityInformation <T, ID> extends
     private int timeout;
     private FieldValue.Type idNosqlType;
     private boolean useDefaultTableLimits = false;
+    private TimeToLive ttl;
 //    private boolean isComposite;
 
     public NosqlEntityInformation(Class<T> domainClass) {
@@ -240,6 +242,15 @@ public class NosqlEntityInformation <T, ID> extends
             if (!annotation.tableName().isEmpty()) {
                 tableName = annotation.tableName();
             }
+
+            if (annotation.ttl() < 0) {
+                throw new IllegalArgumentException("ttl cannot be a negative " +
+                    "value");
+            }
+            ttl = TimeToLive.ofDays(annotation.ttl());
+            if (annotation.ttlUnit() == NosqlTable.TtlUnit.HOURS) {
+                ttl = TimeToLive.ofHours(annotation.ttl());
+            }
         } else {
             // No annotation exists, use the values set in NosqlDbConfig
             useDefaultTableLimits = true;
@@ -310,5 +321,9 @@ public class NosqlEntityInformation <T, ID> extends
                 "value.");
         }
         timeout = milliseconds;
+    }
+
+    public TimeToLive getTtl() {
+        return ttl;
     }
 }

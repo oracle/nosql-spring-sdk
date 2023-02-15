@@ -128,4 +128,35 @@ public @interface NosqlTable {
      * the set here.
      */
     int timeout() default Constants.NOTSET_TABLE_TIMEOUT_MS;
+
+    /**
+     * Sets the default table level Time to Live (TTL) when table is created.
+     * TTL allows automatic expiration of table rows when specified duration of
+     * time is elapsed. If not set the value
+     * {@link com.oracle.nosql.spring.data.Constants#NOTSET_TABLE_TTL} is used,
+     * which means no table level TTL. This is applicable only when
+     * {@link #autoCreateTable} is set to true.
+     * <p>
+     *
+     * @since TODO
+     * @see oracle.nosql.driver.TimeToLive
+     * @see
+     * <a href="https://docs.oracle.com/en/database/other-databases/nosql-database/22.3/java-driver-table/using-time-live.html#GUID-A768A8F9-309A-4018-8CC3-D2D6B8793C59">Using TTL</a>}
+     */
+
+    int ttl() default Constants.NOTSET_TABLE_TTL;
+
+    enum TtlUnit {
+        DAYS,
+        HOURS
+    }
+
+    /**
+     * Sets the unit of TTL value. If not set the default value is days. This
+     * is applicable only when {@link #autoCreateTable} is set to true.
+     *
+     * @since TODO
+     */
+    TtlUnit ttlUnit() default TtlUnit.DAYS;
+
 }
