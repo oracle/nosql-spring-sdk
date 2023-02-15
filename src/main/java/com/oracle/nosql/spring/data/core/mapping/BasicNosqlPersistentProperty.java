@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.TreeSet;
 
 import oracle.nosql.driver.values.FieldValue;
@@ -156,6 +157,8 @@ public class BasicNosqlPersistentProperty
             return TypeCode.ARRAY;
         } else if (Collection.class.isAssignableFrom(cls)) {
             return TypeCode.COLLECTION;
+        } else if (Map.class.isAssignableFrom(cls)) {
+            return TypeCode.MAP;
         } else if (Object.class.equals(cls)) {
             return TypeCode.OBJECT;
         } else if (FieldValue.class.isAssignableFrom(cls)) {
