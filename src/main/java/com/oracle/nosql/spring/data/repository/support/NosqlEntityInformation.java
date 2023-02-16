@@ -13,6 +13,8 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import oracle.nosql.driver.Consistency;
 import oracle.nosql.driver.Durability;
@@ -28,13 +30,24 @@ import com.oracle.nosql.spring.data.core.mapping.NosqlId;
 import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.repository.core.support.AbstractEntityInformation;
+import org.springframework.data.spel.EvaluationContextProvider;
+import org.springframework.data.spel.ExtensionAwareEvaluationContextProvider;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.ParseException;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.common.LiteralExpression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.util.ReflectionUtils;
 
 public class NosqlEntityInformation <T, ID> extends
     AbstractEntityInformation<T, ID> {
 
+    private ApplicationContext applicationContext;
     private Field id;
     private String tableName;
     private boolean autoCreateTable;
@@ -48,9 +61,11 @@ public class NosqlEntityInformation <T, ID> extends
     private TimeToLive ttl;
 //    private boolean isComposite;
 
-    public NosqlEntityInformation(Class<T> domainClass) {
+    public NosqlEntityInformation(ApplicationContext applicationContext,
+                                  Class<T> domainClass) {
         super(domainClass);
 
+        this.applicationContext = applicationContext;
         this.id = getIdField(domainClass);
         ReflectionUtils.makeAccessible(this.id);
         idNosqlType = findIdNosqlType();
@@ -241,6 +256,33 @@ public class NosqlEntityInformation <T, ID> extends
 
             if (!annotation.tableName().isEmpty()) {
                 tableName = annotation.tableName();
+
+                Environment environment = null;
+                if (applicationContext != null) {
+                    environment = applicationContext.getEnvironment();
+                }
+
+                // to evaluate against application.properties
+                if (tableName.contains("$") && environment != null) {
+                    tableName = environment.resolvePlaceholders(tableName);
+                    System.out.println("appCtx resolve $: " + tableName);
+                }
+
+                // to evaluate against SpEl and environment/system properties
+                if (tableName.contains("#")) {
+                    SpelExpressionParser PARSER = new SpelExpressionParser();
+                    Expression expression = PARSER.parseExpression(tableName, ParserContext.TEMPLATE_EXPRESSION);
+                    if (!(expression instanceof LiteralExpression)) {
+                        EvaluationContextProvider evalCtxProvider = //EvaluationContextProvider.DEFAULT;
+                            new ExtensionAwareEvaluationContextProvider(applicationContext);
+                        tableName = expression.getValue(evalCtxProvider.getEvaluationContext(environment), String.class);
+                    }
+                    System.out.println("appCtx resolve #: " + tableName);
+                }
+                tableName = tableName.trim();
+                if (tableName.startsWith(":")) {
+                    tableName = tableName.substring(1);
+                }
             }
 
             if (annotation.ttl() < 0) {
@@ -254,6 +296,26 @@ public class NosqlEntityInformation <T, ID> extends
         } else {
             // No annotation exists, use the values set in NosqlDbConfig
             useDefaultTableLimits = true;
+        }
+    }
+
+    public static class CachingExpressionParser implements ExpressionParser {
+
+        private final ExpressionParser delegate;
+        private final Map<String, Expression> cache = new ConcurrentHashMap<>();
+
+        CachingExpressionParser(ExpressionParser delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public Expression parseExpression(String expressionString) throws ParseException {
+            return cache.computeIfAbsent(expressionString, delegate::parseExpression);
+        }
+
+        @Override
+        public Expression parseExpression(String expressionString, ParserContext context) throws ParseException {
+            throw new UnsupportedOperationException("Parsing using ParserContext is not supported");
         }
     }
 

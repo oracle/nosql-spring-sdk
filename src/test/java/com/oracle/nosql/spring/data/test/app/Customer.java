@@ -8,18 +8,34 @@ package com.oracle.nosql.spring.data.test.app;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Objects;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import oracle.nosql.driver.values.BinaryValue;
 
 import com.oracle.nosql.spring.data.core.mapping.NosqlId;
 import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
 
+
+//@NosqlTable(tableName = "#{ systemProperties['sys_ns']}:Customer")  //  works where sys_ns is a jvm system property, empty if property doesn't exist hence default namespace is used
+//@NosqlTable(tableName = "#{ @environment.getProperty('ENV_NS')}:Customer") // works where ENV_NS is an environment property, empty if var doesn't exist hence default namespace is used
+//@NosqlTable(tableName = "${app.ns}:Customer") // works with app.ns property in application.properties, not replaced if property doesn't exist hence error
+//@NosqlTable(tableName = "${app.ns:ns2}:Customer") // works with app.ns property in application.properties, if property doesn't exist 'ns2' is used
+// works, first tries sys_ns jvm system property, than ENV_NS environment variable, than app.ns property in application.properties file and if none was available uses 'srcNs' as namespace of Cust table
+//@NosqlTable(tableName = "#{ systemProperties['sys_ns'] != null ? systemProperties['sys_ns'] : @environment.getProperty('ENV_NS') != null ? @environment.getProperty('ENV_NS') : '${app.ns:srcNs}' }:Cust")
+//@NosqlTable(tableName = ":Customer")  // works only when # and $ are used
 @NosqlTable(readUnits = 100, writeUnits = 50, storageGB = 1)
 public class Customer {
 
@@ -44,6 +60,20 @@ public class Customer {
     public List<Object> list;
     public Object[] arr;
 
+    // Map fields
+    public Map<Object, Object> mapField;                   // LinkedHashMap impl
+    public Map<Priority, Object> enumMap;                  // LinkedHashMap impl
+    @SuppressWarnings("unchecked")
+    public Map classicMap;                                 // LinkedHashMap impl
+    public Map<String, Object[]> arraysMap;                // LinkedHashMap impl
+
+    public NavigableMap<String, Object> navigableMap;      // TreeMap impl
+    public SortedMap<String, Object> sortedMap;            // TreeMap impl
+    public HashMap<String, Object> hashMap;                // HashMap
+    public LinkedHashMap<String, Object> linkedHashMap;    // LinkedHashMap
+    public Hashtable<String, ArrayList<Object>> hashtable; // Hashtable
+    public TreeMap<String, Object> treeMap;                // TreeMap
+
     public enum Priority {
         HIGH,
         MEDIUM,
@@ -67,13 +97,18 @@ public class Customer {
                 "kids=%s, length=%s, weight=%s, coins=%s, " +
                 "biField=%s, bdField=%s, vanilla=%s, code=%s, birthDay='%s'" +
                 "address=%s, addList='%s', addArray=%s, list=%s, " +
-                "arr=%s, priority=%s}",
+                "arr=%s, priority=%s, mapField=%s, enumMap=%s, " +
+                "classicMap=%s, arraysMaps=%s}, navigableMap=%s, " +
+                "sortedMap=%s, hashMap=%s, linkedHashMap=%s, hashtable=%s, " +
+                "treeMap=%s",
             customerId, firstName, lastName, kids, length, weight,
             coins, biField, bdField, vanilla,
             Arrays.toString(code),
             (birthDay != null ? birthDay.toInstant() : ""),
             address, addList,
-            Arrays.toString(addArray), list, Arrays.toString(arr), priority);
+            Arrays.toString(addArray), list, Arrays.toString(arr), priority,
+            mapField, enumMap, classicMap, arraysMap, navigableMap, sortedMap,
+            hashMap, linkedHashMap, hashtable, treeMap);
     }
 
     @Override
@@ -81,7 +116,9 @@ public class Customer {
         int result = Objects
             .hash(customerId, firstName, lastName, kids, length, weight, coins,
                 biField, bdField, vanilla, birthDay, address, addList, list,
-                priority);
+                priority, mapField, enumMap, classicMap, arraysMap,
+                navigableMap, sortedMap, hashMap, linkedHashMap, hashtable,
+                treeMap);
         result = 31 * result + Arrays.hashCode(code);
         result = 31 * result + Arrays.hashCode(addArray);
         result = 31 * result + Arrays.hashCode(arr);
@@ -118,7 +155,27 @@ public class Customer {
             (arr == null && c.arr != null) ||
             (arr != null && c.arr == null) ||
             (priority == null && c.priority != null) ||
-            (priority != null && c.priority == null)
+            (priority != null && c.priority == null) ||
+            (mapField == null && c.mapField != null) ||
+            (mapField != null && c.mapField == null) ||
+            (enumMap == null && c.enumMap != null) ||
+            (enumMap != null && c.enumMap == null) ||
+            (classicMap == null && c.classicMap != null) ||
+            (classicMap != null && c.classicMap == null) ||
+            (arraysMap == null && c.arraysMap != null) ||
+            (arraysMap != null && c.arraysMap == null) ||
+            (navigableMap == null && c.navigableMap != null) ||
+            (navigableMap != null && c.navigableMap == null) ||
+            (sortedMap == null && c.sortedMap != null) ||
+            (sortedMap != null && c.sortedMap == null) ||
+            (hashMap == null && c.hashMap != null) ||
+            (hashMap != null && c.hashMap == null) ||
+            (linkedHashMap == null && c.linkedHashMap != null) ||
+            (linkedHashMap != null && c.linkedHashMap == null) ||
+            (hashtable == null && c.hashtable != null) ||
+            (hashtable != null && c.hashtable == null) ||
+            (treeMap == null && c.treeMap != null) ||
+            (treeMap != null && c.treeMap == null)
         ) {
             return false;
         }
@@ -147,10 +204,79 @@ public class Customer {
             Arrays.equals(addArray, c.addArray) &&
             listEquals(list, c.list) &&
             Arrays.equals(arr, c.arr) &&
-            priority == c.priority;
+            priority == c.priority &&
+            mapEquals(mapField, c.mapField) &&
+            mapEquals(enumMap, c.enumMap) &&
+            mapEquals(classicMap, c.classicMap) &&
+            mapEquals(arraysMap, c.arraysMap) &&
+            mapEquals(navigableMap, c.navigableMap) &&
+            mapEquals(sortedMap, c.sortedMap) &&
+            mapEquals(hashMap, c.hashMap) &&
+            mapEquals(linkedHashMap, c.linkedHashMap) &&
+            mapEquals(hashtable, c.hashtable) &&
+            mapEquals(treeMap, c.treeMap)
+            ;
     }
 
-    private boolean listEquals(Collection<?> c1, Collection<?> c2) {
+    /** Check if the two values are matching. */
+    private static boolean objEquals(Object o1, Object o2) {
+        if (o1 == null && o2 != null || o1 != null && o2 == null) {
+            return false;
+        }
+
+        if (o1 == null && o2 == null) {
+            return true;
+        }
+
+        if (o1.getClass() == byte[].class &&
+            o2.getClass() == String.class) {
+            return Arrays.equals((byte[]) o1,
+                BinaryValue.decodeBase64((String) o2));
+        }
+        if (o1.getClass() == String.class &&
+            o2.getClass() == byte[].class) {
+            return Arrays.equals((byte[]) o2,
+                BinaryValue.decodeBase64((String) o1));
+        }
+
+        if (o1 instanceof Collection &&
+            o2 instanceof Object[]) {
+            return listEquals((Collection<?>) o1, Arrays.asList((Object[]) o2));
+        }
+        if (o2 instanceof Collection &&
+            o1 instanceof Object[]) {
+            return listEquals((Collection<?>) o2, Arrays.asList((Object[]) o1));
+        }
+
+        if (o1 instanceof Collection &&
+            o2 instanceof Collection) {
+            return listEquals((Collection<?>) o1, (Collection<?>) o2);
+        }
+        if (o1 instanceof Object[] &&
+            o2 instanceof Object[]) {
+            return listEquals(Arrays.asList((Object[]) o1),
+                Arrays.asList((Object[]) o2));
+        }
+
+        if (o1 instanceof Map &&
+            o2 instanceof Map) {
+            return mapEquals((Map<?, ?>) o1, (Map<?, ?>) o2);
+        }
+
+        if (o1 instanceof Float &&
+            o2 instanceof Double) {
+            return Math.abs((double) o2 - (float) o1) < 0.0001d;
+        }
+        if (o1 instanceof Double &&
+            o2 instanceof Float) {
+            return Math.abs((double) o1 - (float) o2) < 0.0001d;
+        }
+
+        return o1.equals(o2);
+    }
+
+    /** Check if the two lists have matching values. */
+    private static boolean listEquals(Collection<?> c1, Collection<?> c2) {
         if (c1 == null && c2 != null || c1 != null && c2 == null) {
             return false;
         }
@@ -170,68 +296,45 @@ public class Customer {
             Object i1 = it1.next();
             Object i2 = it2.next();
 
-            if (i1 == null && i2 != null || i1 != null && i2 == null) {
+            if (!objEquals(i1, i2)) {
                 return false;
             }
-            if (i1 == null && i2 == null) {
+        }
+        return true;
+    }
+
+    /** Check if values inside the two maps match. Note: only m1 can contain
+     *  enum objects as map keys that correspond to String keys in m2.
+     *  Values that are byte[] are equal to their base64 encoding.
+     */
+    public static boolean mapEquals(Map<?, ?> m1, Map<?, ?> m2) {
+        if (m1 == null && m2 != null || m1 != null && m2 == null) {
+            return false;
+        }
+
+        if (m1 == null && m2 == null) {
+            return true;
+        }
+
+        if (m1.size() != m2.size()) {
+            return false;
+        }
+
+        for (Map.Entry<?, ?> e1 : m1.entrySet()) {
+            Object k1 = e1.getKey();
+            Object v1 = e1.getValue();
+            Object v2 = m2.get(k1);
+
+            if (v1 == null && v2 == null) {
                 continue;
             }
 
-            if (i1.getClass() == byte[].class &&
-                i2.getClass() == String.class) {
-                if (Arrays.equals((byte[]) i1,
-                    BinaryValue.decodeBase64((String) i2))) {
-                    continue;
-                } else {
-                    return false;
-                }
-            }
-            if (i1.getClass() == String.class &&
-                i2.getClass() == byte[].class) {
-                if (Arrays.equals((byte[]) i2,
-                    BinaryValue.decodeBase64((String) i1))) {
-                    continue;
-                } else {
-                    return false;
-                }
+            // Check if enum got saved as String
+            if (v2 == null && k1 instanceof Enum) {
+                v2 = m2.get(k1.toString());
             }
 
-            if (i1 instanceof Collection &&
-                i2 instanceof Object[]) {
-                if (listEquals((Collection) i1, Arrays.asList((Object[]) i2))) {
-                    continue;
-                } else {
-                    return false;
-                }
-            }
-            if (i2 instanceof Collection &&
-                i1 instanceof Object[]) {
-                if (listEquals((Collection) i2, Arrays.asList((Object[]) i1))) {
-                    continue;
-                } else {
-                    return false;
-                }
-            }
-
-            if (i1 instanceof Collection &&
-                i2 instanceof Collection) {
-                if (listEquals((Collection) i1, (Collection<?>) i2)) {
-                    continue;
-                } else {
-                    return false;
-                }
-            }
-            if (i1 instanceof Object[] &&
-                i2 instanceof Object[]) {
-                if (listEquals(Arrays.asList((Object[]) i1),
-                    Arrays.asList((Object[]) i2))) {
-                    continue;
-                } else {
-                    return false;
-                }
-            }
-
-            if (!i1.equals(i2)) {
+            if (!objEquals(v1, v2)) {
                 return false;
             }
         }

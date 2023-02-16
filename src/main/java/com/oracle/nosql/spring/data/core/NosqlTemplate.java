@@ -50,7 +50,7 @@ import org.springframework.util.Assert;
 
 public class NosqlTemplate
     extends  NosqlTemplateBase
-    implements NosqlOperations, ApplicationContextAware {
+    implements NosqlOperations {
 
     private final SpelAwareProxyProjectionFactory projectionFactory;
 
@@ -265,7 +265,7 @@ public class NosqlTemplate
 
     public <T> NosqlEntityInformation<T, ?> getNosqlEntityInformation(
         Class<T> domainClass) {
-        return new NosqlEntityInformation<>(domainClass);
+        return new NosqlEntityInformation<>(applicationContext, domainClass);
     }
 
     @Override

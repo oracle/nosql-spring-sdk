@@ -68,7 +68,7 @@ public class ReactiveNosqlTemplate
     public String getTableName(Class<?> domainClass) {
         Assert.notNull(domainClass, "domainClass should not be null");
 
-        return new NosqlEntityInformation<>(domainClass).getTableName();
+        return getNosqlEntityInformation(domainClass).getTableName();
     }
 
     /**
@@ -201,7 +201,7 @@ public class ReactiveNosqlTemplate
 
     private <T, ID> NosqlEntityInformation<T, ID> getNosqlEntityInformation(
         Class<T> domainClass) {
-        return new NosqlEntityInformation<>(domainClass);
+        return new NosqlEntityInformation<>(applicationContext, domainClass);
     }
 
     @SuppressWarnings("unchecked")
