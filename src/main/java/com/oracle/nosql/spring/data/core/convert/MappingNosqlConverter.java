@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -688,11 +688,10 @@ public class MappingNosqlConverter
         }
     }
 
-    private <K, V, E> Map<K, V> convertMapValueToMap(MapValue mapValue,
+    @SuppressWarnings("unchecked")
+    private <K, V, E, C> Map<K, V> convertMapValueToMap(MapValue mapValue,
         @Nullable TypeInformation<E> typeInfo) {
 
-        TypeInformation<K> componentType = (typeInfo == null) ? null :
-            (TypeInformation<K>) typeInfo.getComponentType();
         TypeInformation<V> valueType = typeInfo == null ? null :
             (TypeInformation<V>) typeInfo.getMapValueType();
         Class<?> valueTypeClass = valueType != null ? valueType.getType()
@@ -713,6 +712,8 @@ public class MappingNosqlConverter
                 typeInfo.getType());
         }
 
+        TypeInformation<K> componentType = (typeInfo == null) ? null :
+            (TypeInformation<K>) typeInfo.getComponentType();
         for (Map.Entry<String, FieldValue> entry : mapValue.getMap().entrySet())
         {
             K key;
@@ -730,6 +731,11 @@ public class MappingNosqlConverter
                     valueType));
         }
         return res;
+    }
+
+    private static <T extends Enum<T>> T of(Class<T> clazz, String key) {
+        T value = Enum.valueOf(clazz, key);
+        return value;
     }
 
     @SuppressWarnings("unchecked")
@@ -788,6 +794,7 @@ public class MappingNosqlConverter
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     private <E> List<Object> convertArrayValueToCollection(FieldValue nosqlValue,
            @Nullable TypeInformation<E> typeInfo) {
         List<Object> list = new ArrayList<>();
