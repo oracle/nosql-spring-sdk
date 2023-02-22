@@ -140,8 +140,7 @@ public @interface NosqlTable {
      *
      * @since 1.5.0
      * @see oracle.nosql.driver.TimeToLive
-     * @see
-     * <a href="https://docs.oracle.com/en/database/other-databases/nosql-database/22.3/java-driver-table/using-time-live.html#GUID-A768A8F9-309A-4018-8CC3-D2D6B8793C59">Using TTL</a>}
+     * @see <a href="https://docs.oracle.com/en/database/other-databases/nosql-database/22.3/java-driver-table/using-time-live.html#GUID-A768A8F9-309A-4018-8CC3-D2D6B8793C59">Using TTL</a>
      */
 
     int ttl() default Constants.NOTSET_TABLE_TTL;
@@ -156,6 +155,8 @@ public @interface NosqlTable {
      * is applicable only when {@link #autoCreateTable} is set to true.
      *
      * @since 1.5.0
+     * @see oracle.nosql.driver.TimeToLive
+     * @see <a href="https://docs.oracle.com/en/database/other-databases/nosql-database/22.3/java-driver-table/using-time-live.html#GUID-A768A8F9-309A-4018-8CC3-D2D6B8793C59">Using TTL</a>
      */
     TtlUnit ttlUnit() default TtlUnit.DAYS;
 
