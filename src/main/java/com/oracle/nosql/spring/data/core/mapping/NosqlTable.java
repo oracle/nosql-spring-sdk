@@ -138,7 +138,7 @@ public @interface NosqlTable {
      * {@link #autoCreateTable} is set to true.
      * <p>
      *
-     * @since TODO
+     * @since 1.5.0
      * @see oracle.nosql.driver.TimeToLive
      * @see
      * <a href="https://docs.oracle.com/en/database/other-databases/nosql-database/22.3/java-driver-table/using-time-live.html#GUID-A768A8F9-309A-4018-8CC3-D2D6B8793C59">Using TTL</a>}
@@ -155,7 +155,7 @@ public @interface NosqlTable {
      * Sets the unit of TTL value. If not set the default value is days. This
      * is applicable only when {@link #autoCreateTable} is set to true.
      *
-     * @since TODO
+     * @since 1.5.0
      */
     TtlUnit ttlUnit() default TtlUnit.DAYS;
 

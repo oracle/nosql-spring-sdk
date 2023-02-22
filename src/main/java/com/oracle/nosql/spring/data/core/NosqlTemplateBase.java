@@ -140,8 +140,8 @@ public abstract class NosqlTemplateBase
             ttl = String.format(TEMPLATE_TTL_CREATE,
                     entityInformation.getTtl().toString());
         }
- 	
-	String tableName = entityInformation.getTableName();
+
+        String tableName = entityInformation.getTableName();
         String sql = String.format(TEMPLATE_CREATE_TABLE,
             tableName,
             idColName, idColType, autogen, idColName, ttl);
