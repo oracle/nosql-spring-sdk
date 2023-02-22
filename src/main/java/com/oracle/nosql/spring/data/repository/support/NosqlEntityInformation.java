@@ -292,26 +292,6 @@ public class NosqlEntityInformation <T, ID> extends
         }
     }
 
-    public static class CachingExpressionParser implements ExpressionParser {
-
-        private final ExpressionParser delegate;
-        private final Map<String, Expression> cache = new ConcurrentHashMap<>();
-
-        CachingExpressionParser(ExpressionParser delegate) {
-            this.delegate = delegate;
-        }
-
-        @Override
-        public Expression parseExpression(String expressionString) throws ParseException {
-            return cache.computeIfAbsent(expressionString, delegate::parseExpression);
-        }
-
-        @Override
-        public Expression parseExpression(String expressionString, ParserContext context) throws ParseException {
-            throw new UnsupportedOperationException("Parsing using ParserContext is not supported");
-        }
-    }
-
     private Durability getDurability(String durability) {
         if ("COMMIT_SYNC".equals(durability.toUpperCase())) {
             return Durability.COMMIT_SYNC;
