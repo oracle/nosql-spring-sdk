@@ -263,7 +263,6 @@ public class NosqlEntityInformation <T, ID> extends
                 // to evaluate against application.properties
                 if (tableName.contains("$") && environment != null) {
                     tableName = environment.resolvePlaceholders(tableName);
-                    System.out.println("appCtx resolve $: " + tableName);
                 }
 
                 // to evaluate against SpEl and environment/system properties
@@ -280,9 +279,9 @@ public class NosqlEntityInformation <T, ID> extends
                             evalCtxProvider.getEvaluationContext(environment),
                             String.class);
                     }
-                    System.out.println("appCtx resolve #: " + tableName);
                 }
                 tableName = tableName.trim();
+                // Enable "${foo}:Table" or "#{}:Table"
                 if (tableName.startsWith(":")) {
                     tableName = tableName.substring(1);
                 }
