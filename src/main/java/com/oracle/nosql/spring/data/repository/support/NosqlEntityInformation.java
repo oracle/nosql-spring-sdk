@@ -263,7 +263,6 @@ public class NosqlEntityInformation <T, ID> extends
                 // to evaluate against application.properties
                 if (tableName.contains("$") && environment != null) {
                     tableName = environment.resolvePlaceholders(tableName);
-                    System.out.println("appCtx resolve $: " + tableName);
                 }
 
                 // to evaluate against SpEl and environment/system properties
@@ -280,9 +279,9 @@ public class NosqlEntityInformation <T, ID> extends
                             evalCtxProvider.getEvaluationContext(environment),
                             String.class);
                     }
-                    System.out.println("appCtx resolve #: " + tableName);
                 }
                 tableName = tableName.trim();
+                // Enable "${foo}:Table" or "#{}:Table"
                 if (tableName.startsWith(":")) {
                     tableName = tableName.substring(1);
                 }
@@ -290,26 +289,6 @@ public class NosqlEntityInformation <T, ID> extends
         } else {
             // No annotation exists, use the values set in NosqlDbConfig
             useDefaultTableLimits = true;
-        }
-    }
-
-    public static class CachingExpressionParser implements ExpressionParser {
-
-        private final ExpressionParser delegate;
-        private final Map<String, Expression> cache = new ConcurrentHashMap<>();
-
-        CachingExpressionParser(ExpressionParser delegate) {
-            this.delegate = delegate;
-        }
-
-        @Override
-        public Expression parseExpression(String expressionString) throws ParseException {
-            return cache.computeIfAbsent(expressionString, delegate::parseExpression);
-        }
-
-        @Override
-        public Expression parseExpression(String expressionString, ParserContext context) throws ParseException {
-            throw new UnsupportedOperationException("Parsing using ParserContext is not supported");
         }
     }
 

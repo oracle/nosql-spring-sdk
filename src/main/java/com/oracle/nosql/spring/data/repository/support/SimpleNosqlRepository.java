@@ -44,7 +44,7 @@ public class SimpleNosqlRepository <T, ID extends Serializable>
 
     public SimpleNosqlRepository(NosqlEntityInformation<T, ID> metadata,
         NosqlOperations dbOperations) {
-        Assert.notNull(dbOperations, "NosqlOprerations must not be null.");
+        Assert.notNull(dbOperations, "NosqlOperations must not be null.");
         this.operation = dbOperations;
         this.entityInformation = metadata;
 
