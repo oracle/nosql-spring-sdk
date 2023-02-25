@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -269,12 +269,17 @@ public class NosqlEntityInformation <T, ID> extends
 
                 // to evaluate against SpEl and environment/system properties
                 if (tableName.contains("#")) {
-                    SpelExpressionParser PARSER = new SpelExpressionParser();
-                    Expression expression = PARSER.parseExpression(tableName, ParserContext.TEMPLATE_EXPRESSION);
+                    SpelExpressionParser spelParser =
+                        new SpelExpressionParser();
+                    Expression expression = spelParser.parseExpression(
+                        tableName, ParserContext.TEMPLATE_EXPRESSION);
                     if (!(expression instanceof LiteralExpression)) {
-                        EvaluationContextProvider evalCtxProvider = //EvaluationContextProvider.DEFAULT;
-                            new ExtensionAwareEvaluationContextProvider(applicationContext);
-                        tableName = expression.getValue(evalCtxProvider.getEvaluationContext(environment), String.class);
+                        EvaluationContextProvider evalCtxProvider =
+                            new ExtensionAwareEvaluationContextProvider(
+                                applicationContext);
+                        tableName = expression.getValue(
+                            evalCtxProvider.getEvaluationContext(environment),
+                            String.class);
                     }
                     System.out.println("appCtx resolve #: " + tableName);
                 }
