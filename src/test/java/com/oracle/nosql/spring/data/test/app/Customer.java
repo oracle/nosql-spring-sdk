@@ -41,14 +41,14 @@ import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
 // app.ns property in application.properties, if property doesn't exist 'ns2' is used
 //@NosqlTable(tableName = "${app.ns:ns2}:Customer")
 
-// first tries sys_ns jvm system property, than ENV_NS environment variable,
-// than app.ns property in application.properties file and if none was available
-// uses 'srcNs' as namespace of Cust table
+// first tries sys_ns jvm system property, then ENV_NS environment variable,
+// then app.ns property in application.properties file and if none was available
+// uses 'srcNs' as namespace of Customer table
 //@NosqlTable(tableName = "#{ systemProperties['sys_ns'] != null ?
 //     systemProperties['sys_ns'] : @environment.getProperty('ENV_NS') != null ?
-//     @environment.getProperty('ENV_NS') : '${app.ns:srcNs}' }:Cust")
+//     @environment.getProperty('ENV_NS') : '${app.ns:srcNs}' }:Customer")
 
-//@NosqlTable(tableName = ":Customer")  // ':' works only when # or $ are used
+//@NosqlTable(tableName = ":Customer")  // error, ':' works only when # or $ are used
 @NosqlTable(readUnits = 100, writeUnits = 50, storageGB = 1)
 public class Customer {
 
