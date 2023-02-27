@@ -369,6 +369,12 @@ public class NosqlEntityInformation <T, ID> extends
         timeout = milliseconds;
     }
 
+    /**
+     * Get default table level TTL of the entity
+     * @return Default table level TTL
+     *
+     * @since 1.5.0
+     */
     public TimeToLive getTtl() {
         return ttl;
     }
