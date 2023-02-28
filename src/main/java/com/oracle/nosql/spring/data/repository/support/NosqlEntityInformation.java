@@ -370,7 +370,11 @@ public class NosqlEntityInformation <T, ID> extends
     }
 
     /**
-     * Get default table level TTL of the entity
+     * Get default table level TTL of the entity.
+     * This is applicable only when the table is created through Spring SDK
+     * as part of  {@link NosqlTable#autoCreateTable()}. This will not reflect
+     * the TTL of an already created table.
+     *
      * @return Default table level TTL
      *
      * @since 1.5.0
