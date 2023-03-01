@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import oracle.nosql.driver.Consistency;
 import oracle.nosql.driver.Durability;
+import oracle.nosql.driver.TimeToLive;
 import oracle.nosql.driver.ops.TableLimits;
 import oracle.nosql.driver.values.FieldValue;
 
@@ -57,6 +58,7 @@ public class NosqlEntityInformation <T, ID> extends
     private int timeout;
     private FieldValue.Type idNosqlType;
     private boolean useDefaultTableLimits = false;
+    private TimeToLive ttl;
 //    private boolean isComposite;
 
     public NosqlEntityInformation(ApplicationContext applicationContext,
@@ -286,6 +288,15 @@ public class NosqlEntityInformation <T, ID> extends
                     tableName = tableName.substring(1);
                 }
             }
+
+            if (annotation.ttl() < 0) {
+                throw new IllegalArgumentException("ttl cannot be a negative " +
+                    "value");
+            }
+            ttl = TimeToLive.ofDays(annotation.ttl());
+            if (annotation.ttlUnit() == NosqlTable.TtlUnit.HOURS) {
+                ttl = TimeToLive.ofHours(annotation.ttl());
+            }
         } else {
             // No annotation exists, use the values set in NosqlDbConfig
             useDefaultTableLimits = true;
@@ -356,5 +367,19 @@ public class NosqlEntityInformation <T, ID> extends
                 "value.");
         }
         timeout = milliseconds;
+    }
+
+    /**
+     * Get default table level TTL of the entity.
+     * This is applicable only when the table is created through Spring SDK
+     * as part of  {@link NosqlTable#autoCreateTable()}. This will not reflect
+     * the TTL of an already created table.
+     *
+     * @return Default table level TTL
+     *
+     * @since 1.5.0
+     */
+    public TimeToLive getTtl() {
+        return ttl;
     }
 }

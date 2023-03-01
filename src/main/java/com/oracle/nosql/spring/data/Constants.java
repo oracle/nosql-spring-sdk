@@ -27,6 +27,7 @@ public class Constants {
     public static final int NOTSET_TABLE_WRITE_UNITS = -1;
     public static final int NOTSET_TABLE_STORAGE_GB = -1;
     public static final int NOTSET_TABLE_TIMEOUT_MS = 0;
+    public static final int NOTSET_TABLE_TTL = 0;
 
     public static final String USER_AGENT = "NoSQL-SpringSDK";
 
