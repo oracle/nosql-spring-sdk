@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -15,9 +15,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import oracle.nosql.driver.IndexExistsException;
@@ -75,6 +79,7 @@ import org.springframework.data.mapping.model.ConvertingPropertyAccessor;
 import org.springframework.data.mapping.model.EntityInstantiator;
 import org.springframework.data.mapping.model.EntityInstantiators;
 import org.springframework.data.mapping.model.ParameterValueProvider;
+import org.springframework.data.util.TypeInformation;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -121,7 +126,7 @@ public class MappingNosqlConverter
     @Override
     public <R> R read(@NonNull Class<R> type,
         @NonNull FieldValue nosqlRowValue) {
-        return convertFieldValueToObj(type, nosqlRowValue, true);
+        return convertFieldValueToObj(type, nosqlRowValue, true, null);
     }
 
     @Override
@@ -322,6 +327,13 @@ public class MappingNosqlConverter
             //geoPolygon.put(CLASS_FIELD_NAME, Polygon.class.getName());
             convertedValue = geoPolygon;
             break;
+        case MAP:
+            if (!(javaObj instanceof Map)) {
+                throw new IllegalStateException("Expected Map<?,?> " +
+                    "actual: " + javaObj.getClass().getName());
+            }
+            convertedValue = convertMapObjToFieldValue((Map<?, ?>) javaObj, prop);
+            break;
         case ARRAY:
             if (!(javaObj instanceof Object[])) {
                 throw new IllegalStateException("Expected Object[] " +
@@ -342,12 +354,10 @@ public class MappingNosqlConverter
             convertedValue = (FieldValue) javaObj;
             break;
         case POJO:
-            Class<?> expectedCls;
+            Class<?> expectedCls = null;
             if (prop != null) {
                 expectedCls = isItemInCollection ? prop.getActualType() :
                     prop.getType();
-            } else {
-                expectedCls = javaObj.getClass();
             }
             convertedValue = convertPojoObjToFieldValue(javaObj, expectedCls);
             break;
@@ -360,6 +370,35 @@ public class MappingNosqlConverter
         //System.out.println("      " + convertedValue.getType() + "  " +
         // convertedValue);
         return convertedValue;
+    }
+
+    private <K, V> FieldValue convertMapObjToFieldValue(Map<K, V> javaObj,
+        NosqlPersistentProperty prop) {
+
+        if (javaObj == null) {
+            return null;
+        }
+
+        MapValue res = new MapValue();
+        for (Map.Entry<K, V> entry : javaObj.entrySet()) {
+            if (entry.getKey() == null) {
+                throw new IllegalArgumentException("Unsupported null map key: " +
+                    prop);
+            }
+            boolean isEnum = entry.getKey().getClass().isEnum();
+            String key;
+            if (isEnum) {
+                key = ((Enum) entry.getKey()).name();
+            } else if (entry.getKey().getClass() == String.class) {
+                key = (String) entry.getKey();
+            } else  {
+                throw new IllegalArgumentException("Unsupported map key type: " +
+                    entry.getKey().getClass());
+            }
+            res.put( key,
+                convertObjToFieldValue(entry.getValue(), null, false));
+        }
+        return res;
     }
 
     private <T> FieldValue convertPojoObjToFieldValue(@NonNull T javaObj,
@@ -444,7 +483,14 @@ public class MappingNosqlConverter
      */
     @SuppressWarnings("unchecked")
     private <E> E convertFieldValueToObj(Class<?> type,
-        final FieldValue nosqlValue, boolean isRoot) {
+        final FieldValue nosqlValue, boolean isRoot,
+        @Nullable TypeInformation<E> typeInfo) {
+
+        if (type != null && nosqlValue != null &&
+            FieldValue.class.isAssignableFrom(type) &&
+            type.isAssignableFrom(nosqlValue.getClass())) {
+            return (E) nosqlValue;
+        }
 
         if (nosqlValue == null || nosqlValue.isNull() ||
             nosqlValue.isJsonNull() || nosqlValue.isEMPTY()) {
@@ -491,10 +537,11 @@ public class MappingNosqlConverter
 
             case COLLECTION:
             case OBJECT:
-                return (E) convertArrayValueToCollection(nosqlValue);
+                return (E) convertArrayValueToCollection(nosqlValue, typeInfo);
 
             case ARRAY:
-                List<Object> list = convertArrayValueToCollection(nosqlValue);
+                List<Object> list = convertArrayValueToCollection(nosqlValue,
+                    typeInfo);
                 return (E) list.toArray();
 
             default:
@@ -507,7 +554,8 @@ public class MappingNosqlConverter
             E entityObj = null;
 
             final NosqlPersistentEntity<E> entity = (NosqlPersistentEntity<E>)
-                mappingContext.getPersistentEntity(type);
+                mappingContext.getPersistentEntity(
+                    type != null ? type : Object.class);
 
             if (isRoot) {
                 if (type == MapValue.class) {
@@ -520,12 +568,13 @@ public class MappingNosqlConverter
                 FieldValue idFieldValue = null;
 
                 if (entity.getIdProperty() != null) {
-                    idFieldValue =
-                        nosqlValue.asMap().get(entity.getIdProperty().getName());
+                    idFieldValue = nosqlValue.asMap()
+                        .get(entity.getIdProperty().getName());
                 }
 
                 MapValue jsonValue;
-                if (nosqlValue.asMap().get(NosqlTemplateBase.JSON_COLUMN) != null) {
+                if (nosqlValue.asMap().get(NosqlTemplateBase.JSON_COLUMN) !=
+                    null) {
                     jsonValue = nosqlValue.asMap().
                         get(NosqlTemplateBase.JSON_COLUMN).asMap();
 
@@ -615,13 +664,22 @@ public class MappingNosqlConverter
                         throw new IllegalArgumentException("Unexpected " +
                             "GeoJson polygon representation: " + mapValue);
                     }
+                } else if ((type != null && Map.class.isAssignableFrom(type))
+                    || (type == Object.class && instClsStr == null)) {
+                    entityObj = (E) convertMapValueToMap(nosqlValue.asMap(),
+                        typeInfo);
+                } else if (entity != null || instClsStr != null) {
+                    // decode to POJO
+                    NosqlPersistentEntity<E> clsEntity =
+                        updateEntity(entity, instClsStr);
+                    entityObj = getNewInstance(clsEntity, null, mapValue);
+
+                    setPojoProperties(clsEntity, entityObj, mapValue);
+                } else {
+                    // not enough info to deserialize go for a Map
+                    entityObj = (E) convertMapValueToMap(nosqlValue.asMap(),
+                        typeInfo);
                 }
-
-                NosqlPersistentEntity<E> clsEntity =
-                    updateEntity(entity, instClsStr);
-                entityObj = getNewInstance(clsEntity, null, mapValue);
-
-                setPojoProperties(clsEntity, entityObj, mapValue);
             }
             return entityObj;
 
@@ -629,6 +687,56 @@ public class MappingNosqlConverter
             throw new IllegalStateException("Unknown FieldValue.Type: " +
                 nosqlType.name());
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <K, V, E, C> Map<K, V> convertMapValueToMap(MapValue mapValue,
+        @Nullable TypeInformation<E> typeInfo) {
+
+        TypeInformation<V> valueType = typeInfo == null ? null :
+            (TypeInformation<V>) typeInfo.getMapValueType();
+        Class<?> valueTypeClass = valueType != null ? valueType.getType()
+            : Object.class;
+
+        Map<K, V> res;
+        if (typeInfo != null && HashMap.class == typeInfo.getType()) {
+            res = new HashMap<>();
+        } else if (typeInfo == null ||
+            typeInfo.getType().isAssignableFrom(LinkedHashMap.class)) {
+            res = new LinkedHashMap<>();
+        } else if (typeInfo.getType().isAssignableFrom(Hashtable.class)) {
+            res = new Hashtable<>();
+        } else if (typeInfo.getType().isAssignableFrom(TreeMap.class)) {
+            res = new TreeMap<>();
+        } else {
+            throw new IllegalArgumentException("Unsupported Map type: " +
+                typeInfo.getType());
+        }
+
+        TypeInformation<K> componentType = (typeInfo == null) ? null :
+            (TypeInformation<K>) typeInfo.getComponentType();
+        for (Map.Entry<String, FieldValue> entry : mapValue.getMap().entrySet())
+        {
+            K key;
+            if (typeInfo != null && typeInfo.isMap() &&
+                componentType != null &&
+                componentType.getType().isEnum()) {
+                key = (K) Enum.valueOf(
+                    (Class<? extends Enum>) componentType.getType(),
+                    entry.getKey());
+            } else {
+                key = (K) entry.getKey();
+            }
+            res.put( key,
+                convertFieldValueToObj(valueTypeClass, entry.getValue(), false,
+                    valueType));
+        }
+        return res;
+    }
+
+    private static <T extends Enum<T>> T of(Class<T> clazz, String key) {
+        T value = Enum.valueOf(clazz, key);
+        return value;
     }
 
     @SuppressWarnings("unchecked")
@@ -687,11 +795,16 @@ public class MappingNosqlConverter
         return null;
     }
 
-    private List<Object> convertArrayValueToCollection(FieldValue nosqlValue) {
+    @SuppressWarnings("unchecked")
+    private <E> List<Object> convertArrayValueToCollection(FieldValue nosqlValue,
+           @Nullable TypeInformation<E> typeInfo) {
         List<Object> list = new ArrayList<>();
+        TypeInformation<E> componentType = (typeInfo == null) ? null :
+            (TypeInformation<E>) typeInfo.getComponentType();
         for (FieldValue item : nosqlValue.asArray()) {
             list.add(convertFieldValueToObj(Object.class,
-                item, false));
+                item, false,
+                componentType));
         }
         return list;
     }
@@ -927,7 +1040,7 @@ public class MappingNosqlConverter
                 prop.getActualType());
             for (FieldValue item : fieldValue.asArray()) {
                 list.add(convertFieldValueToObj(actualType ,
-                    item, false ));
+                    item, false, prop.getTypeInformation()));
             }
 
             switch(objClsTypeCode) {
@@ -953,7 +1066,8 @@ public class MappingNosqlConverter
             break;
         case MAP:
             Class<?> cls = ( prop == null ? Object.class : prop.getType());
-            objValue = convertFieldValueToObj(cls, fieldValue, false );
+            objValue = convertFieldValueToObj(cls, fieldValue, false,
+                (TypeInformation<T>) prop.getTypeInformation());
             break;
         case EMPTY:
             throw new IllegalStateException("Invalid type: " +

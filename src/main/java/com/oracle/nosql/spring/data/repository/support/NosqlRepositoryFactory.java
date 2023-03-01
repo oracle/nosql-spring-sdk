@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -55,7 +55,7 @@ public class NosqlRepositoryFactory extends RepositoryFactorySupport {
     @Override
     public <T, ID> EntityInformation<T, ID> getEntityInformation(
         Class<T> domainClass) {
-        return new NosqlEntityInformation<>(domainClass);
+        return new NosqlEntityInformation<>(applicationContext, domainClass);
     }
 
     @Override
@@ -63,19 +63,22 @@ public class NosqlRepositoryFactory extends RepositoryFactorySupport {
         QueryLookupStrategy.Key key,
         QueryMethodEvaluationContextProvider evaluationContextProvider) {
         return Optional.of(
-            new NosqlDbQueryLookupStrategy(nosqlOperations,
+            new NosqlDbQueryLookupStrategy(applicationContext, nosqlOperations,
                 evaluationContextProvider));
     }
 
     private static class NosqlDbQueryLookupStrategy
         implements QueryLookupStrategy {
+        private final ApplicationContext applicationContext;
         private final NosqlOperations dbOperations;
         private final QueryMethodEvaluationContextProvider
             evaluationContextProvider;
 
         public NosqlDbQueryLookupStrategy(
+            ApplicationContext applicationContext,
             NosqlOperations operations,
             QueryMethodEvaluationContextProvider provider) {
+            this.applicationContext = applicationContext;
             this.dbOperations = operations;
             this.evaluationContextProvider = provider;
         }
@@ -86,7 +89,7 @@ public class NosqlRepositoryFactory extends RepositoryFactorySupport {
             ProjectionFactory factory, NamedQueries namedQueries) {
 
             final NosqlQueryMethod queryMethod =
-                new NosqlQueryMethod(method, metadata, factory);
+                new NosqlQueryMethod(applicationContext, method, metadata, factory);
             String namedQueryName = queryMethod.getNamedQueryName();
 
             Assert.notNull(queryMethod, "queryMethod must not be null!");

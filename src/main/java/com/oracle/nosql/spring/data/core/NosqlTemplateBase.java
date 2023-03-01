@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -36,9 +36,14 @@ import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
 
-public abstract class NosqlTemplateBase {
+
+public abstract class NosqlTemplateBase
+    implements ApplicationContextAware {
 
     public static final String JSON_COLUMN = "kv_json_";
 
@@ -46,7 +51,7 @@ public abstract class NosqlTemplateBase {
         LoggerFactory.getLogger(NosqlTemplateBase.class);
     static final String TEMPLATE_CREATE_TABLE =
         "CREATE TABLE IF NOT EXISTS %s (%s %s %s, " +
-            JSON_COLUMN + " JSON, PRIMARY KEY( %s ))";
+            JSON_COLUMN + " JSON, PRIMARY KEY( %s )) %s";
     static final String TEMPLATE_GENERATED_ALWAYS =
         "GENERATED ALWAYS as IDENTITY (NO CYCLE)";
     static final String TEMPLATE_GENERATED_UUID =
@@ -62,11 +67,13 @@ public abstract class NosqlTemplateBase {
     static final String TEMPLATE_UPDATE =
         "DECLARE $id %s; $json JSON; " +
         "UPDATE %s t SET t." + JSON_COLUMN + " = $json WHERE t.%s = $id";
+    static final String TEMPLATE_TTL_CREATE = "USING TTL %s";
 
     protected final NosqlDbFactory nosqlDbFactory;
     protected final NoSQLHandle nosqlClient;
     protected final MappingNosqlConverter mappingNosqlConverter;
-    protected final LruCache<String, PreparedStatement> psCache;
+    protected LruCache<String, PreparedStatement> psCache;
+    protected ApplicationContext applicationContext;
 
     protected NosqlTemplateBase(NosqlDbFactory nosqlDbFactory,
         MappingNosqlConverter mappingNosqlConverter) {
@@ -77,6 +84,11 @@ public abstract class NosqlTemplateBase {
         this.mappingNosqlConverter = mappingNosqlConverter;
         psCache = new LruCache<>(nosqlDbFactory.getQueryCacheCapacity(),
             nosqlDbFactory.getQueryCacheLifetime());
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 
     protected TableResult doTableRequest(NosqlEntityInformation<?, ?> entityInformation,
@@ -122,9 +134,17 @@ public abstract class NosqlTemplateBase {
             }
         }
 
+        String ttl =    "";
+        if (entityInformation.getTtl() != null &&
+                entityInformation.getTtl().getValue() != 0) {
+            ttl = String.format(TEMPLATE_TTL_CREATE,
+                    entityInformation.getTtl().toString());
+        }
+
+        String tableName = entityInformation.getTableName();
         String sql = String.format(TEMPLATE_CREATE_TABLE,
-            entityInformation.getTableName(),
-            idColName, idColType, autogen, idColName);
+            tableName,
+            idColName, idColType, autogen, idColName, ttl);
 
         TableRequest tableReq = new TableRequest().setStatement(sql)
             .setTableLimits(entityInformation.getTableLimits(nosqlDbFactory));
@@ -289,7 +309,7 @@ public abstract class NosqlTemplateBase {
         }
 
         LOG.debug("Q: {}", query);
-
+        
         return doQuery(qReq);
     }
 

@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -13,9 +13,12 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import oracle.nosql.driver.Consistency;
 import oracle.nosql.driver.Durability;
+import oracle.nosql.driver.TimeToLive;
 import oracle.nosql.driver.ops.TableLimits;
 import oracle.nosql.driver.values.FieldValue;
 
@@ -27,13 +30,24 @@ import com.oracle.nosql.spring.data.core.mapping.NosqlId;
 import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.repository.core.support.AbstractEntityInformation;
+import org.springframework.data.spel.EvaluationContextProvider;
+import org.springframework.data.spel.ExtensionAwareEvaluationContextProvider;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.ParseException;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.common.LiteralExpression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.util.ReflectionUtils;
 
 public class NosqlEntityInformation <T, ID> extends
     AbstractEntityInformation<T, ID> {
 
+    private ApplicationContext applicationContext;
     private final Field id;
     private String tableName;
     private boolean autoCreateTable;
@@ -44,11 +58,14 @@ public class NosqlEntityInformation <T, ID> extends
     private int timeout;
     private final FieldValue.Type idNosqlType;
     private boolean useDefaultTableLimits = false;
+    private TimeToLive ttl;
 //    private boolean isComposite;
 
-    public NosqlEntityInformation(Class<T> domainClass) {
+    public NosqlEntityInformation(ApplicationContext applicationContext,
+                                  Class<T> domainClass) {
         super(domainClass);
 
+        this.applicationContext = applicationContext;
         this.id = getIdField(domainClass);
         ReflectionUtils.makeAccessible(this.id);
         idNosqlType = findIdNosqlType();
@@ -241,6 +258,46 @@ public class NosqlEntityInformation <T, ID> extends
 
             if (!annotation.tableName().isEmpty()) {
                 tableName = annotation.tableName();
+
+                Environment environment = null;
+                if (applicationContext != null) {
+                    environment = applicationContext.getEnvironment();
+                }
+
+                // to evaluate against application.properties
+                if (tableName.contains("$") && environment != null) {
+                    tableName = environment.resolvePlaceholders(tableName);
+                }
+
+                // to evaluate against SpEl and environment/system properties
+                if (tableName.contains("#")) {
+                    SpelExpressionParser spelParser =
+                        new SpelExpressionParser();
+                    Expression expression = spelParser.parseExpression(
+                        tableName, ParserContext.TEMPLATE_EXPRESSION);
+                    if (!(expression instanceof LiteralExpression)) {
+                        EvaluationContextProvider evalCtxProvider =
+                            new ExtensionAwareEvaluationContextProvider(
+                                applicationContext);
+                        tableName = expression.getValue(
+                            evalCtxProvider.getEvaluationContext(environment),
+                            String.class);
+                    }
+                }
+                tableName = tableName.trim();
+                // Enable "${foo}:Table" or "#{}:Table"
+                if (tableName.startsWith(":")) {
+                    tableName = tableName.substring(1);
+                }
+            }
+
+            if (annotation.ttl() < 0) {
+                throw new IllegalArgumentException("ttl cannot be a negative " +
+                    "value");
+            }
+            ttl = TimeToLive.ofDays(annotation.ttl());
+            if (annotation.ttlUnit() == NosqlTable.TtlUnit.HOURS) {
+                ttl = TimeToLive.ofHours(annotation.ttl());
             }
         } else {
             // No annotation exists, use the values set in NosqlDbConfig
@@ -312,5 +369,19 @@ public class NosqlEntityInformation <T, ID> extends
                 "value.");
         }
         timeout = milliseconds;
+    }
+
+    /**
+     * Get default table level TTL of the entity.
+     * This is applicable only when the table is created through Spring SDK
+     * as part of  {@link NosqlTable#autoCreateTable()}. This will not reflect
+     * the TTL of an already created table.
+     *
+     * @return Default table level TTL
+     *
+     * @since 1.5.0
+     */
+    public TimeToLive getTtl() {
+        return ttl;
     }
 }

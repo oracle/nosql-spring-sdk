@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -68,7 +68,7 @@ public class ReactiveNosqlTemplate
     public String getTableName(Class<?> domainClass) {
         Assert.notNull(domainClass, "domainClass should not be null");
 
-        return new NosqlEntityInformation<>(domainClass).getTableName();
+        return getNosqlEntityInformation(domainClass).getTableName();
     }
 
     /**
@@ -198,7 +198,7 @@ public class ReactiveNosqlTemplate
 
     private <T, ID> NosqlEntityInformation<T, ID> getNosqlEntityInformation(
         Class<T> domainClass) {
-        return new NosqlEntityInformation<>(domainClass);
+        return new NosqlEntityInformation<>(applicationContext, domainClass);
     }
 
     @SuppressWarnings("unchecked")

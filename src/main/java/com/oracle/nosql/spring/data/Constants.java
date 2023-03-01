@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -27,6 +27,7 @@ public class Constants {
     public static final int NOTSET_TABLE_WRITE_UNITS = -1;
     public static final int NOTSET_TABLE_STORAGE_GB = -1;
     public static final int NOTSET_TABLE_TIMEOUT_MS = 0;
+    public static final int NOTSET_TABLE_TTL = 0;
 
     public static final String USER_AGENT = "NoSQL-SpringSDK";
 

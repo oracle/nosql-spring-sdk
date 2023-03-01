@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.TreeSet;
 
 import oracle.nosql.driver.values.FieldValue;
@@ -157,6 +158,8 @@ public class BasicNosqlPersistentProperty
             return TypeCode.ARRAY;
         } else if (Collection.class.isAssignableFrom(cls)) {
             return TypeCode.COLLECTION;
+        } else if (Map.class.isAssignableFrom(cls)) {
+            return TypeCode.MAP;
         } else if (Object.class.equals(cls)) {
             return TypeCode.OBJECT;
         } else if (FieldValue.class.isAssignableFrom(cls)) {

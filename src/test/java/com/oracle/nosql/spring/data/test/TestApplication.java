@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -10,8 +10,14 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -459,5 +465,205 @@ public class TestApplication {
         repo.setDurability("COMMIT_WRITE_NO_SYNC");
         Assert.assertEquals("COMMIT_WRITE_NO_SYNC",
             repo.getDurability());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testMaps() {
+        Customer c1 = new Customer();
+        c1.kids = 2;
+        c1.firstName = "maps are null";
+        repo.save(c1);
+        long c1Id = c1.customerId;
+
+        Customer c2 = new Customer();
+        c2.firstName = "maps with entries";
+        c2.mapField = new HashMap<>();
+        c2.mapField.put("f1", null);
+        c2.mapField.put("f2", "f2 value");
+
+        c2.enumMap = new HashMap<>();
+        c2.enumMap.put(Customer.Priority.LOW, null);
+        c2.enumMap.put(Customer.Priority.MEDIUM, "medium priority");
+        //c2.enumMap.put(Customer.Priority.HIGH, "high priority");
+        //c2.enumMap.put(Customer.Priority.LOW, new HashMap<>());
+        //c2.enumMap.put(Customer.Priority.MEDIUM, new Object[]{});
+        c2.enumMap.put(Customer.Priority.HIGH, new ArrayList<>());
+
+        c2.classicMap = new HashMap<>();
+        c2.classicMap.put("entry1", "entry value 1");
+        c2.classicMap.put(Customer.Priority.HIGH, "value for HIGH");
+
+        Address pojo = new Address.USAddress("Oracle Way", "Austin", "TX", 78777);
+        c2.classicMap.put("pojo", pojo);
+
+        List<Object> list = new ArrayList<>();
+        list.add(null);
+        list.add(1);
+        list.add(2L);
+        list.add(3.0);
+        list.add(4.0d);
+        list.add(false);
+        list.add("hello");
+        Address pojo2 = new Address.UKAddress("Oracle Circle", "London", "UK77");
+        list.add(pojo2);
+        c2.classicMap.put("list", list);
+
+        c2.arraysMap = new HashMap<>();
+        c2.arraysMap.put("null", null);
+        c2.arraysMap.put("empty", new Object[0]);
+        c2.arraysMap.put("123", new Object[]{null, 1, 2L, 3.0, 4.0d, true, "six"});
+
+        c2.navigableMap = new TreeMap<>();
+        c2.navigableMap.put("navigable", "map");
+        c2.sortedMap = new TreeMap<>();
+        c2.sortedMap.put("sorted", "map");
+
+        c2.hashMap = new HashMap<>();
+        c2.hashMap.put("null", null);
+        c2.hashMap.put("hash", "map");
+        c2.linkedHashMap = new LinkedHashMap<>();
+        c2.linkedHashMap.put("null", null);
+        c2.linkedHashMap.put("linked", "hash");
+        c2.treeMap = new TreeMap<>();
+        c2.treeMap.put("tree", "map");
+        c2.hashtable = new Hashtable<>();
+        c2.hashtable.put("empty", new ArrayList<>());
+
+        ArrayList<Object> al = new ArrayList<>();
+        al.add(null);
+        al.add("");
+        al.add(1);
+        al.add(2L);
+        al.add(3.0f);
+        al.add(true);
+        ArrayList<Object> al2 = new ArrayList<>();
+        al2.add(null);
+        al2.add("");
+        al2.add(1);
+        al2.add(2L);
+        al2.add(3.0f);
+        al2.add(true);
+        Map<String, Object> innerMap = new HashMap<>();
+        innerMap.put("null", null);
+        innerMap.put("empty", "");
+        innerMap.put("1", 1);
+        innerMap.put("2L", 2L);
+        innerMap.put("3.0f", 3.0f);
+        innerMap.put("4.0d", 4.0d);
+        innerMap.put("true", true);
+        al2.add(innerMap);
+        al.add(al2);
+        c2.hashtable.put("nested lists", al);
+
+        repo.save(c2);
+        long c2Id = c2.customerId;
+
+        Optional<Customer> optC1Db = repo.findById(c1Id);
+        Assert.assertTrue(optC1Db.isPresent());
+        Customer c1Db = optC1Db.get();
+        Assert.assertEquals(c1.customerId, c1Db.customerId);
+        Assert.assertEquals(c1.firstName, c1Db.firstName);
+        Assert.assertEquals(c1.mapField, c1Db.mapField);
+        Assert.assertEquals(c1.enumMap, c1Db.enumMap);
+        Assert.assertEquals(c1.classicMap, c1Db.classicMap);
+        Assert.assertEquals(c1.arraysMap, c1Db.arraysMap);
+        Assert.assertEquals(c1.navigableMap, c1Db.navigableMap);
+        Assert.assertEquals(c1.sortedMap, c1Db.sortedMap);
+        Assert.assertEquals(c1.hashMap, c1Db.hashMap);
+        Assert.assertEquals(c1.linkedHashMap, c1Db.linkedHashMap);
+        Assert.assertEquals(c1.treeMap, c1Db.treeMap);
+        Assert.assertEquals(c1.hashtable, c1Db.hashtable);
+
+        Optional<Customer> optC2Db = repo.findById(c2Id);
+        Assert.assertTrue(optC2Db.isPresent());
+        Customer c2Db = optC2Db.get();
+        Assert.assertEquals(c2.customerId, c2Db.customerId);
+        Assert.assertEquals(c2.firstName, c2Db.firstName);
+        Assert.assertEquals(c2.mapField, c2Db.mapField);
+        Assert.assertTrue("enumMaps should be equal - exp: " + c2.enumMap +
+            "   - act: " + c2Db.enumMap,
+            Customer.mapEquals(c2.enumMap, c2Db.enumMap));
+        Assert.assertTrue("classicMap should be equal equal exp: " +
+            c2.classicMap + " act: " + c2Db.classicMap,
+            Customer.mapEquals(c2.classicMap, c2Db.classicMap));
+        Assert.assertArrayEquals("arraysMap[123] should be equal",
+            c2.arraysMap.get("123"), c2Db.arraysMap.get("123"));
+        Assert.assertTrue("arraysMap should be equal equal exp: " +
+                c2.arraysMap + " act: " + c2Db.arraysMap,
+            Customer.mapEquals(c2.arraysMap, c2Db.arraysMap));
+
+        Assert.assertEquals("navigableMap NOT equal",
+            c2.navigableMap, c2Db.navigableMap);
+        Assert.assertEquals("sortedMap NOT equal",
+            c2.sortedMap, c2Db.sortedMap);
+        Assert.assertEquals("hashMap NOT equal",
+            "" + c2.hashMap, "" + c2Db.hashMap);
+        Assert.assertEquals("linkedHashMap NOT equal",
+            "" + c2.linkedHashMap, "" + c2Db.linkedHashMap);
+        Assert.assertEquals("treeMap NOT equal",
+            "" + c2.treeMap, "" + c2Db.treeMap);
+        Assert.assertEquals("hashtable NOT equal",
+            "" + c2.hashtable, "" + c2Db.hashtable);
+
+//        printWithTypes("enumMap", c2Db.enumMap);
+//        printWithTypes("classicMap", c2Db.classicMap);
+//        printWithTypes("array", c2Db.arraysMap);
+//        printWithTypes("navigable", c2Db.navigableMap);
+//        printWithTypes("sorted", c2Db.sortedMap);
+//        printWithTypes("hash", c2Db.hashMap);
+//        printWithTypes("linked", c2Db.linkedHashMap);
+//        printWithTypes("tree", c2Db.treeMap);
+//        printWithTypes("hashtable", c2Db.hashtable);
+
+        Assert.assertTrue("\nExp: " + c2 +
+            "\nAct: " + c2Db, c2.equals(c2Db));
+
+        // Check errors when keys are null or other types
+        c2.classicMap.put(null, "value for null key");
+        checkError(c2, "Unsupported null map key: public java.util.Map " +
+            "com.oracle.nosql.spring.data.test.app.Customer.classicMap");
+        c2.classicMap.remove(null);
+
+        c2.classicMap.put(123, "value for 123 key");
+        checkError(c2, "Unsupported map key type: class java.lang.Integer");
+        c2.classicMap.remove(123);
+
+        Address pojoKey = new Address("Oracle Rue", "Paris");
+        c2.mapField.put(pojoKey, "pojo key");
+        checkError(c2, "Unsupported map key type: class " +
+            "com.oracle.nosql.spring.data.test.app.Address");
+        c2.mapField.remove(pojo);
+    }
+
+    private void checkError(Customer c2, String msg) {
+        try {
+            repo.save(c2);
+            Assert.fail("repo.save didn't throw expected error: " + msg);
+        } catch (IllegalArgumentException e) {
+            Assert.assertEquals(msg, e.getMessage());
+        }
+    }
+
+    private void printWithTypes(String name, Map<?, ?> map) {
+        if (map == null) {
+            System.out.println("map '" + name + "' is null");
+            return;
+        }
+
+        System.out.println("map: " + name + ":  " + map.getClass());
+        for (Map.Entry entry : map.entrySet()) {
+            System.out.println("  - k: " +
+                (entry.getKey() == null ? "null" : entry.getKey().getClass()) +
+                " = " + entry.getKey());
+            System.out.println("    v: " +
+                (entry.getValue() == null ? "null" : entry.getValue()
+                    .getClass()) + " = " + entry.getValue());
+            if (entry.getValue() != null && entry.getValue().getClass()
+                .isArray() ) {
+                Object[] arr = (Object[]) entry.getValue();
+                System.out.println("      " + Arrays.toString(arr));
+            }
+        }
     }
 }

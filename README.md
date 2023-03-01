@@ -74,7 +74,8 @@ Oracle NoSQL DB configuration:
 
 Note: Depending on individual scenario use the appropriate AuthorizationProvider:
  - For cloud configuration use the following example or see
-    [documentation](https://docs.oracle.com/en/cloud/paas/nosql-cloud/csnsd/connecting-using-java.html):
+    [documentation](https://docs.oracle.com/en/cloud/paas/nosql-cloud/uapic/index.html#UAPIC-GUID-6DB8FA3D-1E31-49E6-A54E-908F187968A2):
+
 
     ```java
     new oracle.nosql.driver.iam.SignatureProvider(
@@ -100,7 +101,7 @@ Note: Depending on individual scenario use the appropriate AuthorizationProvider
     ```
 
  - For on-prem configuration use one of the following examples or see
-    [documentation](https://docs.oracle.com/en/database/other-databases/nosql-database/22.1/admin/creating-nosql-handle.html):
+ [documentation](https://docs.oracle.com/en/database/other-databases/nosql-database/22.3/admin/obtaining-nosql-handle.html).
    * For unsecure example:
 
      ```java
@@ -282,7 +283,8 @@ Tests can be also be run on:
 ## Help
 
 * [API documentation](https://oracle.github.io/nosql-spring-sdk/)
-* [Developer's Guide](https://docs.oracle.com/en/database/other-databases/nosql-database/22.1/springsdk/index.html)
+* [Developer's Guide](https://docs.oracle.com/en/database/other-databases/nosql-database/22.3/springsdk/index.html)
+
 * Open an issue in the [Issues](https://github.com/oracle/nosql-spring-sdk/issues) page
 * Post your question on the [Oracle NoSQL Database Community](https://community.oracle.com/community/groundbreakers/database/nosql_database).
 * [Email to nosql\_sdk\_help\_grp@oracle.com](mailto:nosql_sdk_help_grp@oracle.com)

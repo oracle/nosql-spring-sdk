@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -14,6 +14,7 @@ import java.util.Optional;
 import com.oracle.nosql.spring.data.repository.Query;
 import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.core.EntityMetadata;
@@ -25,16 +26,19 @@ import org.springframework.util.StringUtils;
 
 public class NosqlQueryMethod extends QueryMethod {
 
-
     private final Method method;
+    private ApplicationContext applicationContext;
     private final Map<Class<? extends Annotation>, Optional<Annotation>>
         annotationCache;
     private NosqlEntityMetadata<?> metadata;
 
-    public NosqlQueryMethod(Method method, RepositoryMetadata metadata, ProjectionFactory factory) {
+    public NosqlQueryMethod(ApplicationContext applicationContext,
+        Method method, RepositoryMetadata metadata, ProjectionFactory factory) {
+
         super(method, metadata, factory);
 
         this.method = method;
+        this.applicationContext = applicationContext;
         this.annotationCache = new ConcurrentReferenceHashMap<>();
     }
 
@@ -43,7 +47,7 @@ public class NosqlQueryMethod extends QueryMethod {
     public EntityMetadata<?> getEntityInformation() {
         final Class<Object> domainClass = (Class<Object>) getDomainClass();
         final NosqlEntityInformation<Object, String> entityInformation =
-            new NosqlEntityInformation<>(domainClass);
+            new NosqlEntityInformation<>(applicationContext, domainClass);
 
         this.metadata = new SimpleNosqlEntityMetadata<>(domainClass, entityInformation);
         return this.metadata;
