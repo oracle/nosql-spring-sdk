@@ -157,6 +157,8 @@ public interface NosqlRepository<T, ID extends Serializable> extends
      * {@link Durability#COMMIT_SYNC}.<p>
      * This set takes precedence over the one set when using
      * {@link NosqlTable#durability()}.<p>
+     * If null or invalid value is provided durability will be set to
+     * {@link Durability#COMMIT_NO_SYNC}<p>
      * Note: This applies to On-Prem installations only.
      */
     void setDurability(String durability);
