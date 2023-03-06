@@ -136,13 +136,11 @@ public @interface NosqlTable {
      * {@link com.oracle.nosql.spring.data.Constants#NOTSET_TABLE_TTL} is used,
      * which means no table level TTL. This is applicable only when
      * {@link #autoCreateTable} is set to true.
-     * <p>
      *
      * @since 1.5.0
      * @see oracle.nosql.driver.TimeToLive
-     * @see <a href="https://docs.oracle.com/en/database/other-databases/nosql-database/22.3/java-driver-table/using-time-live.html#GUID-A768A8F9-309A-4018-8CC3-D2D6B8793C59">Using TTL</a>
+     * @see <a href="https://docs.oracle.com/en/database/other-databases/nosql-database/22.3/java-driver-table/using-time-live.html">Using TTL</a>
      */
-
     int ttl() default Constants.NOTSET_TABLE_TTL;
 
     enum TtlUnit {

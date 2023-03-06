@@ -217,7 +217,7 @@ public class SimpleReactiveNosqlRepository <T, ID extends Serializable>
      */
     @Override
     public String getConsistency() {
-        return entityInformation.getConsistency().name();
+        return entityInformation.getConsistency().getType().name();
     }
 
     /**
