@@ -48,11 +48,13 @@ public class CriteriaQuery extends NosqlQuery {
     }
 
 
+    @Override
     public CriteriaQuery with(Sort sort) {
         super.with(sort);
         return this;
     }
 
+    @Override
     public CriteriaQuery with(@NonNull Pageable pageable) {
         super.with(pageable);
         return this;
@@ -61,11 +63,13 @@ public class CriteriaQuery extends NosqlQuery {
     /**
      * Limit the number of returned rows to {@code limit}.
      */
+    @Override
     public CriteriaQuery limit(Integer limit) {
         super.limit(limit);
         return this;
     }
 
+    @Override
     public CriteriaQuery setCount(boolean isCount) {
         super.setCount(isCount);
         return this;
@@ -128,6 +132,7 @@ public class CriteriaQuery extends NosqlQuery {
         return Optional.empty();
     }
 
+    @Override
     public String generateSql(String tableName,
         final Map<String, Object> params, String idPropertyName) {
 

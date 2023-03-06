@@ -33,7 +33,7 @@ public interface ReactiveNosqlOperations {
      * different than ACTIVE.
      */
     Mono<Boolean> createTableIfNotExists(
-        NosqlEntityInformation<?, ?> information);
+        NosqlEntityInformation<?, ?> entityInformation);
 
     /**
      * Drops table and returns true if result indicates table state changed to
@@ -55,15 +55,15 @@ public interface ReactiveNosqlOperations {
     <T, ID> Flux<T> findAllById(NosqlEntityInformation<T, ID> entityInformation,
         Publisher<ID> idStream);
 
-    <T> Mono<T> insert(T objectToSave);
+    <T> Mono<T> insert(T entity);
 
-    <S, ID> Mono<S> insert(NosqlEntityInformation<?, ID> entityInformation,
-        S objectToSave);
+    <T, ID> Mono<T> insert(NosqlEntityInformation<?, ID> entityInformation,
+        T entity);
 
-    <T> Mono<T> update(T object);
+    <T> Mono<T> update(T entity);
 
-    <S, ID> Mono<S> update(NosqlEntityInformation<?, ID> entityInformation,
-        S object);
+    <T, ID> Mono<T> update(NosqlEntityInformation<?, ID> entityInformation,
+        T entity);
 
     <ID> Mono<Void> deleteById(NosqlEntityInformation<?, ID> entityInformation,
         ID id);

@@ -22,7 +22,7 @@ public interface NosqlOperations {
     /**
      * Creates a table for the given entity type if it doesn't exist.
      */
-    boolean createTableIfNotExists(NosqlEntityInformation<?, ?> information);
+    boolean createTableIfNotExists(NosqlEntityInformation<?, ?> entityInformation);
 
     /**
      * Drops the given table, information about all saved entities is
@@ -48,27 +48,27 @@ public interface NosqlOperations {
      * Inserts the entity into the table, if id generated is used the id
      * field must be null or 0.
      */
-    <T> T insert(T objectToSave);
+    <T> T insert(T entity);
 
     /**
      * Inserts the entity into the given table, if id generated is used the id
      * field must be null or 0.
      */
     <T, ID> T  insert(NosqlEntityInformation<T, ID> entityInformation,
-        T objectToSave);
+        T entity);
 
     /**
      * Updates the entity into the table. Entity must contain a valid id
      * value.
      */
-    <T> void update(T object);
+    <T> void update(T entity);
 
     /**
      * Updates the entity into the given table. Entity must contain a valid id
      * value.
      */
     <T, ID> void update(NosqlEntityInformation<T, ID> entityInformation,
-        T object);
+        T entity);
 
     /**
      * Returns a result of all the entities in the table. Not recommended,

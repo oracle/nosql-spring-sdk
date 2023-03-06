@@ -36,6 +36,7 @@ public class ReactiveNosqlRepositoryConfigurationExtension
         return Constants.NOSQLDB_MODULE_PREFIX;
     }
 
+    @Override
     public String getRepositoryFactoryBeanClassName() {
         return ReactiveNosqlRepositoryFactoryBean.class.getName();
     }

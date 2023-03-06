@@ -29,7 +29,7 @@ public class AppConfig extends AppConfigBase {
     specified default otherwise. */
     @Value("${test.config.defaultStorageGB:25}")
     private int defaultStorageGB;
-    @Value(("${test.config.defaultCapacityMode:PROVISIONED}"))
+    @Value("${test.config.defaultCapacityMode:PROVISIONED}")
     private String defaultCapacityMode;
     @Value("${test.config.defaultReadUnits:50}")
     private int defaultReadUnits;

@@ -37,35 +37,35 @@ public interface NosqlRepository<T, ID extends Serializable> extends
      * @see org.springframework.data.repository.CrudRepository#save()
      */
     @Override
-    <S extends T> S save(S var1);
+    <S extends T> S save(S entity);
 
     /*
      * (non-Javadoc)
      * @see org.springframework.data.repository.CrudRepository#saveAll()
      */
     @Override
-    <S extends T> Iterable<S> saveAll(Iterable<S> var1);
+    <S extends T> Iterable<S> saveAll(Iterable<S> entities);
 
     /*
      * (non-Javadoc)
      * @see org.springframework.data.repository.CrudRepository#findById()
      */
     @Override
-    Optional<T> findById(ID var1);
+    Optional<T> findById(ID id);
 
     /*
      * (non-Javadoc)
      * @see org.springframework.data.repository.CrudRepository#existsById()
      */
     @Override
-    boolean existsById(ID var1);
+    boolean existsById(ID id);
 
     /*
      * (non-Javadoc)
      * @see org.springframework.data.repository.CrudRepository#findAllById()
      */
     @Override
-    Iterable<T> findAllById(Iterable<ID> var1);
+    Iterable<T> findAllById(Iterable<ID> ids);
 
     /*
      * (non-Javadoc)
@@ -79,21 +79,21 @@ public interface NosqlRepository<T, ID extends Serializable> extends
      * @see org.springframework.data.repository.CrudRepository#deleteById()
      */
     @Override
-    void deleteById(ID var1);
+    void deleteById(ID id);
 
     /*
      * (non-Javadoc)
      * @see org.springframework.data.repository.CrudRepository#delete()
      */
     @Override
-    void delete(T var1);
+    void delete(T entity);
 
     /*
      * (non-Javadoc)
      * @see org.springframework.data.repository.CrudRepository#deleteAll()
      */
     @Override
-    void deleteAll(Iterable<? extends T> var1);
+    void deleteAll(Iterable<? extends T> entities);
 
     /*
      * (non-Javadoc)

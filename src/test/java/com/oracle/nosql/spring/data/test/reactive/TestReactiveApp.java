@@ -38,7 +38,7 @@ public class TestReactiveApp {
 
     @Test
     public void testRepo() {
-        // get/setTimout()
+        // get/setTimeout()
         repo.setTimeout(20000);
         Assert.assertEquals(20000, repo.getTimeout());
 
