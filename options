@@ -1,0 +1,29 @@
+-classpath
+'/Users/cezar/.m2/repository/org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36.jar:/Users/cezar/.m2/repository/com/oracle/nosql/sdk/nosqldriver/5.4.9/nosqldriver-5.4.9.jar:/Users/cezar/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.13.2/jackson-core-2.13.2.jar:/Users/cezar/.m2/repository/io/netty/netty-buffer/4.1.86.Final/netty-buffer-4.1.86.Final.jar:/Users/cezar/.m2/repository/io/netty/netty-common/4.1.86.Final/netty-common-4.1.86.Final.jar:/Users/cezar/.m2/repository/io/netty/netty-codec-http/4.1.86.Final/netty-codec-http-4.1.86.Final.jar:/Users/cezar/.m2/repository/io/netty/netty-transport/4.1.86.Final/netty-transport-4.1.86.Final.jar:/Users/cezar/.m2/repository/io/netty/netty-codec/4.1.86.Final/netty-codec-4.1.86.Final.jar:/Users/cezar/.m2/repository/io/netty/netty-handler/4.1.86.Final/netty-handler-4.1.86.Final.jar:/Users/cezar/.m2/repository/io/netty/netty-resolver/4.1.86.Final/netty-resolver-4.1.86.Final.jar:/Users/cezar/.m2/repository/io/netty/netty-transport-native-unix-common/4.1.86.Final/netty-transport-native-unix-common-4.1.86.Final.jar:/Users/cezar/.m2/repository/io/netty/netty-handler-proxy/4.1.86.Final/netty-handler-proxy-4.1.86.Final.jar:/Users/cezar/.m2/repository/io/netty/netty-codec-socks/4.1.86.Final/netty-codec-socks-4.1.86.Final.jar:/Users/cezar/.m2/repository/org/bouncycastle/bcprov-jdk15on/1.70/bcprov-jdk15on-1.70.jar:/Users/cezar/.m2/repository/org/bouncycastle/bcpkix-jdk15on/1.70/bcpkix-jdk15on-1.70.jar:/Users/cezar/.m2/repository/org/springframework/spring-core/5.3.20/spring-core-5.3.20.jar:/Users/cezar/.m2/repository/org/springframework/spring-jcl/5.3.20/spring-jcl-5.3.20.jar:/Users/cezar/.m2/repository/org/springframework/spring-beans/5.3.20/spring-beans-5.3.20.jar:/Users/cezar/.m2/repository/org/springframework/spring-context/5.3.20/spring-context-5.3.20.jar:/Users/cezar/.m2/repository/org/springframework/spring-aop/5.3.20/spring-aop-5.3.20.jar:/Users/cezar/.m2/repository/org/springframework/spring-tx/5.3.20/spring-tx-5.3.20.jar:/Users/cezar/.m2/repository/org/springframework/data/spring-data-commons/2.7.0/spring-data-commons-2.7.0.jar:/Users/cezar/.m2/repository/org/springframework/spring-expression/5.3.20/spring-expression-5.3.20.jar:/Users/cezar/.m2/repository/org/apache/commons/commons-lang3/3.12.0/commons-lang3-3.12.0.jar:/Users/cezar/.m2/repository/io/projectreactor/reactor-core/3.4.19/reactor-core-3.4.19.jar:/Users/cezar/.m2/repository/org/reactivestreams/reactive-streams/1.0.4/reactive-streams-1.0.4.jar'
+-encoding
+'UTF-8'
+-protected
+-source
+'1.8'
+-sourcepath
+'/Users/cezar/dev/nsdb/nosql-sdk-int/spring/scripts/build/nosql-spring-sdk/src/main/java'
+-author
+-bottom
+'Copyright &#169; 2023 <a href="http://www.oracle.com">Oracle Corporation</a>. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'/Users/cezar/dev/nsdb/nosql-sdk-int/spring/scripts/build/nosql-spring-sdk/target/apidocs'
+-docencoding
+'UTF-8'
+-Xdoclint:all,-missing
+-doctitle
+'Oracle NoSQL Database SDK for Spring Data 1.5.0 API'
+-link
+'https://oracle.github.io/nosql-java-sdk'
+-linkoffline
+'https://docs.oracle.com/javase/8/docs/api' '/Users/cezar/dev/nsdb/nosql-sdk-int/spring/scripts/build/nosql-spring-sdk/target/javadoc-bundle-options'
+-use
+-version
+-windowtitle
+'Oracle NoSQL Database SDK for Spring Data 1.5.0 API'
