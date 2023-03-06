@@ -355,7 +355,11 @@ public class NosqlEntityInformation <T, ID> extends
     }
 
     public void setConsistency(String consistency) {
-        this.consistency = Consistency.valueOf(consistency);
+        if (Consistency.ABSOLUTE.getType().toString().equalsIgnoreCase(consistency)) {
+            this.consistency = Consistency.ABSOLUTE;
+        } else {
+            this.consistency = Consistency.EVENTUAL;
+        }
     }
 
     public Durability getDurability() {

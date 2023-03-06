@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [1.5.0]
+### Added
+- Added support for java.util.Map and similar types as mapping types.
+- Added support for evaluating SpEl expressions on NosqlTable.tableName annotation.
+- Added support for table level default TTL.
+
+### Changed
+- Updated documentation links.
+
 ## [1.4.1]
 ### Added
 - Add a way to return the library version using NosqlDbFactory.getLibraryVersion().
