@@ -306,12 +306,16 @@ public class NosqlEntityInformation <T, ID> extends
     }
 
     private Durability getDurability(String durability) {
+        if (durability == null) {
+            return Durability.COMMIT_NO_SYNC;
+        }
         if ("COMMIT_SYNC".equals(durability.toUpperCase())) {
             return Durability.COMMIT_SYNC;
         }
         if ("COMMIT_WRITE_NO_SYNC".equals(durability.toUpperCase())) {
             return Durability.COMMIT_WRITE_NO_SYNC;
         }
+        //return COMMIT_NO_SYNC by default
         return Durability.COMMIT_NO_SYNC;
     }
 

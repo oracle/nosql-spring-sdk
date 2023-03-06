@@ -465,6 +465,14 @@ public class TestApplication {
         repo.setDurability("COMMIT_WRITE_NO_SYNC");
         Assert.assertEquals("COMMIT_WRITE_NO_SYNC",
             repo.getDurability());
+
+        //null durability
+        repo.setDurability(null);
+        Assert.assertEquals("COMMIT_NO_SYNC", repo.getDurability());
+
+        //invalid durability
+        repo.setDurability("INVALID");
+        Assert.assertEquals("COMMIT_NO_SYNC", repo.getDurability());
     }
 
     @SuppressWarnings("unchecked")

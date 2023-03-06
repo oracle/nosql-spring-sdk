@@ -256,19 +256,17 @@ public class SimpleNosqlRepository <T, ID extends Serializable>
     }
 
     static String convertDurability(Durability durability) {
-        Assert.notNull(durability, "durability should not be null.");
-
-        if (durability.equals(Durability.COMMIT_NO_SYNC)) {
+        if (durability == Durability.COMMIT_NO_SYNC) {
             return "COMMIT_NO_SYNC";
         }
-        if (durability.equals(Durability.COMMIT_SYNC)) {
+        if (durability == Durability.COMMIT_SYNC) {
             return "COMMIT_SYNC";
         }
-        if (durability.equals(Durability.COMMIT_WRITE_NO_SYNC)) {
+        if (durability == Durability.COMMIT_WRITE_NO_SYNC) {
             return "COMMIT_WRITE_NO_SYNC";
         }
 
-        return durability.toString();
+        return "COMMIT_NO_SYNC";
     }
 
     /**
