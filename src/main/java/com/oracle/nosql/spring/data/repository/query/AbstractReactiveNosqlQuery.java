@@ -24,6 +24,7 @@ public abstract class AbstractReactiveNosqlQuery implements RepositoryQuery {
         this.operations = operations;
     }
 
+    @Override
     public Object execute(Object[] parameters) {
         final NosqlParameterAccessor accessor =
             new NosqlParameterParameterAccessor(method, parameters);
@@ -42,8 +43,7 @@ public abstract class AbstractReactiveNosqlQuery implements RepositoryQuery {
 
 
     private ReactiveNosqlQueryExecution getExecution(
-        NosqlParameterAccessor accessor)
-    {
+        NosqlParameterAccessor accessor) {
         NosqlEntityInformation<?, ?> entityInformation =
             ((NosqlEntityMetadata) method.getEntityInformation())
                 .getNosqlEntityInformation();
@@ -62,6 +62,7 @@ public abstract class AbstractReactiveNosqlQuery implements RepositoryQuery {
         }
     }
 
+    @Override
     public NosqlQueryMethod getQueryMethod() {
         return method;
     }

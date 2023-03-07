@@ -168,13 +168,13 @@ public class TestDynamicQuery {
         list = nosqlRepo.findByWeight(2.2f);
 
         Assert.assertEquals(1, list.size());
-        Assert.assertTrue(list.containsAll(Arrays.asList(c2)));
+        Assert.assertTrue(list.contains(c2));
 
 
         list = nosqlRepo.findByCoins(3.33d);
 
         Assert.assertEquals(1, list.size());
-        Assert.assertTrue(list.containsAll(Arrays.asList(c3)));
+        Assert.assertTrue(list.contains(c3));
 
 
         list = nosqlRepo.findByBiField(BigInteger.valueOf(6));
@@ -217,12 +217,12 @@ public class TestDynamicQuery {
         // ignore case applies to all fields
         list = nosqlRepo.findByLastNameAndFirstNameAllIgnoreCase("smIth", "alIce");
         Assert.assertEquals(1, list.size());
-        Assert.assertTrue(list.containsAll(Arrays.asList(c1)));
+        Assert.assertTrue(list.contains(c1));
 
         // ignore case applies only to firstName field
         list = nosqlRepo.findByLastNameAndFirstNameIgnoreCase("Smith", "alIce");
         Assert.assertEquals(1, list.size());
-        Assert.assertTrue(list.containsAll(Arrays.asList(c1)));
+        Assert.assertTrue(list.contains(c1));
 
         // ignore case for IN or NOT_IN expressions
         list = nosqlRepo.findByAddressCityIsInAllIgnoreCase(
@@ -238,7 +238,7 @@ public class TestDynamicQuery {
         list = nosqlRepo.findByAddressCity("Metropolis");
 
         Assert.assertEquals(1, list.size());
-        Assert.assertTrue(list.containsAll(Arrays.asList(c5)));
+        Assert.assertTrue(list.contains(c5));
     }
 
     @Test
@@ -414,7 +414,7 @@ public class TestDynamicQuery {
             Sort.by(Sort.Direction.DESC, "kids"));
 
         Assert.assertEquals(3, list.size());
-        Assert.assertTrue(list.equals(Arrays.asList(c3, c2, c1)));
+        Assert.assertEquals(list, Arrays.asList(c3, c2, c1));
 
 
         // use Pageable return List
@@ -452,7 +452,7 @@ public class TestDynamicQuery {
         List<Customer> expected = customers
             .stream()
             .map( c -> c.customerId)
-            .filter( id -> id < c4.customerId ? true : false)
+            .filter( id -> id < c4.customerId)
             .sorted()
             .map( id -> customers.stream()
                 .filter(c -> c.customerId == id).findAny().get() )
@@ -567,7 +567,7 @@ public class TestDynamicQuery {
     public void testFirstTop() {
         List<Customer> list = nosqlRepo.findFirstByOrderByLastNameAsc();
         Assert.assertEquals(1, list.size());
-        Assert.assertTrue(list.containsAll(Arrays.asList(c6)));
+        Assert.assertTrue(list.contains(c6));
 
 
         list = nosqlRepo.findTopByOrderByLastNameDesc();

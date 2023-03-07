@@ -355,9 +355,8 @@ public abstract class NosqlTemplateBase
         }
 
         LOG.debug("Q: {}", query);
-        Iterable<MapValue> results = doQuery(qReq);
-
-        return results;
+        
+        return doQuery(qReq);
     }
 
     protected <T> Iterable<MapValue> doExecuteMapValueQuery(NosqlQuery query,

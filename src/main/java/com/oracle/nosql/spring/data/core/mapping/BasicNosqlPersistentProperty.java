@@ -70,6 +70,7 @@ public class BasicNosqlPersistentProperty
      *
      * @return The property type code
      */
+    @Override
     public TypeCode getTypeCode() {
         if (typeCode == null) {
             typeCode = getCodeForDeserialization(getType());

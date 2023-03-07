@@ -99,9 +99,9 @@ public class MappingNosqlConverter
     private final MappingContext<? extends NosqlPersistentEntity<?>,
         NosqlPersistentProperty>
         mappingContext;
-    private GenericConversionService conversionService;
+    private final GenericConversionService conversionService;
     private ApplicationContext applicationContext;
-    private EntityInstantiators instantiators = new EntityInstantiators();
+    private final EntityInstantiators instantiators = new EntityInstantiators();
 
     public MappingNosqlConverter(
         @NonNull MappingContext<? extends NosqlPersistentEntity<?>,
@@ -155,6 +155,7 @@ public class MappingNosqlConverter
     }
 
     @NonNull
+    @Override
     public  MappingContext<? extends NosqlPersistentEntity<?>,
         NosqlPersistentProperty> getMappingContext() {
         return mappingContext;

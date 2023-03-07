@@ -39,6 +39,8 @@ public class BasicNosqlPersistentEntity<T>
         this.context = new StandardEvaluationContext();
         this.verifier = verifier;
     }
+
+    @Override
     public void setApplicationContext(ApplicationContext applicationContext)
         throws BeansException {
         context.addPropertyAccessor(new BeanFactoryAccessor());
@@ -47,6 +49,7 @@ public class BasicNosqlPersistentEntity<T>
     }
 
     @Nullable
+    @Override
     protected NosqlPersistentProperty
         returnPropertyIfBetterIdPropertyCandidateOrNull(
             NosqlPersistentProperty property) {

@@ -6,29 +6,17 @@
  */
 package com.oracle.nosql.spring.data.repository.support;
 
-import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import oracle.nosql.driver.Consistency;
-import oracle.nosql.driver.Durability;
-import oracle.nosql.driver.TimeToLive;
-import oracle.nosql.driver.ops.TableLimits;
-import oracle.nosql.driver.values.FieldValue;
-
 import com.oracle.nosql.spring.data.Constants;
 import com.oracle.nosql.spring.data.NosqlDbFactory;
 import com.oracle.nosql.spring.data.core.NosqlTemplateBase;
 import com.oracle.nosql.spring.data.core.mapping.NosqlCapacityMode;
 import com.oracle.nosql.spring.data.core.mapping.NosqlId;
 import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
-
+import oracle.nosql.driver.Consistency;
+import oracle.nosql.driver.Durability;
+import oracle.nosql.driver.TimeToLive;
+import oracle.nosql.driver.ops.TableLimits;
+import oracle.nosql.driver.values.FieldValue;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
@@ -37,18 +25,25 @@ import org.springframework.data.repository.core.support.AbstractEntityInformatio
 import org.springframework.data.spel.EvaluationContextProvider;
 import org.springframework.data.spel.ExtensionAwareEvaluationContextProvider;
 import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.ParseException;
 import org.springframework.expression.ParserContext;
 import org.springframework.expression.common.LiteralExpression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
 public class NosqlEntityInformation <T, ID> extends
     AbstractEntityInformation<T, ID> {
 
-    private ApplicationContext applicationContext;
-    private Field id;
+    private final ApplicationContext applicationContext;
+    private final Field id;
     private String tableName;
     private boolean autoCreateTable;
     private TableLimits tableLimits;
@@ -56,7 +51,7 @@ public class NosqlEntityInformation <T, ID> extends
     private Consistency consistency;
     private Durability durability;
     private int timeout;
-    private FieldValue.Type idNosqlType;
+    private final FieldValue.Type idNosqlType;
     private boolean useDefaultTableLimits = false;
     private TimeToLive ttl;
     private boolean isComposite;
@@ -92,6 +87,7 @@ public class NosqlEntityInformation <T, ID> extends
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public ID getId(T entity) {
         return (ID) ReflectionUtils.getField(id, entity);
     }
@@ -105,6 +101,7 @@ public class NosqlEntityInformation <T, ID> extends
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public Class<ID> getIdType() {
         return (Class<ID>) id.getType();
     }
@@ -269,23 +266,31 @@ public class NosqlEntityInformation <T, ID> extends
                         tableName, ParserContext.TEMPLATE_EXPRESSION);
                     if (!(expression instanceof LiteralExpression)) {
                         EvaluationContextProvider evalCtxProvider =
+                            applicationContext != null ?
                             new ExtensionAwareEvaluationContextProvider(
-                                applicationContext);
+                                applicationContext) :
+                            new ExtensionAwareEvaluationContextProvider(
+                                Collections.emptyList());
                         tableName = expression.getValue(
                             evalCtxProvider.getEvaluationContext(environment),
                             String.class);
                     }
                 }
-                tableName = tableName.trim();
-                // Enable "${foo}:Table" or "#{}:Table"
-                if (tableName.startsWith(":")) {
-                    tableName = tableName.substring(1);
+                if (tableName != null) {
+                    tableName = tableName.trim();
+                    // Enable "${foo}:Table" or "#{}:Table"
+                    if (tableName.startsWith(":")) {
+                        tableName = tableName.substring(1);
+                    }
+                } else {
+                    throw new IllegalArgumentException("Table name cannot be " +
+                        "null.");
                 }
             }
 
             if (annotation.ttl() < 0) {
-                throw new IllegalArgumentException("ttl cannot be a negative " +
-                    "value");
+                throw new IllegalArgumentException("NosqlTable.ttl cannot be " +
+                    "a negative value.");
             }
             ttl = TimeToLive.ofDays(annotation.ttl());
             if (annotation.ttlUnit() == NosqlTable.TtlUnit.HOURS) {
@@ -298,12 +303,16 @@ public class NosqlEntityInformation <T, ID> extends
     }
 
     private Durability getDurability(String durability) {
-        if ("COMMIT_SYNC".equals(durability.toUpperCase())) {
+        if (durability == null) {
+            return Durability.COMMIT_NO_SYNC;
+        }
+        if ("COMMIT_SYNC".equalsIgnoreCase(durability)) {
             return Durability.COMMIT_SYNC;
         }
-        if ("COMMIT_WRITE_NO_SYNC".equals(durability.toUpperCase())) {
+        if ("COMMIT_WRITE_NO_SYNC".equalsIgnoreCase(durability)) {
             return Durability.COMMIT_WRITE_NO_SYNC;
         }
+        //return COMMIT_NO_SYNC by default
         return Durability.COMMIT_NO_SYNC;
     }
 
@@ -340,7 +349,11 @@ public class NosqlEntityInformation <T, ID> extends
     }
 
     public void setConsistency(String consistency) {
-        this.consistency = Consistency.valueOf(consistency);
+        if (Consistency.ABSOLUTE.getType().toString().equalsIgnoreCase(consistency)) {
+            this.consistency = Consistency.ABSOLUTE;
+        } else {
+            this.consistency = Consistency.EVENTUAL;
+        }
     }
 
     public Durability getDurability() {

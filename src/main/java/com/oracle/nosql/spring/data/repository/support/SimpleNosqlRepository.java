@@ -236,7 +236,7 @@ public class SimpleNosqlRepository <T, ID extends Serializable>
      */
     @Override
     public String getConsistency() {
-        return entityInformation.getConsistency().name();
+        return entityInformation.getConsistency().getType().name();
     }
 
     /**
@@ -266,7 +266,7 @@ public class SimpleNosqlRepository <T, ID extends Serializable>
             return "COMMIT_WRITE_NO_SYNC";
         }
 
-        return durability.toString();
+        return "COMMIT_NO_SYNC";
     }
 
     /**
