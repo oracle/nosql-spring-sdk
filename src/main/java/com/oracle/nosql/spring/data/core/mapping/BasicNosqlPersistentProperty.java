@@ -21,6 +21,7 @@ import oracle.nosql.driver.values.FieldValue;
 
 import com.oracle.nosql.spring.data.Constants;
 
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.data.geo.Point;
 import org.springframework.data.geo.Polygon;
 import org.springframework.data.mapping.Association;
@@ -168,5 +169,22 @@ public class BasicNosqlPersistentProperty
         } else {
             return TypeCode.POJO;
         }
+    }
+
+    @Override
+    public boolean isCompositeKey() {
+        return AnnotatedElementUtils.getMergedAnnotation(getType(),
+                NoSqlKeyClass.class) != null;
+    }
+
+    @Override
+    public boolean isNoSqlKey() {
+        return findAnnotation(NoSqlKey.class) != null;
+    }
+
+    @Override
+    public boolean isShardKey() {
+        NoSqlKey noSqlKey = findAnnotation(NoSqlKey.class);
+        return noSqlKey == null || noSqlKey.shardKey();
     }
 }

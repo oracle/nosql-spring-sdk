@@ -62,4 +62,13 @@ public interface NosqlPersistentProperty
      * @return The property type code
      */
     TypeCode getTypeCode();
+
+    /**
+     * Whether the property is a composite primary key.
+     */
+    boolean isCompositeKey();
+
+    boolean isNoSqlKey();
+
+    boolean isShardKey();
 }

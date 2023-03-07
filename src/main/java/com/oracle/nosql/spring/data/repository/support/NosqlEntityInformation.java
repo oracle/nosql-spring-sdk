@@ -59,7 +59,7 @@ public class NosqlEntityInformation <T, ID> extends
     private FieldValue.Type idNosqlType;
     private boolean useDefaultTableLimits = false;
     private TimeToLive ttl;
-//    private boolean isComposite;
+    private boolean isComposite;
 
     public NosqlEntityInformation(ApplicationContext applicationContext,
                                   Class<T> domainClass) {
@@ -68,7 +68,7 @@ public class NosqlEntityInformation <T, ID> extends
         this.applicationContext = applicationContext;
         this.id = getIdField(domainClass);
         ReflectionUtils.makeAccessible(this.id);
-        idNosqlType = findIdNosqlType();
+        idNosqlType = findIdNosqlType(getIdType());
 
         final NosqlId nosqlIdAnn = id.getAnnotation(NosqlId.class);
         if (nosqlIdAnn != null && nosqlIdAnn.generated()) {
@@ -113,8 +113,7 @@ public class NosqlEntityInformation <T, ID> extends
         return idNosqlType;
     }
 
-    private FieldValue.Type findIdNosqlType() {
-        Class<ID> idClass = getIdType();
+    public static FieldValue.Type findIdNosqlType(Class<?> idClass) {
         if (idClass == String.class) {
             return FieldValue.Type.STRING;
         }
@@ -135,7 +134,8 @@ public class NosqlEntityInformation <T, ID> extends
             Instant.class) {
             return FieldValue.Type.TIMESTAMP;
         }
-        throw new IllegalStateException("Unsupported ID type.");
+        return FieldValue.Type.MAP;
+        //throw new IllegalStateException("Unsupported ID type.");
     }
 
     public String getTableName() {
@@ -186,29 +186,7 @@ public class NosqlEntityInformation <T, ID> extends
             throw new IllegalArgumentException("Entity should contain @Id or " +
                 "@NosqlId annotated field or field named id: " +
                 domainClass.getName());
-        } else if (idField.getType() != String.class &&
-            idField.getType() != Integer.class &&
-            idField.getType() != int.class &&
-            idField.getType() != Long.class &&
-            idField.getType() != long.class &&
-            idField.getType() != Float.class &&
-            idField.getType() != float.class &&
-            idField.getType() != Double.class &&
-            idField.getType() != double.class &&
-            idField.getType() != BigInteger.class &&
-            idField.getType() != BigDecimal.class &&
-            idField.getType() != Timestamp.class &&
-            idField.getType() != Date.class &&
-            idField.getType() != Instant.class
-            //todo: implement composite keys
-        ) {
-            throw new IllegalArgumentException("Id field must be of " +
-                "type java.lang.String, int, java.lang.Integer, long, " +
-                "java.lang.Long, java.math.BigInteger, java.math.BigDecimal, " +
-                "java.sql.Timestamp, java.util.Date or java.time.Instant in " +
-                domainClass.getName());
         }
-
         if (NosqlTemplateBase.JSON_COLUMN.equals(idField.getName())) {
             throw new IllegalArgumentException("Id field can not be named '" +
                 NosqlTemplateBase.JSON_COLUMN + "' in " + domainClass.getName());
@@ -217,6 +195,22 @@ public class NosqlEntityInformation <T, ID> extends
         return idField;
     }
 
+    public static boolean isSimpleType( Class<?> type) {
+        return type == String.class ||
+                type == Integer.class ||
+                type == int.class ||
+                type == Long.class ||
+                type == long.class ||
+                type == Float.class ||
+                type == float.class ||
+                type == Double.class ||
+                type == double.class ||
+                type == BigInteger.class ||
+                type == BigDecimal.class ||
+                type == Timestamp.class ||
+                type == Date.class ||
+                type == Instant.class;
+    }
 
     private void setTableOptions(Class<T> domainClass) {
         autoCreateTable = Constants.DEFAULT_AUTO_CREATE_TABLE;

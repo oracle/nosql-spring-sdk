@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 import oracle.nosql.driver.IndexExistsException;
 import oracle.nosql.driver.IndexNotFoundException;
 import oracle.nosql.driver.InvalidAuthorizationException;
@@ -210,10 +211,15 @@ public class MappingNosqlConverter
         row.put(NosqlTemplateBase.JSON_COLUMN, valueMap);
 
         if (!skipSetId && idProperty != null) {
-            //todo implement composite key
-            row.put(idProperty.getName(),
-                convertObjToFieldValue(accessor.getProperty(idProperty),
-                    idProperty, false));
+            if (idProperty.isCompositeKey()) {
+                MapValue ids =
+                        convertObjToRow(accessor.getProperty(idProperty), false);
+                ids.get(NosqlTemplateBase.JSON_COLUMN).asMap().getMap().forEach(row::put);
+            } else {
+                row.put(idProperty.getName(),
+                    convertObjToFieldValue(accessor.getProperty(idProperty),
+                        idProperty, false));
+            }
         }
 
         for (NosqlPersistentProperty prop : persistentEntity) {
@@ -567,8 +573,20 @@ public class MappingNosqlConverter
                 FieldValue idFieldValue = null;
 
                 if (entity.getIdProperty() != null) {
-                    idFieldValue = nosqlValue.asMap()
-                        .get(entity.getIdProperty().getName());
+                    NosqlPersistentProperty idProperty = entity.getIdProperty();
+
+                    if (idProperty.isCompositeKey()) {
+                        idFieldValue = new MapValue();
+                        NosqlPersistentEntity<?> idEntity =
+                                mappingContext.getPersistentEntity(idProperty.getType());
+                        for (NosqlPersistentProperty p : idEntity) {
+                            idFieldValue.asMap().put(p.getName(),
+                                    nosqlValue.asMap().get(p.getName()));
+                        }
+                    } else {
+                        idFieldValue = nosqlValue.asMap()
+                                .get(entity.getIdProperty().getName());
+                    }
                 }
 
                 MapValue jsonValue;
@@ -1114,10 +1132,14 @@ public class MappingNosqlConverter
         }
 
         MapValue row = new MapValue();
-
-        row.put(idColumnName, convertObjToFieldValue(id, null, false));
-        //todo: add support for composite key
-
+        if (!NosqlEntityInformation.isSimpleType(id.getClass())) {
+            //composite key
+            MapValue compositeKey = convertObjToRow(id, false);
+            compositeKey.get(NosqlTemplateBase.JSON_COLUMN).asMap().
+                    getMap().forEach(row::put);
+        } else {
+            row.put(idColumnName, convertObjToFieldValue(id, null, false));
+        }
         return row;
     }
 
