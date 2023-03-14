@@ -7,7 +7,11 @@
 
 package com.oracle.nosql.spring.data.test.composite;
 
+import com.oracle.nosql.spring.data.core.NosqlTemplate;
 import com.oracle.nosql.spring.data.test.app.AppConfig;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +31,25 @@ public class MachineApp {
     @Autowired
     private MachineRepository repo;
 
+    private static NosqlTemplate template;
+
+    @BeforeClass
+    public static void staticSetup() throws ClassNotFoundException {
+        template = NosqlTemplate.create(AppConfig.nosqlDBConfig);
+    }
+
+    @Before
+    public void setup() {
+        template.dropTableIfExists(Machine.class.getSimpleName());
+    }
+
+    @After
+    public void teardown() {
+        template.dropTableIfExists(Machine.class.getSimpleName());
+    }
+
     @Test
     public void testCRUD() {
-        repo.deleteAll();
-
         //create a row
         MachineId machineId = new MachineId("1",  "linux");
         IpAddress hostAddress = new IpAddress("127.0.0.1");
@@ -85,7 +104,7 @@ public class MachineApp {
                 new MachineId("3", "windows"),
                 "mumbai",
                 new IpAddress("92.168.56.10"),
-                new ArrayList<IpAddress>())
+                new ArrayList<>())
         );
 
         repo.save(new Machine(
