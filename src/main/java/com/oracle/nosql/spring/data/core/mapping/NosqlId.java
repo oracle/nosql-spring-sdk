@@ -17,7 +17,7 @@ import org.springframework.data.annotation.Id;
  * Identifies the primary key field of the entity. Primary key can be of a
  * basic type or of a type that represents a composite primary key. This
  * field corresponds to the {@literal PRIMARY KEY} of the corresponding Nosql
- * table.Only one field of the entity can be annotated with this annotation.
+ * table. Only one field of the entity can be annotated with this annotation.
  */
 
 @Id

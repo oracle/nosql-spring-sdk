@@ -14,10 +14,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import static com.oracle.nosql.spring.data.Constants.NOTSET_PRIMARY_KEY_ORDER;
-import static com.oracle.nosql.spring.data.Constants.NOTSET_TABLE_SHARD_KEY;
+import static com.oracle.nosql.spring.data.Constants.NOTSET_SHARD_KEY;
 
 /**
- * Identifies the annotated field as a primary key column of the composite
+ * Identifies the annotated field as a primary key of the composite
  * primary key.
  */
 
@@ -28,11 +28,9 @@ import static com.oracle.nosql.spring.data.Constants.NOTSET_TABLE_SHARD_KEY;
 public @interface NosqlKey {
     /**
      * Specifies whether the field is shard key or not. Default value is
-     * {@link com.oracle.nosql.spring.data.Constants#NOTSET_TABLE_SHARD_KEY}.
-     *
-     * @return
+     * {@link com.oracle.nosql.spring.data.Constants#NOTSET_SHARD_KEY}.
      */
-    boolean shardKey() default NOTSET_TABLE_SHARD_KEY;
+    boolean shardKey() default NOTSET_SHARD_KEY;
 
     /**
      * Specifies the order of this primary key related to other primary keys
@@ -41,8 +39,6 @@ public @interface NosqlKey {
      * SHARD KEY ordering. Fields are first ordered by shardKey and then by
      * order and then by field name during table creation. Default value is
      * {@link com.oracle.nosql.spring.data.Constants#NOTSET_PRIMARY_KEY_ORDER}
-     *
-     * @return
      */
 
     int order() default NOTSET_PRIMARY_KEY_ORDER;

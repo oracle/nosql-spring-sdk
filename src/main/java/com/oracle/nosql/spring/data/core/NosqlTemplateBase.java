@@ -49,6 +49,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
 
+import static com.oracle.nosql.spring.data.Constants.NOTSET_SHARD_KEY;
+
 
 public abstract class NosqlTemplateBase
     implements ApplicationContextAware {
@@ -134,11 +136,10 @@ public abstract class NosqlTemplateBase
         if (NosqlEntityInformation.isCompositeKeyType(entityInformation.getIdField().getType())) {
             StringBuilder tableBuilder = new StringBuilder();
             Map<Integer, SortedSet<String>> shardKeys = new TreeMap<>();
-
             Map<Integer, SortedSet<String>> otherKeys = new TreeMap<>();
 
             tableBuilder.append("CREATE TABLE IF NOT EXISTS ");
-            tableBuilder.append(tableName).append("(");
+            tableBuilder.append(tableName).append("("); //create open (
 
             NosqlPersistentEntity<?> compositeKeyEntity =
                     mappingNosqlConverter.getMappingContext().getPersistentEntity(entityInformation.getIdType());
@@ -166,7 +167,8 @@ public abstract class NosqlTemplateBase
                             shardKeys.put(order, ss);
                         }
                     } else {
-                        SortedSet<String> ss = shardKeys.getOrDefault(-1,
+                        SortedSet<String> ss =
+                                shardKeys.getOrDefault(NOTSET_SHARD_KEY,
                                 new TreeSet<>());
                         ss.add(idProperty.getName());
                         shardKeys.put(-1, ss);
@@ -186,7 +188,7 @@ public abstract class NosqlTemplateBase
                 sortedOtherKeys.addAll(keys);
             });
 
-            tableBuilder.append("PRIMARY KEY").append("(");
+            tableBuilder.append("PRIMARY KEY").append("("); //primary key open (
 
             if (shardKeys.isEmpty()) {
                 tableBuilder.append(String.join(",", sortedOtherKeys));
@@ -199,8 +201,8 @@ public abstract class NosqlTemplateBase
                     tableBuilder.append(String.join(",", sortedOtherKeys));
                 }
             }
-            tableBuilder.append(")");
-            tableBuilder.append(")");
+            tableBuilder.append(")"); //primary key close )
+            tableBuilder.append(")"); //create close )
 
             if (entityInformation.getTtl() != null &&
                     entityInformation.getTtl().getValue() != 0) {
