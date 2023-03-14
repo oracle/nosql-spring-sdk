@@ -39,7 +39,6 @@ import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;

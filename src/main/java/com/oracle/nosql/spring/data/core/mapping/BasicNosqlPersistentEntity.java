@@ -22,22 +22,11 @@ public class BasicNosqlPersistentEntity<T>
     extends BasicPersistentEntity<T, NosqlPersistentProperty>
     implements NosqlPersistentEntity<T>, ApplicationContextAware {
 
-    private static final NoSqlPersistentEntityMetadataVerifier DEFAULT_VERIFIER =
-            new CompositeNoSqlPersistentEntityMetadataVerifier();
-
     private final StandardEvaluationContext context;
-    private NoSqlPersistentEntityMetadataVerifier verifier;
-
 
     public BasicNosqlPersistentEntity(TypeInformation<T> typeInformation) {
-        this(typeInformation, DEFAULT_VERIFIER);
-    }
-
-    public BasicNosqlPersistentEntity(TypeInformation<T> typeInformation,
-        NoSqlPersistentEntityMetadataVerifier verifier) {
         super(typeInformation);
         this.context = new StandardEvaluationContext();
-        this.verifier = verifier;
     }
 
     @Override
@@ -78,16 +67,5 @@ public class BasicNosqlPersistentEntity<T>
             "%s but " +
             "already have property %s registered as id. Check your mapping " +
             "configuration!", property.getField(), currentIdProp.getField()));
-    }
-
-    @Override
-    public boolean isCompositeKey() {
-        return isAnnotationPresent(NoSqlKeyClass.class);
-    }
-
-    @Override
-    public void verify() throws MappingException {
-        super.verify();
-        this.verifier.verify(this);
     }
 }

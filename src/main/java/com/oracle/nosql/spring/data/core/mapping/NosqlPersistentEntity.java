@@ -11,8 +11,4 @@ import org.springframework.data.mapping.PersistentEntity;
 public interface NosqlPersistentEntity<T>
     extends PersistentEntity<T, NosqlPersistentProperty> {
 
-    /**
-     * Returns whether this entity represents a composite primary key.
-     */
-    boolean isCompositeKey();
 }

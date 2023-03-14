@@ -7,16 +7,20 @@
 
 package com.oracle.nosql.spring.data.test.composite;
 
-import com.oracle.nosql.spring.data.core.mapping.NoSqlKey;
-import com.oracle.nosql.spring.data.core.mapping.NoSqlKeyClass;
+import com.oracle.nosql.spring.data.core.mapping.NosqlKey;
+import org.springframework.data.annotation.Transient;
 
 import java.io.Serializable;
 import java.util.Objects;
 
-@NoSqlKeyClass
 public class MachineId implements Serializable {
+    private static final long serialVersionUID = 1L;
+    @NosqlKey(order = 0)
     private String version;
+    @NosqlKey(shardKey = false, order = 0)
     private String name;
+    @Transient
+    private final String temp = "temp";
 
     public MachineId(String version, String name) {
         this.version = version;

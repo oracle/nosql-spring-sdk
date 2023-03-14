@@ -67,8 +67,4 @@ public interface NosqlPersistentProperty
      * Whether the property is a composite primary key.
      */
     boolean isCompositeKey();
-
-    boolean isNoSqlKey();
-
-    boolean isShardKey();
 }

@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.oracle.nosql.spring.data.core.mapping.NosqlKey;
 import oracle.nosql.driver.values.LongValue;
 
 import com.oracle.nosql.spring.data.core.NosqlTemplateBase;
@@ -387,7 +388,14 @@ public class CriteriaQuery extends NosqlQuery {
 
     private String getSqlFieldWithCast(@NonNull String field,
         NosqlPersistentProperty property) {
-        String result =  getSqlField(field, property.isIdProperty());
+        String result;
+        /* If property is part of composite key use property name instead of
+           hierarchical name*/
+        if (property.isAnnotationPresent(NosqlKey.class)) {
+            result =  getSqlField(property.getName(), true);
+        } else {
+            result = getSqlField(field, property.isIdProperty());
+        }
 
         if (requiresTimestampCast(property)) {
             result = "cast(" + result + " as " +

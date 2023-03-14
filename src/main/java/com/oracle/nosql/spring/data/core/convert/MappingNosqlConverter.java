@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 import oracle.nosql.driver.IndexExistsException;
 import oracle.nosql.driver.IndexNotFoundException;
 import oracle.nosql.driver.InvalidAuthorizationException;
@@ -57,6 +56,7 @@ import com.oracle.nosql.spring.data.core.NosqlTemplateBase;
 import com.oracle.nosql.spring.data.core.mapping.BasicNosqlPersistentProperty;
 import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentEntity;
 import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentProperty;
+import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -213,9 +213,11 @@ public class MappingNosqlConverter
 
         if (!skipSetId && idProperty != null) {
             if (idProperty.isCompositeKey()) {
-                MapValue ids =
-                        convertObjToRow(accessor.getProperty(idProperty), false);
-                ids.get(NosqlTemplateBase.JSON_COLUMN).asMap().getMap().forEach(row::put);
+                MapValue ids = convertObjToFieldValue(
+                        accessor.getProperty(idProperty),
+                        idProperty,
+                        false).asMap();
+                ids.getMap().forEach(row::put);
             } else {
                 row.put(idProperty.getName(),
                     convertObjToFieldValue(accessor.getProperty(idProperty),
@@ -1133,8 +1135,9 @@ public class MappingNosqlConverter
         }
 
         MapValue row = new MapValue();
-        if (!NosqlEntityInformation.isSimpleType(id.getClass())) {
-            //composite key
+        if (NosqlEntityInformation.isCompositeKeyType(id.getClass())) {
+            /*composite key. Here convertObjToFieldValue adds #class that is
+              why convertObjToRow is used*/
             MapValue compositeKey = convertObjToRow(id, false);
             compositeKey.get(NosqlTemplateBase.JSON_COLUMN).asMap().
                     getMap().forEach(row::put);

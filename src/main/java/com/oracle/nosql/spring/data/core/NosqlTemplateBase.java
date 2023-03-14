@@ -11,10 +11,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
-import com.oracle.nosql.spring.data.core.mapping.NoSqlKey;
-import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentEntity;
-import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentProperty;
 import oracle.nosql.driver.NoSQLException;
 import oracle.nosql.driver.NoSQLHandle;
 import oracle.nosql.driver.TableNotFoundException;
@@ -36,6 +36,9 @@ import oracle.nosql.driver.values.MapValue;
 
 import com.oracle.nosql.spring.data.NosqlDbFactory;
 import com.oracle.nosql.spring.data.core.convert.MappingNosqlConverter;
+import com.oracle.nosql.spring.data.core.mapping.NosqlKey;
+import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentEntity;
+import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentProperty;
 import com.oracle.nosql.spring.data.core.query.NosqlQuery;
 import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 
@@ -124,43 +127,86 @@ public abstract class NosqlTemplateBase
         String tableName = entityInformation.getTableName();
         String sql;
 
-        if (!NosqlEntityInformation.isSimpleType(entityInformation.getIdField().getType())) {
+        /*If composite key, sort composite key class to create table.
+         sorting is based on following rules.
+         Sort by shard key=true, then by order then by name
+         */
+        if (NosqlEntityInformation.isCompositeKeyType(entityInformation.getIdField().getType())) {
             StringBuilder tableBuilder = new StringBuilder();
-            List<String> shardKeys = new ArrayList<>();
-            List<String> otherKeys = new ArrayList<>();
+            Map<Integer, SortedSet<String>> shardKeys = new TreeMap<>();
+
+            Map<Integer, SortedSet<String>> otherKeys = new TreeMap<>();
 
             tableBuilder.append("CREATE TABLE IF NOT EXISTS ");
             tableBuilder.append(tableName).append("(");
 
-            NosqlPersistentEntity<?> compositeEntity =
+            NosqlPersistentEntity<?> compositeKeyEntity =
                     mappingNosqlConverter.getMappingContext().getPersistentEntity(entityInformation.getIdType());
-            for (NosqlPersistentProperty idProperty : compositeEntity) {
+            for (NosqlPersistentProperty idProperty : compositeKeyEntity) {
                 if (idProperty.isWritable()) {
                     String keyName = idProperty.getName();
                     String ketType =
                             NosqlEntityInformation.findIdNosqlType(idProperty.getType()).toString();
                     tableBuilder.append(keyName).append(" ").append(ketType).append(",");
-                    if (idProperty.isAnnotationPresent(NoSqlKey.class)) {
-                        shardKeys.add(keyName);
+
+                    if (idProperty.isAnnotationPresent(NosqlKey.class)) {
+                        NosqlKey noSqlKey =
+                                idProperty.findAnnotation(NosqlKey.class);
+                        int order = noSqlKey.order();
+                        if (!noSqlKey.shardKey()) {
+                            SortedSet<String> ss = otherKeys.getOrDefault(order,
+                                    new TreeSet<>());
+                            ss.add(idProperty.getName());
+                            otherKeys.put(order, ss);
+
+                        } else {
+                            SortedSet<String> ss = shardKeys.getOrDefault(order,
+                                    new TreeSet<>());
+                            ss.add(idProperty.getName());
+                            shardKeys.put(order, ss);
+                        }
                     } else {
-                        otherKeys.add(keyName);
+                        SortedSet<String> ss = shardKeys.getOrDefault(-1,
+                                new TreeSet<>());
+                        ss.add(idProperty.getName());
+                        shardKeys.put(-1, ss);
                     }
                 }
             }
             tableBuilder.append(JSON_COLUMN).append(" ").append("JSON").append(",");
 
+            List<String> sortedShardKeys = new ArrayList<>();
+            List<String> sortedOtherKeys = new ArrayList<>();
+
+            shardKeys.forEach((order, keys) -> {
+                sortedShardKeys.addAll(keys);
+            });
+
+            otherKeys.forEach((order, keys) -> {
+                sortedOtherKeys.addAll(keys);
+            });
+
             tableBuilder.append("PRIMARY KEY").append("(");
-            if (!shardKeys.isEmpty()) {
+
+            if (shardKeys.isEmpty()) {
+                tableBuilder.append(String.join(",", sortedOtherKeys));
+            } else {
                 tableBuilder.append("SHARD").append("(");
-                tableBuilder.append(String.join(",", shardKeys));
+                tableBuilder.append(String.join(",", sortedShardKeys));
                 tableBuilder.append(")");
+                if (!otherKeys.isEmpty()) {
+                    tableBuilder.append(",");
+                    tableBuilder.append(String.join(",", sortedOtherKeys));
+                }
             }
-            if (!shardKeys.isEmpty() && !otherKeys.isEmpty()) {
-                tableBuilder.append(",");
-            }
-            tableBuilder.append(String.join(",", otherKeys));
             tableBuilder.append(")");
             tableBuilder.append(")");
+
+            if (entityInformation.getTtl() != null &&
+                    entityInformation.getTtl().getValue() != 0) {
+                tableBuilder.append(String.format(TEMPLATE_TTL_CREATE,
+                        entityInformation.getTtl().toString()));
+            }
             sql = tableBuilder.toString();
         } else {
             String idColName = entityInformation.getIdField().getName();

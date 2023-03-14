@@ -7,11 +7,12 @@
 
 package com.oracle.nosql.spring.data.test.composite;
 
-import com.oracle.nosql.spring.data.core.mapping.NoSqlKeyClass;
 import com.oracle.nosql.spring.data.core.mapping.NosqlId;
 import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
+import org.springframework.data.annotation.Transient;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 @NosqlTable(autoCreateTable = true, readUnits = 100, writeUnits = 100,
@@ -21,10 +22,19 @@ public class Machine {
     MachineId machineId;
     private String location;
     private Date creationDate = new Date();
+    private IpAddress hostAddress;
+    private List<IpAddress> routeAddress;
+    private int version = -1; //version as both top level property and
+    // property in MachineId class
+    @Transient
+    private final String transientString = "temp";
 
-    public Machine(MachineId machineId, String location) {
+    public Machine(MachineId machineId, String location,
+                   IpAddress hostAddress, List<IpAddress> routeAddress) {
         this.machineId = machineId;
         this.location = location;
+        this.hostAddress = hostAddress;
+        this.routeAddress = routeAddress;
     }
 
     public MachineId getMachineId() {
@@ -51,6 +61,22 @@ public class Machine {
         this.creationDate = creationDate;
     }
 
+    public IpAddress getHostAddress() {
+        return hostAddress;
+    }
+
+    public List<IpAddress> getRouteAddress() {
+        return routeAddress;
+    }
+
+    public void setHostAddress(IpAddress hostAddress) {
+        this.hostAddress = hostAddress;
+    }
+
+    public void setRouteAddress(List<IpAddress> routeAddress) {
+        this.routeAddress = routeAddress;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -62,11 +88,15 @@ public class Machine {
         Machine machine = (Machine) o;
         return Objects.equals(machineId, machine.machineId) &&
                 Objects.equals(location, machine.location) &&
-                Objects.equals(creationDate, machine.creationDate);
+                Objects.equals(creationDate, machine.creationDate) &&
+                Objects.equals(hostAddress, machine.hostAddress) &&
+                Objects.equals(routeAddress, machine.routeAddress) &&
+                Objects.equals(version, machine.version) &&
+                Objects.equals(transientString, machine.transientString);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(machineId, location, creationDate);
+        return Objects.hash(machineId, location, creationDate, hostAddress, routeAddress, version, transientString);
     }
 }

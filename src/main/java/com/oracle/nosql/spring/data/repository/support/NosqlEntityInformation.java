@@ -21,6 +21,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.repository.core.support.AbstractEntityInformation;
 import org.springframework.data.spel.EvaluationContextProvider;
 import org.springframework.data.spel.ExtensionAwareEvaluationContextProvider;
@@ -54,7 +55,7 @@ public class NosqlEntityInformation <T, ID> extends
     private final FieldValue.Type idNosqlType;
     private boolean useDefaultTableLimits = false;
     private TimeToLive ttl;
-    private boolean isComposite;
+    //private boolean isComposite;
 
     public NosqlEntityInformation(ApplicationContext applicationContext,
                                   Class<T> domainClass) {
@@ -131,8 +132,8 @@ public class NosqlEntityInformation <T, ID> extends
             Instant.class) {
             return FieldValue.Type.TIMESTAMP;
         }
+        //Might be composite key. return MAP type
         return FieldValue.Type.MAP;
-        //throw new IllegalStateException("Unsupported ID type.");
     }
 
     public String getTableName() {
@@ -189,24 +190,43 @@ public class NosqlEntityInformation <T, ID> extends
                 NosqlTemplateBase.JSON_COLUMN + "' in " + domainClass.getName());
         }
 
+        //If composite key class check it has only primitive types
+        if (isCompositeKeyType(idField.getType())) {
+            for (Field field : idField.getType().getDeclaredFields()) {
+                if (field.getAnnotation(Transient.class) == null) {
+                    if (isCompositeKeyType(field.getType())) {
+                        throw new IllegalArgumentException(String.format(
+                                "field '%s' must be one of type java.lang.String," +
+                                        " int, java.lang.Integer, long, java.lang" +
+                                        ".Long," +
+                                        " java.math.BigInteger, java.math.BigDecimal," +
+                                        " java.sql.Timestamp, java.util.Date or" +
+                                        " java.time.Instant in %s",
+                                field.getName(),
+                                idField.getType().getName())
+                        );
+                    }
+                }
+            }
+        }
         return idField;
     }
 
-    public static boolean isSimpleType( Class<?> type) {
-        return type == String.class ||
-                type == Integer.class ||
-                type == int.class ||
-                type == Long.class ||
-                type == long.class ||
-                type == Float.class ||
-                type == float.class ||
-                type == Double.class ||
-                type == double.class ||
-                type == BigInteger.class ||
-                type == BigDecimal.class ||
-                type == Timestamp.class ||
-                type == Date.class ||
-                type == Instant.class;
+    public static boolean isCompositeKeyType(Class<?> type) {
+        return type != String.class &&
+                type != Integer.class &&
+                type != int.class &&
+                type != Long.class &&
+                type != long.class &&
+                type != Float.class &&
+                type != float.class &&
+                type != Double.class &&
+                type != double.class &&
+                type != BigInteger.class &&
+                type != BigDecimal.class &&
+                type != Timestamp.class &&
+                type != Date.class &&
+                type != Instant.class;
     }
 
     private void setTableOptions(Class<T> domainClass) {
@@ -235,8 +255,7 @@ public class NosqlEntityInformation <T, ID> extends
                     annotation.writeUnits(), annotation.storageGB());
             } else if (annotation.capacityMode() == NosqlCapacityMode.ON_DEMAND
                 && (annotation.storageGB() > 0  || annotation.storageGB() ==
-                Constants.NOTSET_TABLE_STORAGE_GB ))
-            {
+                Constants.NOTSET_TABLE_STORAGE_GB )) {
                 tableLimits = new TableLimits(annotation.storageGB());
             }
 
