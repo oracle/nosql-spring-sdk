@@ -49,7 +49,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
 
-import static com.oracle.nosql.spring.data.Constants.NOTSET_SHARD_KEY;
+import static com.oracle.nosql.spring.data.Constants.NOTSET_PRIMARY_KEY_ORDER;
 
 
 public abstract class NosqlTemplateBase
@@ -134,49 +134,38 @@ public abstract class NosqlTemplateBase
          Sort by shard key=true, then by order then by name
          */
         if (NosqlEntityInformation.isCompositeKeyType(entityInformation.getIdField().getType())) {
-            StringBuilder tableBuilder = new StringBuilder();
             Map<Integer, SortedSet<String>> shardKeys = new TreeMap<>();
             Map<Integer, SortedSet<String>> otherKeys = new TreeMap<>();
 
-            tableBuilder.append("CREATE TABLE IF NOT EXISTS ");
-            tableBuilder.append(tableName).append("("); //create open (
-
             NosqlPersistentEntity<?> compositeKeyEntity =
-                    mappingNosqlConverter.getMappingContext().getPersistentEntity(entityInformation.getIdType());
+                    mappingNosqlConverter.getMappingContext().
+                            getRequiredPersistentEntity(entityInformation.getIdType());
             for (NosqlPersistentProperty idProperty : compositeKeyEntity) {
                 if (idProperty.isWritable()) {
-                    String keyName = idProperty.getName();
-                    String ketType =
-                            NosqlEntityInformation.findIdNosqlType(idProperty.getType()).toString();
-                    tableBuilder.append(keyName).append(" ").append(ketType).append(",");
-
                     if (idProperty.isAnnotationPresent(NosqlKey.class)) {
                         NosqlKey noSqlKey =
                                 idProperty.findAnnotation(NosqlKey.class);
                         int order = noSqlKey.order();
-                        if (!noSqlKey.shardKey()) {
-                            SortedSet<String> ss = otherKeys.getOrDefault(order,
-                                    new TreeSet<>());
-                            ss.add(idProperty.getName());
-                            otherKeys.put(order, ss);
-
-                        } else {
+                        if (noSqlKey.shardKey()) {
                             SortedSet<String> ss = shardKeys.getOrDefault(order,
                                     new TreeSet<>());
                             ss.add(idProperty.getName());
                             shardKeys.put(order, ss);
+                        } else {
+                            SortedSet<String> ss = otherKeys.getOrDefault(order,
+                                    new TreeSet<>());
+                            ss.add(idProperty.getName());
+                            otherKeys.put(order, ss);
                         }
                     } else {
                         SortedSet<String> ss =
-                                shardKeys.getOrDefault(NOTSET_SHARD_KEY,
+                                shardKeys.getOrDefault(NOTSET_PRIMARY_KEY_ORDER,
                                 new TreeSet<>());
                         ss.add(idProperty.getName());
-                        shardKeys.put(-1, ss);
+                        shardKeys.put(NOTSET_PRIMARY_KEY_ORDER, ss);
                     }
                 }
             }
-            tableBuilder.append(JSON_COLUMN).append(" ").append("JSON").append(",");
-
             List<String> sortedShardKeys = new ArrayList<>();
             List<String> sortedOtherKeys = new ArrayList<>();
 
@@ -188,22 +177,47 @@ public abstract class NosqlTemplateBase
                 sortedOtherKeys.addAll(keys);
             });
 
-            tableBuilder.append("PRIMARY KEY").append("("); //primary key open (
+            if (sortedShardKeys.isEmpty()) {
+                throw new IllegalArgumentException("At least one of the " +
+                        "@NoSqlKey must be shard key in class " +
+                        compositeKeyEntity.getName());
+            }
 
-            if (shardKeys.isEmpty()) {
+            StringBuilder tableBuilder = new StringBuilder();
+            tableBuilder.append("CREATE TABLE IF NOT EXISTS ");
+            tableBuilder.append(tableName).append("("); //create open (
+
+            sortedShardKeys.forEach(keyName -> {
+                NosqlPersistentProperty shardKeyProp =
+                        compositeKeyEntity.getRequiredPersistentProperty(keyName);
+                String keyType = NosqlEntityInformation.findIdNosqlType(
+                        shardKeyProp.getType()).toString();
+                tableBuilder.append(keyName).append(" ").append(keyType).
+                        append(",");
+            });
+            sortedOtherKeys.forEach(keyName -> {
+                NosqlPersistentProperty shardKeyProp =
+                        compositeKeyEntity.getRequiredPersistentProperty(keyName);
+                String keyType = NosqlEntityInformation.findIdNosqlType(
+                        shardKeyProp.getType()).toString();
+                tableBuilder.append(keyName).append(" ").append(keyType).
+                        append(",");
+            });
+            tableBuilder.append(JSON_COLUMN).append(" ").append("JSON").append(",");
+
+            tableBuilder.append("PRIMARY KEY").append("("); //primary key open (
+            tableBuilder.append("SHARD").append("(");
+            tableBuilder.append(String.join(",", sortedShardKeys));
+            tableBuilder.append(")");
+
+            if (!sortedOtherKeys.isEmpty()) {
+                tableBuilder.append(",");
                 tableBuilder.append(String.join(",", sortedOtherKeys));
-            } else {
-                tableBuilder.append("SHARD").append("(");
-                tableBuilder.append(String.join(",", sortedShardKeys));
-                tableBuilder.append(")");
-                if (!otherKeys.isEmpty()) {
-                    tableBuilder.append(",");
-                    tableBuilder.append(String.join(",", sortedOtherKeys));
-                }
             }
             tableBuilder.append(")"); //primary key close )
             tableBuilder.append(")"); //create close )
 
+            //ttl
             if (entityInformation.getTtl() != null &&
                     entityInformation.getTtl().getValue() != 0) {
                 tableBuilder.append(String.format(TEMPLATE_TTL_CREATE,
