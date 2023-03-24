@@ -581,4 +581,8 @@ public class NosqlTemplate
 
         return IterableUtil.getIterableFromStream(resStream);
     }
+
+    public NoSQLHandle getNosqlClient() {
+        return nosqlClient;
+    }
 }
