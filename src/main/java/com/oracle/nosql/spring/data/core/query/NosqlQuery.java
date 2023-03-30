@@ -8,6 +8,7 @@ package com.oracle.nosql.spring.data.core.query;
 
 import java.util.Map;
 
+import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
@@ -55,7 +56,8 @@ public abstract class NosqlQuery {
     }
 
     public abstract String generateSql(String tableName,
-        final Map<String, Object> params, String idPropertyName);
+        final Map<String, Object> params, String idPropertyName,
+        NosqlPersistentEntity<?> entity);
 
     public NosqlQuery setCount(boolean isCount) {
         this.isCount = isCount;

@@ -118,13 +118,15 @@ public class MachineApp {
         assertEquals(7, repo.count());
 
         //find all machines with machineId.version=1
-        assertEquals(2, repo.findByMachineIdVersion("1").size());
+        List<Machine> res =
+                repo.findByMachineIdVersionOrderByMachineIdNameAsc("1");
+        assertEquals(2, res.size());
 
         //find all machines with machineId.version=2
-        assertEquals(2, repo.findByMachineIdVersion("2").size());
+        assertEquals(2, repo.findByMachineIdVersionOrderByMachineIdNameAsc("2").size());
 
         //find all machines with machineId.version=4
-        assertEquals(1, repo.findByMachineIdVersion("4").size());
+        assertEquals(1, repo.findByMachineIdVersionOrderByMachineIdNameAsc("4").size());
 
         //find all machines with machineID.name=linux
         assertEquals(3, repo.findByMachineIdName("linux").size());

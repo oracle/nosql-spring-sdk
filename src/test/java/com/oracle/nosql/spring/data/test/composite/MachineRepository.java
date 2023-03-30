@@ -14,7 +14,7 @@ import java.util.List;
 
 public interface MachineRepository extends NosqlRepository<Machine, MachineId> {
     List<Machine> findByLocation(String location);
-    List<Machine> findByMachineIdVersion(String version);
+    List<Machine> findByMachineIdVersionOrderByMachineIdNameAsc(String version);
     List<Machine> findByMachineIdName(String name);
     List<Machine> findByMachineIdNameAndMachineIdVersion(String name,
                                                          String version);

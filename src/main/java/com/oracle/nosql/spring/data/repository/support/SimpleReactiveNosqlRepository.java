@@ -191,7 +191,7 @@ public class SimpleReactiveNosqlRepository <T, ID extends Serializable>
 
         final NosqlQuery query =
             new CriteriaQuery(Criteria.getInstance(CriteriaType.ALL),
-                null).with(sort);
+                nosqlOperations.getConverter().getMappingContext()).with(sort);
 
         return nosqlOperations.find(query, entityInformation);
     }

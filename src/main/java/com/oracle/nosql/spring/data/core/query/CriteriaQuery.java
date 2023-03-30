@@ -135,7 +135,8 @@ public class CriteriaQuery extends NosqlQuery {
 
     @Override
     public String generateSql(String tableName,
-        final Map<String, Object> params, String idPropertyName) {
+        final Map<String, Object> params, String idPropertyName,
+        NosqlPersistentEntity<?> entity) {
 
         String sql = "select " +
             (isDistinct ? "distinct " : "") +
@@ -151,9 +152,11 @@ public class CriteriaQuery extends NosqlQuery {
         if (getSort().isSorted()) {
             sql += " ORDER BY ";
             sql += getSort().stream().map(order -> (
-                      getSqlField(order.getProperty(),
-                          order.getProperty().equals(idPropertyName)) +
-                          (order.isAscending() ? " ASC" : " DESC")))
+                    getSqlField(order.getProperty(),
+                            mappingContext.getPersistentPropertyPath(
+                                    order.getProperty(), entity.getType()).
+                                    getLeafProperty()
+                    ) + (order.isAscending() ? " ASC" : " DESC")))
                 .collect(Collectors.joining(","));
         }
 
@@ -414,6 +417,9 @@ public class CriteriaQuery extends NosqlQuery {
 
     private String getSqlField(@NonNull String field,
         NosqlPersistentProperty property) {
+        if (property.isAnnotationPresent(NosqlKey.class)) {
+            return getSqlField(property.getName(), true);
+        }
         return getSqlField(field, property.isIdProperty());
     }
 

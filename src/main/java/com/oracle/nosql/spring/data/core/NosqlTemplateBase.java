@@ -200,6 +200,9 @@ public abstract class NosqlTemplateBase
                         compositeKeyEntity.getRequiredPersistentProperty(keyName);
                 String keyType = NosqlEntityInformation.findIdNosqlType(
                         shardKeyProp.getType()).toString();
+                if (keyType.equals(FieldValue.Type.TIMESTAMP.toString())) {
+                    keyType += "(" + nosqlDbFactory.getTimestampPrecision() + ")";
+                }
                 tableBuilder.append(keyName).append(" ").append(keyType).
                         append(",");
             });
@@ -436,7 +439,8 @@ public abstract class NosqlTemplateBase
 
         final Map<String, Object> params = new LinkedHashMap<>();
         String sql = query.generateSql(entityInformation.getTableName(), params,
-            idPropertyName);
+            idPropertyName, mappingNosqlConverter.
+                        getMappingContext().getPersistentEntity(entityClass));
 
         PreparedStatement pStmt = getPreparedStatement(entityInformation, sql);
 
