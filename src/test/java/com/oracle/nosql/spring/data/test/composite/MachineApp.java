@@ -15,14 +15,21 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNull;
+import static junit.framework.TestCase.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = AppConfig.class)
@@ -50,102 +57,108 @@ public class MachineApp {
 
     @Test
     public void testCRUD() {
-        //create a row
-        MachineId machineId = new MachineId("1",  "linux");
-        IpAddress hostAddress = new IpAddress("127.0.0.1");
+        Map<MachineId, Machine> map = new HashMap<>();
         List<IpAddress> routeAddress = new ArrayList<>();
+        routeAddress.add(new IpAddress("127.0.0.1"));
         routeAddress.add(new IpAddress("host1"));
         routeAddress.add(new IpAddress("host2"));
 
-        Machine machine = new Machine(machineId, "phoenix",
-                hostAddress, routeAddress);
-        repo.save(machine);
-
-        Machine retMachine = repo.findById(machineId).orElse(null);
-        assertEquals(machine, retMachine);
-
-        //update the row
-        machine.setLocation("london");
-        machine.setHostAddress(new IpAddress("localhost"));
-        repo.save(machine);
-        retMachine = repo.findById(machineId).orElse(null);
-        assertEquals(machine, retMachine);
-
-        //insert 6 more rows
-        repo.save(new Machine(
-                new MachineId("2", "linux"),
-                "london",
-                new IpAddress("192.168.56.1"),
-                null)
-        );
-
-        repo.save(new Machine(
-                new MachineId("3", "linux"),
-                "london",
-                new IpAddress("192.168.56.2"),
-                null)
-        );
-
-        repo.save(new Machine(
-                new MachineId("1", "windows"),
-                "mumbai",
-                new IpAddress("92.68.56.10"),
-                null)
-        );
-
-        repo.save(new Machine(
-                new MachineId("2", "windows"),
-                "mumbai",
-                new IpAddress("92.68.56.100"),
-                null)
-        );
-
-        repo.save(new Machine(
-                new MachineId("3", "windows"),
-                "mumbai",
-                new IpAddress("92.168.56.10"),
-                new ArrayList<>())
-        );
-
-        repo.save(new Machine(
-                new MachineId("4", "mac"),
-                "newyork",
-                new IpAddress("92.68.56.10"),
-                null)
-        );
+        //create machines
+        for (int i = 1; i <= 4; i++) {
+            for (int j = 1; j <= 4; j++) {
+                MachineId machineId = new MachineId();
+                machineId.setName("name" + i);
+                machineId.setVersion("version" + j);
+                Machine machine = new Machine(machineId, (i % 2 == 0) ?
+                        "london" : "newyork", routeAddress.get(0),
+                        routeAddress);
+                repo.save(machine);
+                map.put(machineId, machine);
+            }
+        }
 
         //get total count of records
-        assertEquals(7, repo.count());
+        assertEquals(16, repo.count());
+
+        //get machines
+        map.forEach((machineId, machine) -> assertEquals(machine,
+                repo.findById(machineId).orElse(null)));
+
+
+        //update a machine
+        Machine updateMachine = map.get(new MachineId("version1", "name1"));
+        updateMachine.setLocation("mumbai");
+        repo.save(updateMachine);
+        assertEquals(updateMachine,
+                repo.findById(new MachineId("version1", "name1")).orElse(null));
+
 
         //find all machines with machineId.version=1
         List<Machine> res =
-                repo.findByMachineIdVersionOrderByMachineIdNameAsc("1");
-        assertEquals(2, res.size());
+                repo.findByMachineIdVersionOrderByMachineIdNameAsc("version1");
+        assertEquals(4, res.size());
+        //check sort by name is correct
+        String prev = "";
+        for (Machine m : res) {
+            String cur = m.getMachineId().getName();
+            assertTrue(cur.compareTo(prev) >= 0);
+            prev = cur;
+        }
+        res.forEach(m -> assertEquals(map.get(m.getMachineId()), m));
 
         //find all machines with machineId.version=2
-        assertEquals(2, repo.findByMachineIdVersionOrderByMachineIdNameAsc("2").size());
+        res = repo.findByMachineIdVersionOrderByMachineIdNameAsc("version2");
+        assertEquals(4, res.size());
+        res.forEach(m -> assertEquals(map.get(m.getMachineId()), m));
 
-        //find all machines with machineId.version=4
-        assertEquals(1, repo.findByMachineIdVersionOrderByMachineIdNameAsc("4").size());
 
-        //find all machines with machineID.name=linux
-        assertEquals(3, repo.findByMachineIdName("linux").size());
+        //find all machines with machineID.name=name3
+        res = repo.findByMachineIdName("name3");
+        assertEquals(4, res.size());
+        res.forEach(m -> assertEquals(map.get(m.getMachineId()), m));
 
-        //find all rows located in london
-        assertEquals(3, repo.findByLocation("london").size());
 
-        //find all machines name=linux and version=1
-        assertEquals(1, repo.findByMachineIdNameAndMachineIdVersion("linux",
-                "1").size());
+        //find all rows located in mumbai
+        res = repo.findByLocation("mumbai");
+        assertEquals(1, res.size());
+        res.forEach(m -> assertEquals(map.get(m.getMachineId()), m));
+
+        //find all machines name=name1 and version=1
+        res = repo.findByMachineIdNameAndMachineIdVersion(
+                "name1",
+                "version1");
+        assertEquals(1, res.size());
+        res.forEach(m -> assertEquals(map.get(m.getMachineId()), m));
 
         //native query
-        assertEquals(2, repo.findByVersionNative().size());
+        res = repo.findByVersionNative();
+        assertEquals(4, res.size());
+        res.forEach(m -> assertEquals(map.get(m.getMachineId()), m));
 
-        //delete row
-        repo.deleteById(machineId);
-        assertNull(repo.findById(machineId).orElse(null));
+        //ignore case
+        res = repo.findByMachineIdNameIgnoreCase("NaMe1");
+        assertEquals(4, res.size());
+        res.forEach(m -> assertEquals(map.get(m.getMachineId()), m));
 
-        repo.deleteById(new MachineId("1", "windows"));
-        assertNull(repo.findById(machineId).orElse(null));
+        Sort sort = Sort.by(Sort.Direction.DESC, "machineId.version");
+        Pageable pageable = PageRequest.of(0, 2, sort);
+        Page<Machine> pageByNameQuery = repo.findByMachineIdName("name1",
+                pageable);
+        for (int page = 1; !pageByNameQuery.isEmpty(); page++) {
+            for (Machine m : pageByNameQuery) {
+                assertEquals(map.get(m.getMachineId()), m);
+            }
+            pageable = PageRequest.of(page, 2, sort);
+            pageByNameQuery = repo.findByMachineIdName("linux", pageable);
+        }
+
+        //delete some rows
+        repo.deleteById(new MachineId("version1", "name1"));
+        assertNull(repo.findById(new MachineId("version1", "name1")).orElse(null));
+
+        repo.deleteById(new MachineId("version2", "name2"));
+        assertNull(repo.findById(new MachineId("version2", "name2")).orElse(null));
+
+        assertEquals(14, repo.count());
     }
 }

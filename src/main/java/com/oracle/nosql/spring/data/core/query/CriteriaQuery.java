@@ -155,7 +155,10 @@ public class CriteriaQuery extends NosqlQuery {
                     getSqlField(order.getProperty(),
                             mappingContext.getPersistentPropertyPath(
                                     order.getProperty(), entity.getType()).
-                                    getLeafProperty()
+                                    getRequiredLeafProperty(),
+                            mappingContext.getPersistentPropertyPath(
+                                    order.getProperty(), entity.getType()).
+                                    getBaseProperty()
                     ) + (order.isAscending() ? " ASC" : " DESC")))
                 .collect(Collectors.joining(","));
         }
@@ -385,16 +388,20 @@ public class CriteriaQuery extends NosqlQuery {
         PersistentPropertyPath<NosqlPersistentProperty> path =
             mappingContext.getPersistentPropertyPath(crt.getPart().getProperty());
         NosqlPersistentProperty property = path.getLeafProperty();
-
-        return getSqlFieldWithCast(crt.getSubject(), property);
+        NosqlPersistentProperty parentProperty = path.getBaseProperty();
+        return getSqlFieldWithCast(crt.getSubject(), property, parentProperty);
     }
 
     private String getSqlFieldWithCast(@NonNull String field,
-        NosqlPersistentProperty property) {
+        NosqlPersistentProperty property,
+        NosqlPersistentProperty parentProperty) {
         String result;
         /* If property is part of composite key use property name instead of
            hierarchical name*/
-        if (property.isAnnotationPresent(NosqlKey.class)) {
+        /*TODO (): parentProperty is needed since NoSqlKey is not
+           mandatory. Do we need to make NosqlKey mandatory?*/
+        if (property.isAnnotationPresent(NosqlKey.class) ||
+                parentProperty.isIdProperty()) {
             result =  getSqlField(property.getName(), true);
         } else {
             result = getSqlField(field, property.isIdProperty());
@@ -411,13 +418,18 @@ public class CriteriaQuery extends NosqlQuery {
         PersistentPropertyPath<NosqlPersistentProperty> path =
             mappingContext.getPersistentPropertyPath(crt.getPart().getProperty());
         NosqlPersistentProperty property = path.getLeafProperty();
+        NosqlPersistentProperty parentProperty = path.getBaseProperty();
 
-        return getSqlField(crt.getSubject(), property);
+        return getSqlField(crt.getSubject(), property, parentProperty);
     }
 
     private String getSqlField(@NonNull String field,
-        NosqlPersistentProperty property) {
-        if (property.isAnnotationPresent(NosqlKey.class)) {
+        NosqlPersistentProperty property,
+        NosqlPersistentProperty parentProperty) {
+        /*TODO: parentProperty is needed since NoSqlKey is not mandatory. Do
+         we need to make NosqlKey mandatory?*/
+        if (property.isAnnotationPresent(NosqlKey.class) ||
+                parentProperty.isIdProperty()) {
             return getSqlField(property.getName(), true);
         }
         return getSqlField(field, property.isIdProperty());
@@ -504,7 +516,8 @@ public class CriteriaQuery extends NosqlQuery {
                     .getPersistentPropertyPath(prop,
                         returnedType.getReturnedType()).getBaseProperty();
 
-                String field = getSqlField(prop, pp);
+                //TODO (): is it ok to pass pp as parent?
+                String field = getSqlField(prop, pp, pp);
                 if (pp.getName().equals(idPropertyName)) {
                     keyFields.add(getSqlField(pp.getName(), true));
                 } else {

@@ -22,6 +22,9 @@ public class MachineId implements Serializable {
     @Transient
     private final String temp = "temp";
 
+    public MachineId() {
+    }
+
     public MachineId(String version, String name) {
         this.version = version;
         this.name = name;
