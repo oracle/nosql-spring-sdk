@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import com.oracle.nosql.spring.data.core.mapping.NosqlKey;
+import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentProperty;
 import oracle.nosql.driver.NoSQLException;
 import oracle.nosql.driver.NoSQLHandle;
 import oracle.nosql.driver.ops.DeleteRequest;
@@ -482,6 +484,24 @@ public class NosqlTemplate
         // valid non-id field
         if (field != null && field.equals(entityInformation.getIdField())) {
             return property;
+        }
+
+        //field can be composite key
+        NosqlPersistentProperty pp = mappingNosqlConverter.getMappingContext().
+                getPersistentPropertyPath(property,
+                        entityInformation.getJavaType()).getLeafProperty();
+
+        NosqlPersistentProperty parentPp =
+                mappingNosqlConverter.getMappingContext().
+                        getPersistentPropertyPath(property,
+                                entityInformation.getJavaType()).getBaseProperty();
+        if(pp != null) {
+            if (pp.isAnnotationPresent(NosqlKey.class)) {
+                return pp.getName();
+            }
+            if(parentPp != null && parentPp.isIdProperty()) {
+                return pp.getName();
+            }
         }
 
         return JSON_COLUMN + "." + property;

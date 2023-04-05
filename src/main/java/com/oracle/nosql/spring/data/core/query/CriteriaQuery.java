@@ -510,20 +510,31 @@ public class CriteriaQuery extends NosqlQuery {
         List<String> nonKeyFields = new ArrayList<>();
 
         inputProperties
-            .stream()
-            .forEach( prop -> {
-                NosqlPersistentProperty pp = mappingContext
-                    .getPersistentPropertyPath(prop,
-                        returnedType.getReturnedType()).getBaseProperty();
+                .stream()
+                .forEach(prop -> {
+                    NosqlPersistentProperty pp = mappingContext
+                            .getPersistentPropertyPath(prop,
+                                    returnedType.getDomainType()).getBaseProperty();
 
-                //TODO (): is it ok to pass pp as parent?
-                String field = getSqlField(prop, pp, pp);
-                if (pp.getName().equals(idPropertyName)) {
-                    keyFields.add(getSqlField(pp.getName(), true));
-                } else {
-                    nonKeyFields.add(field);
-                }
-            });
+                    if (pp.isCompositeKey()) {
+                        NosqlPersistentEntity<?> compositeEntity =
+                                (NosqlPersistentEntity<?>) mappingContext.getRequiredPersistentEntity(pp);
+                        compositeEntity.forEach(idProperty -> {
+                            if (idProperty.isWritable()) {
+                                keyFields.add(getSqlField(idProperty.getName(),
+                                        true));
+                            }
+                        });
+                    } else {
+                        //TODO (): is it ok to pass pp as parent?
+                        String field = getSqlField(prop, pp, pp);
+                        if (pp.getName().equals(idPropertyName)) {
+                            keyFields.add(getSqlField(pp.getName(), true));
+                        } else {
+                            nonKeyFields.add(field);
+                        }
+                    }
+                });
 
         String nonKeysProj = nonKeyFields.stream()
             .map(f -> "'" + f.substring(f.lastIndexOf('.') + 1) +

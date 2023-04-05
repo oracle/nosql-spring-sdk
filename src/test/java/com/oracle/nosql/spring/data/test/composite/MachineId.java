@@ -63,4 +63,12 @@ public class MachineId implements Serializable {
     public int hashCode() {
         return Objects.hash(version, name);
     }
+
+    @Override
+    public String toString() {
+        return "MachineId{" +
+                "version='" + version + '\'' +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }
