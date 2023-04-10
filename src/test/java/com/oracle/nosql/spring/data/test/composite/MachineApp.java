@@ -116,44 +116,21 @@ public class MachineApp {
 
     @Test
     public void testCompositeKeyGet() {
-        Map<MachineId, Machine> map = new HashMap<>();
-        List<IpAddress> routeAddress = new ArrayList<>();
-        routeAddress.add(new IpAddress("127.0.0.1"));
-        routeAddress.add(new IpAddress("host1"));
-        routeAddress.add(new IpAddress("host2"));
-
-        //create machines
-        for (int i = 1; i <= 4; i++) {
-            for (int j = 1; j <= 4; j++) {
-                MachineId machineId = new MachineId();
-                machineId.setName("name" + i);
-                machineId.setVersion("version" + j);
-                Machine machine = new Machine(machineId, (i % 2 == 0) ?
-                        "london" : "newyork", routeAddress.get(0),
-                        routeAddress);
-                repo.save(machine);
-                map.put(machineId, machine);
-            }
-        }
-
-        //get total count of records
-        assertEquals(16, repo.count());
-
         //find all machines with machineId.version=1
         List<Machine> machines = repo.findByMachineIdVersion("version1");
         assertEquals(4, machines.size());
-        machines.forEach(m -> assertEquals(map.get(m.getMachineId()), m));
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId()), m));
 
 
         //find all machines with machineID.name=name3
         machines = repo.findByMachineIdName("name3");
         assertEquals(4, machines.size());
-        machines.forEach(m -> assertEquals(map.get(m.getMachineId()), m));
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId()), m));
 
         //find all rows located in london
         machines = repo.findByLocation("london");
         assertEquals(8, machines.size());
-        machines.forEach(m -> assertEquals(map.get(m.getMachineId()), m));
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId()), m));
     }
 
     @Test
@@ -186,18 +163,18 @@ public class MachineApp {
     @Test
     public void testCompositeSortingAndPaging() {
         //find all machines with machineId.version=1 with sort by name
-        List<Machine> res =
+        List<Machine> machines =
                 repo.findByMachineIdVersionOrderByMachineIdNameAsc("version1");
-        assertEquals(4, res.size());
-        res.forEach(m -> assertEquals(machineCache.get(m.getMachineId()), m));
+        assertEquals(4, machines.size());
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId()), m));
         //check sort by name is correct
         String prev = "";
-        for (Machine m : res) {
+        for (Machine m : machines) {
             String cur = m.getMachineId().getName();
             assertTrue(cur.compareTo(prev) >= 0);
             prev = cur;
         }
-        res.forEach(m -> assertEquals(machineCache.get(m.getMachineId()), m));
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId()), m));
 
 
         Sort sort = Sort.by(Sort.Direction.DESC, "machineId.version");
