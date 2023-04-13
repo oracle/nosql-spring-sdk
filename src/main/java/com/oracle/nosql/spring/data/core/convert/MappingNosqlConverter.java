@@ -592,22 +592,22 @@ public class MappingNosqlConverter
                     }
                 }
 
-                MapValue jsonValue;
+                MapValue jsonValue = null;
                 if (nosqlValue.asMap().get(NosqlTemplateBase.JSON_COLUMN) !=
                     null) {
                     jsonValue = nosqlValue.asMap().
-                        get(NosqlTemplateBase.JSON_COLUMN).asMap();
-
-                    NosqlPersistentEntity<E> clsEntity =
-                        updateEntity(entity, getInstanceClass(jsonValue));
-                    entityObj = getNewInstance(clsEntity, nosqlValue.asMap(),
-                        jsonValue);
-
-                    if (idFieldValue != null) {
-                        setId(entityObj, idFieldValue);
-                    }
-                    setPojoProperties(clsEntity, entityObj, jsonValue);
+                            get(NosqlTemplateBase.JSON_COLUMN).asMap();
                 }
+                NosqlPersistentEntity<E> clsEntity =
+                    updateEntity(entity, getInstanceClass(jsonValue));
+                entityObj = getNewInstance(clsEntity, nosqlValue.asMap(),
+                    jsonValue);
+
+                if (idFieldValue != null) {
+                    setId(entityObj, idFieldValue);
+                }
+                setPojoProperties(clsEntity, entityObj, jsonValue);
+
             } else {
                 MapValue mapValue = nosqlValue.asMap();
                 String instClsStr = getInstanceClass(mapValue);
@@ -831,7 +831,7 @@ public class MappingNosqlConverter
 
     private <R> R getNewInstance(NosqlPersistentEntity<R> entity,
         MapValue rootFieldValue,
-        @NonNull MapValue jsonValue) {
+        @Nullable MapValue jsonValue) {
 
         EntityInstantiator instantiator =
             instantiators.getInstantiatorFor(entity);
@@ -848,14 +848,18 @@ public class MappingNosqlConverter
                     NosqlPersistentProperty prop =
                         entity.getPersistentProperty(paramName);
 
-                    FieldValue value;
+                    FieldValue value = null;
                     if (rootFieldValue == null) {
-                        value = jsonValue.get(paramName);
+                        if (jsonValue != null) {
+                            value = jsonValue.get(paramName);
+                        }
                     } else {
                         if (prop.isIdProperty()) {
                             value = rootFieldValue.get(paramName);
                         } else {
-                            value = jsonValue.get(paramName);
+                            if (jsonValue != null) {
+                                value = jsonValue.get(paramName);
+                            }
                             if (value == null) {
                                 // if field is not marked id and it's not in
                                 // kv_json_ it may be an unmarked id field

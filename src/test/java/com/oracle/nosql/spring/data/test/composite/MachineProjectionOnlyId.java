@@ -7,7 +7,6 @@
 
 package com.oracle.nosql.spring.data.test.composite;
 
-public interface MachineProjection {
+public interface MachineProjectionOnlyId {
     MachineId getMachineId();
-    String getLocation();
 }

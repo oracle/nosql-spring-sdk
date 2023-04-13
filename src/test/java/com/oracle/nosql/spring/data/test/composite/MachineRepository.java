@@ -42,4 +42,12 @@ public interface MachineRepository extends NosqlRepository<Machine, MachineId> {
     //projection
     List<MachineProjection> findAllByLocation(String location);
     List<MachineProjectionDTO> findAllByMachineIdName(String name);
+
+    @Query("SELECT m.version,m.name FROM Machine m WHERE m" +
+            ".kv_json_.location='newyork'")
+    List<MachineProjectionOnlyId> findAllByLocationNativeProjection();
+
+    @Query("SELECT m.version,m.name FROM Machine m WHERE m" +
+            ".kv_json_.location='newyork'")
+    List<MachineProjectionDTOOnlyId> findAllByLocationNativeDTOProjection();
 }

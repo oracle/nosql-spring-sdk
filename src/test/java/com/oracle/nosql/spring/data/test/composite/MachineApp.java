@@ -234,6 +234,15 @@ public class MachineApp {
             assertNotNull(m.getMachineId().getVersion());
             assertEquals("london", m.getLocation());
         });
+
+        List<MachineProjectionOnlyId> projectionOnlyIds = repo.
+                findAllByLocationNativeProjection();
+        assertEquals(8, projectionOnlyIds.size());
+        projectionOnlyIds.forEach(m -> {
+            assertNotNull(m.getMachineId());
+            assertNotNull(m.getMachineId().getName());
+            assertNotNull(m.getMachineId().getVersion());
+        });
     }
 
     @Test
@@ -244,6 +253,15 @@ public class MachineApp {
             assertEquals("name1", m.getMachineId().getName());
             assertNotNull(m.getMachineId().getVersion());
             assertNotNull(m.getLocation());
+        });
+
+        List<MachineProjectionDTOOnlyId> projectionDTOOnlyIds = repo.
+                findAllByLocationNativeDTOProjection();
+        assertEquals(8, projectionDTOOnlyIds.size());
+        projectionDTOOnlyIds.forEach(m -> {
+            assertNotNull(m.getMachineId());
+            assertNotNull(m.getMachineId().getName());
+            assertNotNull(m.getMachineId().getVersion());
         });
     }
 }

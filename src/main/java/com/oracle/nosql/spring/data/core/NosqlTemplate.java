@@ -495,11 +495,11 @@ public class NosqlTemplate
                 mappingNosqlConverter.getMappingContext().
                         getPersistentPropertyPath(property,
                                 entityInformation.getJavaType()).getBaseProperty();
-        if(pp != null) {
+        if (pp != null) {
             if (pp.isAnnotationPresent(NosqlKey.class)) {
                 return pp.getName();
             }
-            if(parentPp != null && parentPp.isIdProperty()) {
+            if (parentPp != null && parentPp.isIdProperty()) {
                 return pp.getName();
             }
         }
