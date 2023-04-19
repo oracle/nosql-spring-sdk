@@ -19,6 +19,8 @@ import static com.oracle.nosql.spring.data.Constants.NOTSET_SHARD_KEY;
 /**
  * Identifies the annotated field as a primary key of the composite
  * primary key.
+ *
+ * @since 1.6.0
  */
 
 @Documented
@@ -29,6 +31,8 @@ public @interface NosqlKey {
     /**
      * Specifies whether the field is shard key or not. Default value is
      * {@link com.oracle.nosql.spring.data.Constants#NOTSET_SHARD_KEY}.
+     *
+     * @since 1.6.0
      */
     boolean shardKey() default NOTSET_SHARD_KEY;
 
@@ -39,6 +43,8 @@ public @interface NosqlKey {
      * SHARD KEY ordering. Fields are first ordered by shardKey and then by
      * order and then by field name during table creation. Default value is
      * {@link com.oracle.nosql.spring.data.Constants#NOTSET_PRIMARY_KEY_ORDER}
+     *
+     * @since 1.6.0
      */
 
     int order() default NOTSET_PRIMARY_KEY_ORDER;

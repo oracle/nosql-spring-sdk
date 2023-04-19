@@ -206,6 +206,18 @@ public class MachineApp {
         List<String> actualNames = new ArrayList<>();
         machineList.forEach(m -> actualNames.add(m.getMachineId().getName()));
         assertEquals(expectedNames, actualNames);
+
+        List<Machine> locationList = repo.findAllByOrderByLocation();
+        List<String> expectedLocations = Arrays.asList(
+                "london", "london", "london", "london",
+                "london", "london", "london", "london",
+                "newyork", "newyork", "newyork", "newyork",
+                "newyork", "newyork", "newyork", "newyork"
+        );
+        assertEquals(16, locationList.size());
+        List<String> actualLocations = new ArrayList<>();
+        locationList.forEach(machine -> actualLocations.add(machine.getLocation()));
+        assertEquals(expectedLocations, actualLocations);
     }
 
     @Test
@@ -221,6 +233,11 @@ public class MachineApp {
     public void testIgnoreCase() {
         //ignore case
         List<Machine> machines = repo.findByMachineIdNameIgnoreCase("NaMe1");
+        assertEquals(4, machines.size());
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId())
+                , m));
+
+        machines = repo.findByMachineIdNameRegexIgnoreCase("NaMe1");
         assertEquals(4, machines.size());
         machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId())
                 , m));

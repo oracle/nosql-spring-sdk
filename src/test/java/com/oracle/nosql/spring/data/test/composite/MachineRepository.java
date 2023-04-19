@@ -31,6 +31,7 @@ public interface MachineRepository extends NosqlRepository<Machine, MachineId> {
     //sorting and paging
     List<Machine> findByMachineIdVersionOrderByMachineIdNameAsc(String version);
     Page<Machine> findByMachineIdName(String name, Pageable pageable);
+    List<Machine> findAllByOrderByLocation();
 
     //native
     @Query("SELECT * FROM Machine m WHERE m.VERSION='version1'")
@@ -38,6 +39,7 @@ public interface MachineRepository extends NosqlRepository<Machine, MachineId> {
 
     //Ignore case
     List<Machine> findByMachineIdNameIgnoreCase(String name);
+    List<Machine> findByMachineIdNameRegexIgnoreCase(String regex);
 
     //projection
     List<MachineProjection> findAllByLocation(String location);

@@ -177,4 +177,9 @@ public class BasicNosqlPersistentProperty
         return isIdProperty() &&
                 NosqlEntityInformation.isCompositeKeyType(getType());
     }
+
+    @Override
+    public boolean isNoSqlKey() {
+        return isAnnotationPresent(NosqlKey.class);
+    }
 }

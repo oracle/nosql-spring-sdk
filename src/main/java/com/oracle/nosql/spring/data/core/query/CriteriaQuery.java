@@ -398,9 +398,7 @@ public class CriteriaQuery extends NosqlQuery {
         String result;
         /* If property is part of composite key use property name instead of
            hierarchical name*/
-        /*TODO (): parentProperty is needed since NoSqlKey is not
-           mandatory. Do we need to make NosqlKey mandatory?*/
-        if (property.isAnnotationPresent(NosqlKey.class) ||
+        if (property.isNoSqlKey() ||
                 parentProperty.isIdProperty()) {
             result =  getSqlField(property.getName(), true);
         } else {
@@ -424,12 +422,10 @@ public class CriteriaQuery extends NosqlQuery {
     }
 
     private String getSqlField(@NonNull String field,
-        NosqlPersistentProperty property,
-        NosqlPersistentProperty parentProperty) {
-        /*TODO: parentProperty is needed since NoSqlKey is not mandatory. Do
-         we need to make NosqlKey mandatory?*/
-        if (property.isAnnotationPresent(NosqlKey.class) ||
-                parentProperty.isIdProperty()) {
+       @NonNull NosqlPersistentProperty property,
+       @Nullable NosqlPersistentProperty parentProperty) {
+        if (property.isNoSqlKey() ||
+                (parentProperty != null && parentProperty.isIdProperty())) {
             return getSqlField(property.getName(), true);
         }
         return getSqlField(field, property.isIdProperty());
@@ -526,8 +522,7 @@ public class CriteriaQuery extends NosqlQuery {
                             }
                         });
                     } else {
-                        //TODO (): is it ok to pass pp as parent?
-                        String field = getSqlField(prop, pp, pp);
+                        String field = getSqlField(prop, pp, null);
                         if (pp.getName().equals(idPropertyName)) {
                             keyFields.add(getSqlField(pp.getName(), true));
                         } else {

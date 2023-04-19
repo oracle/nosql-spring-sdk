@@ -849,10 +849,8 @@ public class MappingNosqlConverter
                         entity.getPersistentProperty(paramName);
 
                     FieldValue value = null;
-                    if (rootFieldValue == null) {
-                        if (jsonValue != null) {
-                            value = jsonValue.get(paramName);
-                        }
+                    if (rootFieldValue == null && jsonValue != null) {
+                        value = jsonValue.get(paramName);
                     } else {
                         if (prop.isIdProperty()) {
                             value = rootFieldValue.get(paramName);

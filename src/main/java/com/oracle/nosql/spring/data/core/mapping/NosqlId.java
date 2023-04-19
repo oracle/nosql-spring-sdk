@@ -25,7 +25,4 @@ import org.springframework.data.annotation.Id;
 @Target({ ElementType.FIELD, ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 public @interface NosqlId {
     boolean generated() default false;
-
-    //todo: will be supported in a future version
-    //boolean shardKey() default false;
 }

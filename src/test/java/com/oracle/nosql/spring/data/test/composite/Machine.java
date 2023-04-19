@@ -91,12 +91,11 @@ public class Machine {
                 Objects.equals(creationDate, machine.creationDate) &&
                 Objects.equals(hostAddress, machine.hostAddress) &&
                 Objects.equals(routeAddress, machine.routeAddress) &&
-                Objects.equals(version, machine.version) &&
-                Objects.equals(transientString, machine.transientString);
+                Objects.equals(version, machine.version);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(machineId, location, creationDate, hostAddress, routeAddress, version, transientString);
+        return Objects.hash(machineId, location, creationDate, hostAddress, routeAddress, version);
     }
 }

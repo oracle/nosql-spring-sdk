@@ -55,7 +55,6 @@ public class NosqlEntityInformation <T, ID> extends
     private final FieldValue.Type idNosqlType;
     private boolean useDefaultTableLimits = false;
     private TimeToLive ttl;
-    //private boolean isComposite;
 
     public NosqlEntityInformation(ApplicationContext applicationContext,
                                   Class<T> domainClass) {
