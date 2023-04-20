@@ -19,8 +19,19 @@ import static com.oracle.nosql.spring.data.Constants.NOTSET_SHARD_KEY;
 /**
  * Identifies the annotated field as a primary key of the composite
  * primary key.
+ * It is recommended to use both shard and order elements when providing this
+ * annotation.
+ * <pre>
+ *     Example:
+ *     class CompositeKey {
+ *          &#64;NosqlKey(shardKey=true, order = 1)
+ *          private String city;
  *
- * @since 1.6.0
+ *          &#64;NosqlKey(shardKey = false, order = 2)
+ *          private String area;
+ *     }
+ * </pre>
+ *   @since 1.6.0
  */
 
 @Documented
@@ -40,8 +51,29 @@ public @interface NosqlKey {
      * Specifies the order of this primary key related to other primary keys
      * of composite key class.
      * This ordering is used in table creation DDL to specify PRIMARY KEY and
-     * SHARD KEY ordering. Fields are first ordered by shardKey and then by
-     * order and then by field name during table creation. Default value is
+     * SHARD KEY ordering.
+     * Ordering is done based on below rules.
+     * <ul>
+     *  <li>SHARD KEYS are placed before non SHARD KEYS.</li>
+     *  <li>For each SHARD and non SHARD group</li>
+     *  <li>
+     *  <ul>
+     *     <li>
+     *         If order is specified it must be specified on all the fields
+     *     otherwise it is an error.
+     *     </li>
+     *     <li>
+     *          If order is specified it must be unique otherwise it is an
+     *          error.
+     *     </li>
+     *     <li>
+     *         If no order is specified then fields are sorted by lower case
+     *         alphabetical order of the field names
+     *     </li>
+     *   </ul>
+     *   </li>
+     * </ul>
+     * Default value is
      * {@link com.oracle.nosql.spring.data.Constants#NOTSET_PRIMARY_KEY_ORDER}
      *
      * @since 1.6.0

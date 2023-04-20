@@ -39,7 +39,7 @@ public class TestTableCreation {
     }
 
     @Test
-    public void test1() {
+    public void testCompositeEntityWithNoKeys() {
         Class<?> domainClass = CompositeEntityWithNoKeys.class;
         NosqlEntityInformation<?, ?> entityInformation =
                 template.getNosqlEntityInformation(domainClass);
@@ -58,7 +58,7 @@ public class TestTableCreation {
     }
 
     @Test
-    public void test2() {
+    public void testCompositeEntityWithAllKeys() {
         Class<?> domainClass = CompositeEntityWithAllKeys.class;
         NosqlEntityInformation<?, ?> entityInformation =
                 template.getNosqlEntityInformation(domainClass);
@@ -77,7 +77,7 @@ public class TestTableCreation {
     }
 
     @Test
-    public void test3() {
+    public void testCompositeEntityWithShardKey() {
         Class<?> domainClass = CompositeEntityWithShardKey.class;
         NosqlEntityInformation<?, ?> entityInformation =
                 template.getNosqlEntityInformation(domainClass);
@@ -96,7 +96,7 @@ public class TestTableCreation {
     }
 
     @Test
-    public void test4() {
+    public void testCompositeEntityWithNoShardKey() {
         Class<?> domainClass = CompositeEntityWithNoShardKey.class;
         NosqlEntityInformation<?, ?> entityInformation =
                 template.getNosqlEntityInformation(domainClass);
@@ -109,7 +109,7 @@ public class TestTableCreation {
     }
 
     @Test
-    public void test5() {
+    public void testCompositeEntityWithOrder() {
         Class<?> domainClass = CompositeEntityWithOrder.class;
         NosqlEntityInformation<?, ?> entityInformation =
                 template.getNosqlEntityInformation(domainClass);
@@ -128,7 +128,7 @@ public class TestTableCreation {
     }
 
     @Test
-    public void test6() {
+    public void testCompositeEntityWithMultipleKeys() {
         Class<?> domainClass = CompositeEntityWithMultipleKeys.class;
         NosqlEntityInformation<?, ?> entityInformation =
                 template.getNosqlEntityInformation(domainClass);
@@ -142,6 +142,83 @@ public class TestTableCreation {
         if (tableDDL != null) {
             tableDDL = tableDDL.replaceAll(CLOUD_SIM_NAMESPACE, "");
             assertEquals(CompositeEntityWithMultipleKeys.DDL, tableDDL);
+        }
+        template.dropTableIfExists(domainClass.getSimpleName());
+    }
+
+    @Test
+    public void testCompositeEntityWithRepeatingOrder() {
+        Class<?> domainClass = CompositeEntityWithRepeatingOrder.class;
+        NosqlEntityInformation<?, ?> entityInformation =
+                template.getNosqlEntityInformation(domainClass);
+        try {
+            template.createTableIfNotExists(entityInformation);
+            fail("Expecting IllegalArgumentException but didn't get");
+        } catch (IllegalArgumentException ignored) {
+
+        }
+    }
+
+    @Test
+    public void testCompositeEntityWithMissingOrder() {
+        Class<?> domainClass = CompositeEntityWithMissingOrder.class;
+        NosqlEntityInformation<?, ?> entityInformation =
+                template.getNosqlEntityInformation(domainClass);
+        try {
+            template.createTableIfNotExists(entityInformation);
+            fail("Expecting IllegalArgumentException but didn't get");
+        } catch (IllegalArgumentException ignored) {
+
+        }
+    }
+
+    @Test
+    public void testCompositeEntityWithMissingNonShardOrder() {
+        Class<?> domainClass = CompositeEntityWithMissingNonShardOrder.class;
+        NosqlEntityInformation<?, ?> entityInformation =
+                template.getNosqlEntityInformation(domainClass);
+        try {
+            template.createTableIfNotExists(entityInformation);
+            fail("Expecting IllegalArgumentException but didn't get");
+        } catch (IllegalArgumentException ignored) {
+
+        }
+    }
+
+    @Test
+    public void testCompositeEntityRecommended() {
+        Class<?> domainClass = CompositeEntityRecommended.class;
+        NosqlEntityInformation<?, ?> entityInformation =
+                template.getNosqlEntityInformation(domainClass);
+
+        template.dropTableIfExists(domainClass.getSimpleName());
+        template.createTableIfNotExists(entityInformation);
+
+        String tableDDL = template.getNosqlClient().
+                getTable(new GetTableRequest().
+                        setTableName(domainClass.getSimpleName())).getDdl();
+        if (tableDDL != null) {
+            tableDDL = tableDDL.replaceAll(CLOUD_SIM_NAMESPACE, "");
+            assertEquals(CompositeEntityRecommended.DDL, tableDDL);
+        }
+        template.dropTableIfExists(domainClass.getSimpleName());
+    }
+
+    @Test
+    public void testCompositeEntityCaseInsensitive() {
+        Class<?> domainClass = CompositeEntityCaseInsensitive.class;
+        NosqlEntityInformation<?, ?> entityInformation =
+                template.getNosqlEntityInformation(domainClass);
+
+        template.dropTableIfExists(domainClass.getSimpleName());
+        template.createTableIfNotExists(entityInformation);
+
+        String tableDDL = template.getNosqlClient().
+                getTable(new GetTableRequest().
+                        setTableName(domainClass.getSimpleName())).getDdl();
+        if (tableDDL != null) {
+            tableDDL = tableDDL.replaceAll(CLOUD_SIM_NAMESPACE, "");
+            assertEquals(CompositeEntityCaseInsensitive.DDL, tableDDL);
         }
         template.dropTableIfExists(domainClass.getSimpleName());
     }
@@ -259,5 +336,111 @@ public class TestTableCreation {
         String id5;
         @NosqlKey(shardKey = false, order = 1)
         String id4;
+    }
+
+    @NosqlTable
+    public static class CompositeEntityWithRepeatingOrder {
+        @NosqlId
+        private CompositeKeyWithRepeatingOrder id;
+        String value;
+    }
+
+    public static class CompositeKeyWithRepeatingOrder {
+        @NosqlKey(shardKey = true, order = 0)
+        String id2;
+        @NosqlKey(shardKey = true, order = 1)
+        String id1;
+        @NosqlKey(shardKey = true, order = 1)
+        String id3;
+        @NosqlKey(shardKey = false, order = 1)
+        String id5;
+        @NosqlKey(shardKey = false, order = 1)
+        String id4;
+    }
+
+    @NosqlTable
+    public static class CompositeEntityWithMissingOrder {
+        @NosqlId
+        private CompositeKeyWithMissingOrder id;
+        String value;
+    }
+
+    public static class CompositeKeyWithMissingOrder {
+        @NosqlKey(shardKey = true, order = 1)
+        String id1;
+
+        @NosqlKey(shardKey = true)
+        String id2;
+    }
+
+    @NosqlTable
+    public static class CompositeEntityWithMissingNonShardOrder {
+        @NosqlId
+        private CompositeKeyWithMissingNonShardOrder id;
+        String value;
+    }
+
+    public static class CompositeKeyWithMissingNonShardOrder {
+        @NosqlKey(shardKey = true)
+        String id1;
+
+        @NosqlKey(shardKey = false, order = 1)
+        String id2;
+
+        @NosqlKey(shardKey = false)
+        String id3;
+    }
+
+    @NosqlTable
+    public static class CompositeEntityRecommended {
+        @NosqlId
+        private CompositeKeyRecommended id;
+        String value;
+
+        private static final String DDL = String.format(
+                "CREATE TABLE IF NOT EXISTS %s (id2 STRING, id1 STRING, id4 " +
+                        "STRING, id3 STRING, " +
+                        "kv_json_ JSON, PRIMARY KEY(SHARD(id2, id1), " +
+                        "id4, id3))",
+                CompositeEntityRecommended.class.getSimpleName());
+    }
+    public static class CompositeKeyRecommended {
+        @NosqlKey(shardKey = true, order = 1)
+        String id2;
+
+        @NosqlKey(shardKey = true, order = 2)
+        String id1;
+
+        @NosqlKey(shardKey = false, order = 3)
+        String id4;
+
+        @NosqlKey(shardKey = false, order = 4)
+        String id3;
+
+    }
+
+    @NosqlTable
+    public static class CompositeEntityCaseInsensitive {
+        @NosqlId
+        private CompositeKeyCaseInsensitive id;
+        String value;
+
+        private static final String DDL = String.format(
+                "CREATE TABLE IF NOT EXISTS %s (abcd STRING, id1 STRING, ID2 " +
+                        "STRING, kv_json_ JSON, PRIMARY KEY(SHARD(abcd, id1, " +
+                        "ID2)))",
+                CompositeEntityCaseInsensitive.class.getSimpleName()
+        );
+    }
+
+    public static class CompositeKeyCaseInsensitive {
+        @NosqlKey
+        String ID2;
+
+        @NosqlKey
+        String id1;
+
+        @NosqlKey
+        String abcd;
     }
 }
