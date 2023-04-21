@@ -179,7 +179,7 @@ public class BasicNosqlPersistentProperty
     }
 
     @Override
-    public boolean isNoSqlKey() {
+    public boolean isNosqlKey() {
         return isAnnotationPresent(NosqlKey.class);
     }
 }

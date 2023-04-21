@@ -98,9 +98,9 @@ public class TestTableCreation {
     @Test
     public void testCompositeEntityWithNoShardKey() {
         Class<?> domainClass = CompositeEntityWithNoShardKey.class;
-        NosqlEntityInformation<?, ?> entityInformation =
-                template.getNosqlEntityInformation(domainClass);
         try {
+            NosqlEntityInformation<?, ?> entityInformation =
+                    template.getNosqlEntityInformation(domainClass);
             template.createTableIfNotExists(entityInformation);
             fail("Expecting IllegalArgumentException but didn't get");
         } catch (IllegalArgumentException ignored) {
@@ -149,9 +149,9 @@ public class TestTableCreation {
     @Test
     public void testCompositeEntityWithRepeatingOrder() {
         Class<?> domainClass = CompositeEntityWithRepeatingOrder.class;
-        NosqlEntityInformation<?, ?> entityInformation =
-                template.getNosqlEntityInformation(domainClass);
         try {
+            NosqlEntityInformation<?, ?> entityInformation =
+                    template.getNosqlEntityInformation(domainClass);
             template.createTableIfNotExists(entityInformation);
             fail("Expecting IllegalArgumentException but didn't get");
         } catch (IllegalArgumentException ignored) {
@@ -162,9 +162,9 @@ public class TestTableCreation {
     @Test
     public void testCompositeEntityWithMissingOrder() {
         Class<?> domainClass = CompositeEntityWithMissingOrder.class;
-        NosqlEntityInformation<?, ?> entityInformation =
-                template.getNosqlEntityInformation(domainClass);
         try {
+            NosqlEntityInformation<?, ?> entityInformation =
+                    template.getNosqlEntityInformation(domainClass);
             template.createTableIfNotExists(entityInformation);
             fail("Expecting IllegalArgumentException but didn't get");
         } catch (IllegalArgumentException ignored) {
@@ -175,9 +175,9 @@ public class TestTableCreation {
     @Test
     public void testCompositeEntityWithMissingNonShardOrder() {
         Class<?> domainClass = CompositeEntityWithMissingNonShardOrder.class;
-        NosqlEntityInformation<?, ?> entityInformation =
-                template.getNosqlEntityInformation(domainClass);
         try {
+            NosqlEntityInformation<?, ?> entityInformation =
+                    template.getNosqlEntityInformation(domainClass);
             template.createTableIfNotExists(entityInformation);
             fail("Expecting IllegalArgumentException but didn't get");
         } catch (IllegalArgumentException ignored) {

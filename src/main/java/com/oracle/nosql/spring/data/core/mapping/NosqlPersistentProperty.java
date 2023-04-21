@@ -75,5 +75,5 @@ public interface NosqlPersistentProperty
      *
      * @since 1.6.0
      */
-    boolean isNoSqlKey();
+    boolean isNosqlKey();
 }

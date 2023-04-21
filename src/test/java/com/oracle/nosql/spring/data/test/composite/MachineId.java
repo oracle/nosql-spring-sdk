@@ -15,9 +15,9 @@ import java.util.Objects;
 
 public class MachineId implements Serializable {
     private static final long serialVersionUID = 1L;
-    @NosqlKey(order = 0)
+    @NosqlKey(shardKey = true, order = 0)
     private String version;
-    @NosqlKey(shardKey = false, order = 0)
+    @NosqlKey(shardKey = false, order = 1)
     private String name;
     @Transient
     private final String temp = "temp";

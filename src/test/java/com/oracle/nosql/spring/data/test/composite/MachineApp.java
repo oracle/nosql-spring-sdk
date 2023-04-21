@@ -119,18 +119,26 @@ public class MachineApp {
         //find all machines with machineId.version=1
         List<Machine> machines = repo.findByMachineIdVersion("version1");
         assertEquals(4, machines.size());
-        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId()), m));
+        machines.forEach(m -> assertEquals("version1",
+                m.getMachineId().getVersion()));
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId())
+                , m));
 
 
         //find all machines with machineID.name=name3
         machines = repo.findByMachineIdName("name3");
         assertEquals(4, machines.size());
-        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId()), m));
+        machines.forEach(m -> assertEquals("name3",
+                m.getMachineId().getName()));
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId())
+                , m));
 
         //find all rows located in london
         machines = repo.findByLocation("london");
         assertEquals(8, machines.size());
-        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId()), m));
+        machines.forEach(m -> assertEquals("london", m.getLocation()));
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId())
+                , m));
     }
 
     @Test
@@ -140,6 +148,10 @@ public class MachineApp {
                 "name1",
                 "version1");
         assertEquals(1, machines.size());
+        machines.forEach(m -> assertTrue(
+                m.getMachineId().getName().equals("name1") &&
+                        m.getMachineId().getVersion().equals("version1")
+        ));
         machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId())
                 , m));
 
@@ -148,6 +160,10 @@ public class MachineApp {
                 "name1",
                 "version1");
         assertEquals(7, machines.size());
+        machines.forEach(m -> assertTrue(
+                m.getMachineId().getName().equals("name1") ||
+                        m.getMachineId().getVersion().equals("version1")
+        ));
         machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId())
                 , m));
 
@@ -156,6 +172,10 @@ public class MachineApp {
                 "name1",
                 "newyork");
         assertEquals(4, machines.size());
+        machines.forEach(m -> assertTrue(
+                m.getMachineId().getName().equals("name1") &&
+                        m.getLocation().equals("newyork")
+        ));
         machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId())
                 , m));
     }
@@ -166,7 +186,10 @@ public class MachineApp {
         List<Machine> machines =
                 repo.findByMachineIdVersionOrderByMachineIdNameAsc("version1");
         assertEquals(4, machines.size());
-        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId()), m));
+        machines.forEach(m -> assertEquals("version1",
+                m.getMachineId().getVersion()));
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId())
+                , m));
         //check sort by name is correct
         String prev = "";
         for (Machine m : machines) {
@@ -174,7 +197,6 @@ public class MachineApp {
             assertTrue(cur.compareTo(prev) >= 0);
             prev = cur;
         }
-        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId()), m));
 
 
         Sort sort = Sort.by(Sort.Direction.DESC, "machineId.version");
@@ -182,7 +204,9 @@ public class MachineApp {
         Page<Machine> pageByNameQuery = repo.findByMachineIdName("name1",
                 pageable);
         for (int page = 1; !pageByNameQuery.isEmpty(); page++) {
+            assertEquals(2, pageByNameQuery.getTotalElements());
             for (Machine m : pageByNameQuery) {
+                assertEquals("name1", m.getMachineId().getName());
                 assertEquals(machineCache.get(m.getMachineId()), m);
             }
             pageable = PageRequest.of(page, 2, sort);
@@ -225,6 +249,8 @@ public class MachineApp {
         //native query
         List<Machine> machines = repo.findByVersionNative();
         assertEquals(4, machines.size());
+        machines.forEach(m -> assertEquals("version1",
+                m.getMachineId().getVersion()));
         machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId())
                 , m));
     }
@@ -234,11 +260,15 @@ public class MachineApp {
         //ignore case
         List<Machine> machines = repo.findByMachineIdNameIgnoreCase("NaMe1");
         assertEquals(4, machines.size());
+        machines.forEach(m -> assertEquals("name1",
+                m.getMachineId().getName()));
         machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId())
                 , m));
 
         machines = repo.findByMachineIdNameRegexIgnoreCase("NaMe1");
         assertEquals(4, machines.size());
+        machines.forEach(m -> assertEquals("name1",
+                m.getMachineId().getName()));
         machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId())
                 , m));
     }

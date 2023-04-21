@@ -6,15 +6,9 @@
  */
 package com.oracle.nosql.spring.data.core;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import oracle.nosql.driver.NoSQLException;
 import oracle.nosql.driver.NoSQLHandle;
@@ -37,9 +31,6 @@ import oracle.nosql.driver.values.MapValue;
 
 import com.oracle.nosql.spring.data.NosqlDbFactory;
 import com.oracle.nosql.spring.data.core.convert.MappingNosqlConverter;
-import com.oracle.nosql.spring.data.core.mapping.NosqlKey;
-import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentEntity;
-import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentProperty;
 import com.oracle.nosql.spring.data.core.query.NosqlQuery;
 import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 
@@ -49,9 +40,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
-
-import static com.oracle.nosql.spring.data.Constants.NOTSET_PRIMARY_KEY_ORDER;
-
 
 public abstract class NosqlTemplateBase
     implements ApplicationContextAware {
@@ -131,10 +119,10 @@ public abstract class NosqlTemplateBase
         String sql;
 
         Map<String, FieldValue.Type> shardKeys =
-                getShardKeys(entityInformation.getIdField());
+                entityInformation.getShardKeys();
 
-        Map<String, FieldValue.Type> otherKeys =
-                getOtherKeys(entityInformation.getIdField());
+        Map<String, FieldValue.Type> nonShardKeys =
+                entityInformation.getNonShardKeys();
 
         StringBuilder tableBuilder = new StringBuilder();
         tableBuilder.append("CREATE TABLE IF NOT EXISTS ");
@@ -150,7 +138,7 @@ public abstract class NosqlTemplateBase
                     .append(" ").append(autogen).append(",");
         });
 
-        otherKeys.forEach((key, type) -> {
+        nonShardKeys.forEach((key, type) -> {
             String keyType = type.name();
             if (keyType.equals(FieldValue.Type.TIMESTAMP.toString())) {
                 keyType += "(" + nosqlDbFactory.getTimestampPrecision() + ")";
@@ -166,9 +154,9 @@ public abstract class NosqlTemplateBase
         tableBuilder.append(String.join(",", shardKeys.keySet()));
         tableBuilder.append(")");
 
-        if (!otherKeys.isEmpty()) {
+        if (!nonShardKeys.isEmpty()) {
             tableBuilder.append(",");
-            tableBuilder.append(String.join(",", otherKeys.keySet()));
+            tableBuilder.append(String.join(",", nonShardKeys.keySet()));
         }
         tableBuilder.append(")"); //primary key close )
         tableBuilder.append(")"); //create close )
@@ -301,7 +289,6 @@ public abstract class NosqlTemplateBase
                 idColumnName);
 
             Map<String, FieldValue> params = new HashMap<>();
-            //todo implement composite keys
             params.put("$id", row.get(idColumnName));
             params.put("$json", row.get(JSON_COLUMN));
 
@@ -422,132 +409,6 @@ public abstract class NosqlTemplateBase
 
     private Iterable<MapValue> doQuery(QueryRequest qReq) {
         return new IterableUtil.IterableImpl(nosqlClient, qReq);
-    }
-
-    Map<String, FieldValue.Type> getShardKeys(Field idField) {
-        Map<String, FieldValue.Type> result = new LinkedHashMap<>();
-
-        if (NosqlEntityInformation.isCompositeKeyType(idField.getType())) {
-            Map<Integer, SortedSet<String>> shardKeys = new TreeMap<>();
-            NosqlPersistentEntity<?> compositeKeyEntity =
-                    mappingNosqlConverter.getMappingContext().
-                            getRequiredPersistentEntity(idField.getType());
-
-            for (NosqlPersistentProperty idProperty : compositeKeyEntity) {
-                if (idProperty.isWritable()) {
-                    if (idProperty.isAnnotationPresent(NosqlKey.class)) {
-                        NosqlKey noSqlKey =
-                                idProperty.findAnnotation(NosqlKey.class);
-                        int order = noSqlKey.order();
-                        if (noSqlKey.shardKey()) {
-                            SortedSet<String> ss = shardKeys.getOrDefault(order,
-                                    new TreeSet<>(String.CASE_INSENSITIVE_ORDER));
-                            ss.add(idProperty.getName());
-                            shardKeys.put(order, ss);
-                        }
-                    } else {
-                        SortedSet<String> ss =
-                                shardKeys.getOrDefault(NOTSET_PRIMARY_KEY_ORDER,
-                                        new TreeSet<>(String.CASE_INSENSITIVE_ORDER));
-                        ss.add(idProperty.getName());
-                        shardKeys.put(NOTSET_PRIMARY_KEY_ORDER, ss);
-                    }
-                }
-            }
-            List<String> sortedShardKeys = new ArrayList<>();
-
-            shardKeys.forEach((order, keys) -> {
-                //order should be specified on all fields if at all is used
-                if (order != NOTSET_PRIMARY_KEY_ORDER &&
-                        shardKeys.get(NOTSET_PRIMARY_KEY_ORDER) != null) {
-                    throw new IllegalArgumentException("If order is " +
-                            "specified, it must be specified on all shard key" +
-                            " fields of the composite key class " +
-                            compositeKeyEntity.getName());
-                }
-
-                //order value must be unique
-                if (order != NOTSET_PRIMARY_KEY_ORDER && keys.size() > 1) {
-                    throw new IllegalArgumentException("Order of " +
-                            "shard keys must be unique in composite key" +
-                            "class " + compositeKeyEntity.getName());
-                }
-                sortedShardKeys.addAll(keys);
-            });
-
-            if (sortedShardKeys.isEmpty()) {
-                throw new IllegalArgumentException("At least one of the " +
-                        "@NoSqlKey must be shard key in class " +
-                        compositeKeyEntity.getName());
-            }
-
-            sortedShardKeys.forEach(keyName -> {
-                NosqlPersistentProperty shardKeyProp =
-                        compositeKeyEntity.getRequiredPersistentProperty(keyName);
-                result.put(keyName, NosqlEntityInformation.findIdNosqlType(
-                        shardKeyProp.getType()));
-            });
-        } else { //simple key
-            result.put(idField.getName(),
-                    NosqlEntityInformation.findIdNosqlType(idField.getType())
-            );
-        }
-        return result;
-    }
-
-    Map<String, FieldValue.Type> getOtherKeys(Field idField) {
-        Map<String, FieldValue.Type> result = new LinkedHashMap<>();
-
-        if (NosqlEntityInformation.isCompositeKeyType(idField.getType())) {
-            Map<Integer, SortedSet<String>> otherKeys = new TreeMap<>();
-            NosqlPersistentEntity<?> compositeKeyEntity =
-                    mappingNosqlConverter.getMappingContext().
-                            getRequiredPersistentEntity(idField.getType());
-
-            for (NosqlPersistentProperty idProperty : compositeKeyEntity) {
-                if (idProperty.isWritable()) {
-                    if (idProperty.isAnnotationPresent(NosqlKey.class)) {
-                        NosqlKey noSqlKey =
-                                idProperty.findAnnotation(NosqlKey.class);
-                        int order = noSqlKey.order();
-                        if (!noSqlKey.shardKey()) {
-                            SortedSet<String> ss = otherKeys.getOrDefault(order,
-                                    new TreeSet<>(String.CASE_INSENSITIVE_ORDER));
-                            ss.add(idProperty.getName());
-                            otherKeys.put(order, ss);
-                        }
-                    }
-                }
-            }
-            List<String> sortedOtherKeys = new ArrayList<>();
-
-            otherKeys.forEach((order, keys) -> {
-                //order should be specified on all fields if at all is used
-                if (order != NOTSET_PRIMARY_KEY_ORDER &&
-                        otherKeys.get(NOTSET_PRIMARY_KEY_ORDER) != null) {
-                    throw new IllegalArgumentException("If order is " +
-                            "specified, it must be specified on all non shard" +
-                            " key fields of the composite key class " +
-                            compositeKeyEntity.getName());
-                }
-
-                //order value must be unique
-                if (order != NOTSET_PRIMARY_KEY_ORDER && keys.size() > 1) {
-                    throw new IllegalArgumentException("Order of " +
-                            "non shard keys must be unique in composite key" +
-                            " class " + compositeKeyEntity.getName());
-                }
-                sortedOtherKeys.addAll(keys);
-            });
-
-            sortedOtherKeys.forEach(keyName -> {
-                NosqlPersistentProperty shardKeyProp =
-                        compositeKeyEntity.getRequiredPersistentProperty(keyName);
-                result.put(keyName, NosqlEntityInformation.findIdNosqlType(
-                        shardKeyProp.getType()));
-            });
-        }
-        return result;
     }
 
     private String getAutoGenType(NosqlEntityInformation<?, ?> entityInformation) {
