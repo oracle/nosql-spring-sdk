@@ -223,6 +223,18 @@ public class TestTableCreation {
         template.dropTableIfExists(domainClass.getSimpleName());
     }
 
+    @Test
+    public void testCompositeKeyCollision() {
+        //shard and non shard key collision
+        Class<?> domainClass = CompositeEntityFieldCollision.class;
+        try {
+            template.getNosqlEntityInformation(domainClass);
+            fail("Expecting IllegalArgumentException but didn't get");
+        } catch (IllegalArgumentException ignored) {
+
+        }
+    }
+
     @NosqlTable
     public static class CompositeEntityWithNoKeys {
         @NosqlId
@@ -442,5 +454,19 @@ public class TestTableCreation {
 
         @NosqlKey
         String abcd;
+    }
+
+    @NosqlTable
+    public static class CompositeEntityFieldCollision {
+        @NosqlId
+        private CompositeKeyFieldCollision id;
+    }
+
+    public static class CompositeKeyFieldCollision {
+        @NosqlKey
+        String id1;
+
+        @NosqlKey
+        String ID1;
     }
 }

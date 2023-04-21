@@ -204,7 +204,8 @@ public class NosqlEntityInformation <T, ID> extends
         //If composite key class check it has only primitive types
         if (isCompositeKeyType(idField.getType())) {
             for (Field primaryKey : idField.getType().getDeclaredFields()) {
-                if (primaryKey.getAnnotation(Transient.class) == null) {
+                if (!primaryKey.isAnnotationPresent(Transient.class) &&
+                        !Modifier.isStatic(primaryKey.getModifiers())) {
                     if (isCompositeKeyType(primaryKey.getType())) {
                         throw new IllegalArgumentException(String.format(
                                 "field '%s' must be one of type java.lang" +
@@ -232,6 +233,20 @@ public class NosqlEntityInformation <T, ID> extends
         }
         shardKeys = getShardKeys(idField);
         nonShardKeys = getNonShardKeys(idField);
+
+        for (String nkey : nonShardKeys.keySet()) {
+            for (String sKey : shardKeys.keySet()) {
+                if (nkey.equalsIgnoreCase(sKey)) {
+                    throw new IllegalArgumentException(String.format(
+                            "Conflicting name %s " +
+                                    "for primary key in " +
+                                    "composite key class " +
+                                    "%s", nkey,
+                            idField.getType().getName())
+                    );
+                }
+            }
+        }
         return idField;
     }
 
@@ -322,7 +337,7 @@ public class NosqlEntityInformation <T, ID> extends
                 //order value must be unique
                 if (order != NOTSET_PRIMARY_KEY_ORDER && keys.size() > 1) {
                     throw new IllegalArgumentException("Order of " +
-                            "shard keys must be unique in composite key" +
+                            "shard keys must be unique in composite key " +
                             "class " + idField.getType().getName());
                 }
                 sortedShardKeys.addAll(keys);
