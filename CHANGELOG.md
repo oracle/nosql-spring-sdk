@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [1.6.0]
+### Added
+- Added support for composite primary keys.
+
 ## [1.5.0]
 ### Added
 - Added support for java.util.Map and similar types as mapping types.

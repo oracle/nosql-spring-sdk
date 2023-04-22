@@ -19,7 +19,8 @@ import static com.oracle.nosql.spring.data.Constants.NOTSET_SHARD_KEY;
 /**
  * Identifies the annotated field as a primary key of the composite
  * primary key.
- * It is recommended to use both shard and order elements when providing this
+ * Order of the primary keys are crucial for distribution of data, it
+ * is recommended to provide both shard and order elements with this
  * annotation.
  * <pre>
  *     Example:

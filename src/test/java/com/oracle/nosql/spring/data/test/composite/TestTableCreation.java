@@ -235,6 +235,18 @@ public class TestTableCreation {
         }
     }
 
+    @Test
+    public void testCompositeEntityKvJsonField() {
+        //shard and non shard key collision
+        Class<?> domainClass = CompositeEntityKvJsonField.class;
+        try {
+            template.getNosqlEntityInformation(domainClass);
+            fail("Expecting IllegalArgumentException but didn't get");
+        } catch (IllegalArgumentException ignored) {
+            ignored.printStackTrace();
+        }
+    }
+
     @NosqlTable
     public static class CompositeEntityWithNoKeys {
         @NosqlId
@@ -468,5 +480,16 @@ public class TestTableCreation {
 
         @NosqlKey
         String ID1;
+    }
+
+    @NosqlTable
+    public static class CompositeEntityKvJsonField {
+        @NosqlId
+        private CompositeKeyKvJsonField id;
+    }
+
+    public static class CompositeKeyKvJsonField {
+        @NosqlKey(shardKey = true, order = 1)
+        private String kv_json_;
     }
 }
