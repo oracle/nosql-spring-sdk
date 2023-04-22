@@ -8,31 +8,67 @@ implementation module to connect to an
 cluster or to
 [Oracle NoSQL Cloud Service](https://www.oracle.com/database/nosql-cloud.html).
 
+## Requirements
 
-## Usage
+Java versions 8 and higher are supported.
 
-* To use the SDK in your project add maven dependency to your project's pom.xml:
+## Installation
 
-    ```xml
-    <dependency>
-        <groupId>com.oracle.nosql.sdk</groupId>
-        <artifactId>spring-data-oracle-nosql</artifactId>
-        <version>x.y.z</version>
-    </dependency>
-    ```
+The Oracle NoSQL SDK for Spring Data can be included in a project in 2 ways:
 
-  Note: Packages can be manually installed in a local maven repository by
-  downloading from
+1. Include a dependency in a Maven project
+2. Download from GitHub
+
+### Install as a Project Dependency
+
+This dependency can be used to include the SDK and its dependencies in your
+project. The version changes with each release.
+
+```
+<dependency>
+  <groupId>com.oracle.nosql.sdk</groupId>
+  <artifactId>spring-data-oracle-nosql</artifactId>
+  <version>1.5.0</version>
+</dependency>
+```
+
+Optionally, the packages can be manually installed in a local maven repository by
+ downloading from
   [releases page](https://github.com/oracle/nosql-spring-sdk/releases), and
   running the following command (-sources and -javadoc files are optional):
 
-    ```
-    mvn install:install-file \
-    -DpomFile=spring-data-oracle-nosql-x.y.z.pom \
-    -Dfile=spring-data-oracle-nosql-x.y.z.jar \
-    -Dsources=spring-data-oracle-nosql-x.y.z-sources.jar \
-    -Djavadoc=spring-data-oracle-nosql-x.y.z-javadoc.jar
-    ```
+```
+mvn install:install-file \
+-DpomFile=spring-data-oracle-nosql-x.y.z.pom \
+-Dfile=spring-data-oracle-nosql-x.y.z.jar \
+-Dsources=spring-data-oracle-nosql-x.y.z-sources.jar \
+-Djavadoc=spring-data-oracle-nosql-x.y.z-javadoc.jar
+```
+
+### Download from GitHub
+
+You can download the Oracle NoSQL SDK for Spring Data as an archive from
+[GitHub](https://github.com/oracle/nosql-spring-sdk/releases). The archive
+contains the runtime library and its dependencies, examples, and
+API documentation.
+
+## Documentation
+
+See [Oracle NoSQL SDK for Spring Data javadoc](https://oracle.github.io/nosql-spring-sdk/) for the latest API documentation.  See [Spring Data SDK Developers Guide](https://docs.oracle.com/en/database/other-databases/nosql-database/22.3/springsdk/index.html) for examples and additional details on the SDK.
+
+General documentation about the Oracle NoSQL Database Cloud Service, Oracle NoSQL Database and Spring Data SDK
+Developers Guide can be found in these locations:
+
+* [Oracle NoSQL Database Cloud Service](https://docs.oracle.com/en/cloud/paas/nosql-cloud/nosql_dev.html)
+* [Oracle NoSQL Database On Premise](https://docs.oracle.com/en/database/other-databases/nosql-database/)
+
+
+
+## Changes
+
+See [CHANGELOG](./CHANGELOG.md) for changes in each release.
+
+## Usage
 
 * The example below also requires an additional dependency:
 
@@ -279,11 +315,14 @@ Tests can be also be run on:
     mvn -B -Ptest-cloudsim test -DargLine="-Dtest.endpoint=$CLOUDSIM_ENDPOINT"
     ```
 
+## Licenses
+
+See the [LICENSE](LICENSE.txt) file.
+
+The [THIRD\_PARTY\_LICENSES](THIRD_PARTY_LICENSES.txt) file contains third
+party notices and licenses.
 
 ## Help
-
-* [API documentation](https://oracle.github.io/nosql-spring-sdk/)
-* [Developer's Guide](https://docs.oracle.com/en/database/other-databases/nosql-database/22.3/springsdk/index.html)
 
 * Open an issue in the [Issues](https://github.com/oracle/nosql-spring-sdk/issues) page
 * Post your question on the [Oracle NoSQL Database Community](https://community.oracle.com/community/groundbreakers/database/nosql_database).
@@ -301,14 +340,6 @@ request, please [review our contribution guide](./CONTRIBUTING.md).
 
 Please consult the [security guide](./SECURITY.md) for our responsible security
 vulnerability disclosure process.
-
-## Licenses
-
-See the [LICENSE](LICENSE.txt) file.
-
-The [THIRD\_PARTY\_LICENSES](THIRD_PARTY_LICENSES.txt) file contains third
-party notices and licenses.
-
 
 
 Enjoy.
