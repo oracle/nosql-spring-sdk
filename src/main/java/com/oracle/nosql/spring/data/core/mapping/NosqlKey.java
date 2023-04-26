@@ -51,9 +51,10 @@ import static com.oracle.nosql.spring.data.Constants.NOTSET_SHARD_KEY;
         ElementType.METHOD})
 public @interface NosqlKey {
     /**
-     * Specifies whether the field comprises the shard key or not. Default value
+     * Specifies whether the field is part of the shard key or not. Default value
      * is {@link com.oracle.nosql.spring.data.Constants#NOTSET_SHARD_KEY}.
-     *
+     * Shard keys affect distribution of rows across shards and atomicity of
+     * operations on a single shard.
      * @since 1.6.0
      */
     boolean shardKey() default NOTSET_SHARD_KEY;
