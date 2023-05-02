@@ -243,7 +243,6 @@ public class TestTableCreation {
             template.getNosqlEntityInformation(domainClass);
             fail("Expecting IllegalArgumentException but didn't get");
         } catch (IllegalArgumentException ignored) {
-            ignored.printStackTrace();
         }
     }
 
