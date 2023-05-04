@@ -130,20 +130,13 @@ public class TestTableCreation {
     @Test
     public void testCompositeEntityWithMultipleKeys() {
         Class<?> domainClass = CompositeEntityWithMultipleKeys.class;
-        NosqlEntityInformation<?, ?> entityInformation =
-                template.getNosqlEntityInformation(domainClass);
+        try {
+            NosqlEntityInformation<?, ?> entityInformation =
+                    template.getNosqlEntityInformation(domainClass);
+            fail("Expecting IllegalArgumentException but didn't get");
+        } catch (IllegalArgumentException ignored) {
 
-        template.dropTableIfExists(domainClass.getSimpleName());
-        template.createTableIfNotExists(entityInformation);
-
-        String tableDDL = template.getNosqlClient().
-                getTable(new GetTableRequest().
-                        setTableName(domainClass.getSimpleName())).getDdl();
-        if (tableDDL != null) {
-            tableDDL = tableDDL.replaceAll(CLOUD_SIM_NAMESPACE, "");
-            assertEquals(CompositeEntityWithMultipleKeys.DDL, tableDDL);
         }
-        template.dropTableIfExists(domainClass.getSimpleName());
     }
 
     @Test

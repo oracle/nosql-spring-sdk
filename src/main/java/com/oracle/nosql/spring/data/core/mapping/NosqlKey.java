@@ -60,8 +60,8 @@ public @interface NosqlKey {
     boolean shardKey() default NOTSET_SHARD_KEY;
 
     /**
-     * Specifies the order of the field related to other fields with the same
-     * shardKey value listed in the composite key class.<p>
+     * Specifies the order of the field related to other fields listed in the
+     * composite key class.<p>
      * This ordering is used in table creation DDL to specify PRIMARY KEY and
      * SHARD KEY ordering.<p>
      * Ordering is done based on below rules:<ul><li>
@@ -69,7 +69,12 @@ public @interface NosqlKey {
      *     When using the <code>order</code> option:<ul><li>
      *         It must be specified on all the fields otherwise it is an error.
      *           </li><li>
-     *         It must be unique otherwise it is an error.</li></ul></li><li>
+     *         It must be unique otherwise it is an error.
+     *           </li><li>
+     *         Order of the shard keys must be less than the order of non
+     *         shard keys otherwise it is an error.
+     *         </li>
+     *         </ul></li><li>
      *     If {@code order} is not specified then fields are sorted
      *     alphabetically using lower case field names for fields grouped by the
      *     same shardKey value.</li></ul><p>
