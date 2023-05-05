@@ -3,9 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## [1.6.0] [not yet released]
+## [1.6.0]
 ### Added
 - Added support for composite primary keys.
+
+### Changed
+- Upgrade NoSQL Java SDK dependency to version 5.4.10.
 
 ## [1.5.0]
 ### Added
