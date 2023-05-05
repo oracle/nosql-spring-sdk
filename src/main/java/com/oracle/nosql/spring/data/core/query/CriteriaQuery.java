@@ -134,7 +134,8 @@ public class CriteriaQuery extends NosqlQuery {
 
     @Override
     public String generateSql(String tableName,
-        final Map<String, Object> params, String idPropertyName) {
+        final Map<String, Object> params, String idPropertyName,
+        NosqlPersistentEntity<?> entity) {
 
         String sql = "select " +
             (isDistinct ? "distinct " : "") +
@@ -150,9 +151,14 @@ public class CriteriaQuery extends NosqlQuery {
         if (getSort().isSorted()) {
             sql += " ORDER BY ";
             sql += getSort().stream().map(order -> (
-                      getSqlField(order.getProperty(),
-                          order.getProperty().equals(idPropertyName)) +
-                          (order.isAscending() ? " ASC" : " DESC")))
+                    getSqlField(order.getProperty(),
+                            mappingContext.getPersistentPropertyPath(
+                                    order.getProperty(), entity.getType()).
+                                    getRequiredLeafProperty(),
+                            mappingContext.getPersistentPropertyPath(
+                                    order.getProperty(), entity.getType()).
+                                    getBaseProperty()
+                    ) + (order.isAscending() ? " ASC" : " DESC")))
                 .collect(Collectors.joining(","));
         }
 
@@ -381,13 +387,22 @@ public class CriteriaQuery extends NosqlQuery {
         PersistentPropertyPath<NosqlPersistentProperty> path =
             mappingContext.getPersistentPropertyPath(crt.getPart().getProperty());
         NosqlPersistentProperty property = path.getLeafProperty();
-
-        return getSqlFieldWithCast(crt.getSubject(), property);
+        NosqlPersistentProperty parentProperty = path.getBaseProperty();
+        return getSqlFieldWithCast(crt.getSubject(), property, parentProperty);
     }
 
     private String getSqlFieldWithCast(@NonNull String field,
-        NosqlPersistentProperty property) {
-        String result =  getSqlField(field, property.isIdProperty());
+        NosqlPersistentProperty property,
+        NosqlPersistentProperty parentProperty) {
+        String result;
+        /* If property is part of composite key use property name instead of
+           hierarchical name*/
+        if (property.isNosqlKey() ||
+                parentProperty.isIdProperty()) {
+            result =  getSqlField(property.getName(), true);
+        } else {
+            result = getSqlField(field, property.isIdProperty());
+        }
 
         if (requiresTimestampCast(property)) {
             result = "cast(" + result + " as " +
@@ -400,12 +415,18 @@ public class CriteriaQuery extends NosqlQuery {
         PersistentPropertyPath<NosqlPersistentProperty> path =
             mappingContext.getPersistentPropertyPath(crt.getPart().getProperty());
         NosqlPersistentProperty property = path.getLeafProperty();
+        NosqlPersistentProperty parentProperty = path.getBaseProperty();
 
-        return getSqlField(crt.getSubject(), property);
+        return getSqlField(crt.getSubject(), property, parentProperty);
     }
 
     private String getSqlField(@NonNull String field,
-        NosqlPersistentProperty property) {
+       @NonNull NosqlPersistentProperty property,
+       @Nullable NosqlPersistentProperty parentProperty) {
+        if (property.isNosqlKey() ||
+                (parentProperty != null && parentProperty.isIdProperty())) {
+            return getSqlField(property.getName(), true);
+        }
         return getSqlField(field, property.isIdProperty());
     }
 
@@ -484,19 +505,30 @@ public class CriteriaQuery extends NosqlQuery {
         List<String> nonKeyFields = new ArrayList<>();
 
         inputProperties
-            .stream()
-            .forEach( prop -> {
-                NosqlPersistentProperty pp = mappingContext
-                    .getPersistentPropertyPath(prop,
-                        returnedType.getReturnedType()).getBaseProperty();
+                .stream()
+                .forEach(prop -> {
+                    NosqlPersistentProperty pp = mappingContext
+                            .getPersistentPropertyPath(prop,
+                                    returnedType.getDomainType()).getBaseProperty();
 
-                String field = getSqlField(prop, pp);
-                if (pp.getName().equals(idPropertyName)) {
-                    keyFields.add(getSqlField(pp.getName(), true));
-                } else {
-                    nonKeyFields.add(field);
-                }
-            });
+                    if (pp.isCompositeKey()) {
+                        NosqlPersistentEntity<?> compositeEntity =
+                                (NosqlPersistentEntity<?>) mappingContext.getRequiredPersistentEntity(pp);
+                        compositeEntity.forEach(idProperty -> {
+                            if (idProperty.isWritable()) {
+                                keyFields.add(getSqlField(idProperty.getName(),
+                                        true));
+                            }
+                        });
+                    } else {
+                        String field = getSqlField(prop, pp, null);
+                        if (pp.getName().equals(idPropertyName)) {
+                            keyFields.add(getSqlField(pp.getName(), true));
+                        } else {
+                            nonKeyFields.add(field);
+                        }
+                    }
+                });
 
         String nonKeysProj = nonKeyFields.stream()
             .map(f -> "'" + f.substring(f.lastIndexOf('.') + 1) +

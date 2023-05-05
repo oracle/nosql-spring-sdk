@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import com.oracle.nosql.spring.data.core.mapping.NosqlKey;
+import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentProperty;
 import oracle.nosql.driver.NoSQLException;
 import oracle.nosql.driver.NoSQLHandle;
 import oracle.nosql.driver.ops.DeleteRequest;
@@ -39,7 +41,6 @@ import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -485,6 +486,24 @@ public class NosqlTemplate
             return property;
         }
 
+        //field can be composite key
+        NosqlPersistentProperty pp = mappingNosqlConverter.getMappingContext().
+                getPersistentPropertyPath(property,
+                        entityInformation.getJavaType()).getLeafProperty();
+
+        NosqlPersistentProperty parentPp =
+                mappingNosqlConverter.getMappingContext().
+                        getPersistentPropertyPath(property,
+                                entityInformation.getJavaType()).getBaseProperty();
+        if (pp != null) {
+            if (pp.isAnnotationPresent(NosqlKey.class)) {
+                return pp.getName();
+            }
+            if (parentPp != null && parentPp.isIdProperty()) {
+                return pp.getName();
+            }
+        }
+
         return JSON_COLUMN + "." + property;
     }
 
@@ -581,5 +600,9 @@ public class NosqlTemplate
             });
 
         return IterableUtil.getIterableFromStream(resStream);
+    }
+
+    public NoSQLHandle getNosqlClient() {
+        return nosqlClient;
     }
 }

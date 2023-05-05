@@ -20,6 +20,7 @@ import java.util.TreeSet;
 import oracle.nosql.driver.values.FieldValue;
 
 import com.oracle.nosql.spring.data.Constants;
+import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 
 import org.springframework.data.geo.Point;
 import org.springframework.data.geo.Polygon;
@@ -169,5 +170,16 @@ public class BasicNosqlPersistentProperty
         } else {
             return TypeCode.POJO;
         }
+    }
+
+    @Override
+    public boolean isCompositeKey() {
+        return isIdProperty() &&
+                NosqlEntityInformation.isCompositeKeyType(getType());
+    }
+
+    @Override
+    public boolean isNosqlKey() {
+        return isAnnotationPresent(NosqlKey.class);
     }
 }

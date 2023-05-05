@@ -56,6 +56,7 @@ import com.oracle.nosql.spring.data.core.NosqlTemplateBase;
 import com.oracle.nosql.spring.data.core.mapping.BasicNosqlPersistentProperty;
 import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentEntity;
 import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentProperty;
+import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -211,10 +212,17 @@ public class MappingNosqlConverter
         row.put(NosqlTemplateBase.JSON_COLUMN, valueMap);
 
         if (!skipSetId && idProperty != null) {
-            //todo implement composite key
-            row.put(idProperty.getName(),
-                convertObjToFieldValue(accessor.getProperty(idProperty),
-                    idProperty, false));
+            if (idProperty.isCompositeKey()) {
+                MapValue ids = convertObjToFieldValue(
+                        accessor.getProperty(idProperty),
+                        idProperty,
+                        false).asMap();
+                ids.getMap().forEach(row::put);
+            } else {
+                row.put(idProperty.getName(),
+                    convertObjToFieldValue(accessor.getProperty(idProperty),
+                        idProperty, false));
+            }
         }
 
         for (NosqlPersistentProperty prop : persistentEntity) {
@@ -568,26 +576,38 @@ public class MappingNosqlConverter
                 FieldValue idFieldValue = null;
 
                 if (entity.getIdProperty() != null) {
-                    idFieldValue = nosqlValue.asMap()
-                        .get(entity.getIdProperty().getName());
+                    NosqlPersistentProperty idProperty = entity.getIdProperty();
+
+                    if (idProperty.isCompositeKey()) {
+                        idFieldValue = new MapValue();
+                        NosqlPersistentEntity<?> idEntity =
+                                mappingContext.getPersistentEntity(idProperty.getType());
+                        for (NosqlPersistentProperty p : idEntity) {
+                            idFieldValue.asMap().put(p.getName(),
+                                    nosqlValue.asMap().get(p.getName()));
+                        }
+                    } else {
+                        idFieldValue = nosqlValue.asMap()
+                                .get(entity.getIdProperty().getName());
+                    }
                 }
 
-                MapValue jsonValue;
+                MapValue jsonValue = null;
                 if (nosqlValue.asMap().get(NosqlTemplateBase.JSON_COLUMN) !=
                     null) {
                     jsonValue = nosqlValue.asMap().
-                        get(NosqlTemplateBase.JSON_COLUMN).asMap();
-
-                    NosqlPersistentEntity<E> clsEntity =
-                        updateEntity(entity, getInstanceClass(jsonValue));
-                    entityObj = getNewInstance(clsEntity, nosqlValue.asMap(),
-                        jsonValue);
-
-                    if (idFieldValue != null) {
-                        setId(entityObj, idFieldValue);
-                    }
-                    setPojoProperties(clsEntity, entityObj, jsonValue);
+                            get(NosqlTemplateBase.JSON_COLUMN).asMap();
                 }
+                NosqlPersistentEntity<E> clsEntity =
+                    updateEntity(entity, getInstanceClass(jsonValue));
+                entityObj = getNewInstance(clsEntity, nosqlValue.asMap(),
+                    jsonValue);
+
+                if (idFieldValue != null) {
+                    setId(entityObj, idFieldValue);
+                }
+                setPojoProperties(clsEntity, entityObj, jsonValue);
+
             } else {
                 MapValue mapValue = nosqlValue.asMap();
                 String instClsStr = getInstanceClass(mapValue);
@@ -811,7 +831,7 @@ public class MappingNosqlConverter
 
     private <R> R getNewInstance(NosqlPersistentEntity<R> entity,
         MapValue rootFieldValue,
-        @NonNull MapValue jsonValue) {
+        @Nullable MapValue jsonValue) {
 
         EntityInstantiator instantiator =
             instantiators.getInstantiatorFor(entity);
@@ -828,14 +848,16 @@ public class MappingNosqlConverter
                     NosqlPersistentProperty prop =
                         entity.getPersistentProperty(paramName);
 
-                    FieldValue value;
-                    if (rootFieldValue == null) {
+                    FieldValue value = null;
+                    if (rootFieldValue == null && jsonValue != null) {
                         value = jsonValue.get(paramName);
                     } else {
                         if (prop.isIdProperty()) {
                             value = rootFieldValue.get(paramName);
                         } else {
-                            value = jsonValue.get(paramName);
+                            if (jsonValue != null) {
+                                value = jsonValue.get(paramName);
+                            }
                             if (value == null) {
                                 // if field is not marked id and it's not in
                                 // kv_json_ it may be an unmarked id field
@@ -1115,10 +1137,15 @@ public class MappingNosqlConverter
         }
 
         MapValue row = new MapValue();
-
-        row.put(idColumnName, convertObjToFieldValue(id, null, false));
-        //todo: add support for composite key
-
+        if (NosqlEntityInformation.isCompositeKeyType(id.getClass())) {
+            /*composite key. Here convertObjToFieldValue adds #class that is
+              why convertObjToRow is used*/
+            MapValue compositeKey = convertObjToRow(id, false);
+            compositeKey.get(NosqlTemplateBase.JSON_COLUMN).asMap().
+                    getMap().forEach(row::put);
+        } else {
+            row.put(idColumnName, convertObjToFieldValue(id, null, false));
+        }
         return row;
     }
 

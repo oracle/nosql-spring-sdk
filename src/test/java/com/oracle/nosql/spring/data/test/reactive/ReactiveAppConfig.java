@@ -15,7 +15,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableReactiveNosqlRepositories
+@EnableReactiveNosqlRepositories(basePackages = {
+        "com.oracle.nosql.spring.data.test.reactive",
+        "com.oracle.nosql.spring.data.test.composite"
+})
 public class ReactiveAppConfig extends AbstractNosqlConfiguration {
     @Bean
     public NosqlDbConfig nosqlDbConfig() {

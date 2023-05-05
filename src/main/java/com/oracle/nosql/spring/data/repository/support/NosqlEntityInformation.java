@@ -11,6 +11,7 @@ import com.oracle.nosql.spring.data.NosqlDbFactory;
 import com.oracle.nosql.spring.data.core.NosqlTemplateBase;
 import com.oracle.nosql.spring.data.core.mapping.NosqlCapacityMode;
 import com.oracle.nosql.spring.data.core.mapping.NosqlId;
+import com.oracle.nosql.spring.data.core.mapping.NosqlKey;
 import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
 import oracle.nosql.driver.Consistency;
 import oracle.nosql.driver.Durability;
@@ -21,6 +22,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.repository.core.support.AbstractEntityInformation;
 import org.springframework.data.spel.EvaluationContextProvider;
 import org.springframework.data.spel.ExtensionAwareEvaluationContextProvider;
@@ -31,13 +33,23 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import static com.oracle.nosql.spring.data.Constants.NOTSET_PRIMARY_KEY_ORDER;
+import static com.oracle.nosql.spring.data.Constants.NOTSET_SHARD_KEY;
 
 public class NosqlEntityInformation <T, ID> extends
     AbstractEntityInformation<T, ID> {
@@ -54,7 +66,8 @@ public class NosqlEntityInformation <T, ID> extends
     private final FieldValue.Type idNosqlType;
     private boolean useDefaultTableLimits = false;
     private TimeToLive ttl;
-//    private boolean isComposite;
+    private Map<String, FieldValue.Type> shardKeys;
+    private Map<String, FieldValue.Type> nonShardKeys;
 
     public NosqlEntityInformation(ApplicationContext applicationContext,
                                   Class<T> domainClass) {
@@ -63,7 +76,7 @@ public class NosqlEntityInformation <T, ID> extends
         this.applicationContext = applicationContext;
         this.id = getIdField(domainClass);
         ReflectionUtils.makeAccessible(this.id);
-        idNosqlType = findIdNosqlType();
+        idNosqlType = findIdNosqlType(getIdType());
 
         final NosqlId nosqlIdAnn = id.getAnnotation(NosqlId.class);
         if (nosqlIdAnn != null && nosqlIdAnn.generated()) {
@@ -110,8 +123,7 @@ public class NosqlEntityInformation <T, ID> extends
         return idNosqlType;
     }
 
-    private FieldValue.Type findIdNosqlType() {
-        Class<ID> idClass = getIdType();
+    public static FieldValue.Type findIdNosqlType(Class<?> idClass) {
         if (idClass == String.class) {
             return FieldValue.Type.STRING;
         }
@@ -132,7 +144,8 @@ public class NosqlEntityInformation <T, ID> extends
             Instant.class) {
             return FieldValue.Type.TIMESTAMP;
         }
-        throw new IllegalStateException("Unsupported ID type.");
+        //Might be composite key. return MAP type
+        return FieldValue.Type.MAP;
     }
 
     public String getTableName() {
@@ -183,37 +196,83 @@ public class NosqlEntityInformation <T, ID> extends
             throw new IllegalArgumentException("Entity should contain @Id or " +
                 "@NosqlId annotated field or field named id: " +
                 domainClass.getName());
-        } else if (idField.getType() != String.class &&
-            idField.getType() != Integer.class &&
-            idField.getType() != int.class &&
-            idField.getType() != Long.class &&
-            idField.getType() != long.class &&
-            idField.getType() != Float.class &&
-            idField.getType() != float.class &&
-            idField.getType() != Double.class &&
-            idField.getType() != double.class &&
-            idField.getType() != BigInteger.class &&
-            idField.getType() != BigDecimal.class &&
-            idField.getType() != Timestamp.class &&
-            idField.getType() != Date.class &&
-            idField.getType() != Instant.class
-            //todo: implement composite keys
-        ) {
-            throw new IllegalArgumentException("Id field must be of " +
-                "type java.lang.String, int, java.lang.Integer, long, " +
-                "java.lang.Long, java.math.BigInteger, java.math.BigDecimal, " +
-                "java.sql.Timestamp, java.util.Date or java.time.Instant in " +
-                domainClass.getName());
         }
-
         if (NosqlTemplateBase.JSON_COLUMN.equals(idField.getName())) {
             throw new IllegalArgumentException("Id field can not be named '" +
                 NosqlTemplateBase.JSON_COLUMN + "' in " + domainClass.getName());
         }
 
+        //If composite key class check it has only primitive types
+        if (isCompositeKeyType(idField.getType())) {
+            for (Field primaryKey : idField.getType().getDeclaredFields()) {
+                if (!primaryKey.isAnnotationPresent(Transient.class) &&
+                        !Modifier.isStatic(primaryKey.getModifiers())) {
+                    if (isCompositeKeyType(primaryKey.getType())) {
+                        throw new IllegalArgumentException(String.format(
+                                "field '%s' must be one of type java.lang" +
+                                        ".String," +
+                                        " int, java.lang.Integer, long, java" +
+                                        ".lang" +
+                                        ".Long," +
+                                        " java.math.BigInteger, java.math" +
+                                        ".BigDecimal," +
+                                        " java.sql.Timestamp, java.util.Date " +
+                                        "or" +
+                                        " java.time.Instant in %s",
+                                primaryKey.getName(),
+                                idField.getType().getName())
+                        );
+                    }
+                    if (NosqlTemplateBase.JSON_COLUMN.equals(primaryKey.getName())) {
+                        throw new IllegalArgumentException("primary key " +
+                                "field of the composite key can not be named " +
+                                "'" + NosqlTemplateBase.JSON_COLUMN + "' in " +
+                                idField.getType().getName());
+                    }
+                }
+            }
+        }
+
+        ProcessPrimaryKeys ppKeys = new ProcessPrimaryKeys(idField);
+        shardKeys = ppKeys.shardKeys;
+        nonShardKeys = ppKeys.nonShardKeys;
+
+        for (String nkey : nonShardKeys.keySet()) {
+            for (String sKey : shardKeys.keySet()) {
+                if (nkey.equalsIgnoreCase(sKey)) {
+                    throw new IllegalArgumentException(String.format(
+                            "Conflicting name %s " +
+                                    "for primary key in " +
+                                    "composite key class " +
+                                    "%s", nkey,
+                            idField.getType().getName())
+                    );
+                }
+            }
+        }
         return idField;
     }
 
+    public static boolean isAllowedKeyType(Class<?> type) {
+        return type == String.class ||
+                type == Integer.class ||
+                type == int.class ||
+                type == Long.class ||
+                type == long.class ||
+                type == Float.class ||
+                type == float.class ||
+                type == Double.class ||
+                type == double.class ||
+                type == BigInteger.class ||
+                type == BigDecimal.class ||
+                type == Timestamp.class ||
+                type == Date.class ||
+                type == Instant.class;
+    }
+
+    public static boolean isCompositeKeyType(Class<?> type) {
+        return !isAllowedKeyType(type);
+    }
 
     private void setTableOptions(Class<T> domainClass) {
         autoCreateTable = Constants.DEFAULT_AUTO_CREATE_TABLE;
@@ -241,8 +300,7 @@ public class NosqlEntityInformation <T, ID> extends
                     annotation.writeUnits(), annotation.storageGB());
             } else if (annotation.capacityMode() == NosqlCapacityMode.ON_DEMAND
                 && (annotation.storageGB() > 0  || annotation.storageGB() ==
-                Constants.NOTSET_TABLE_STORAGE_GB ))
-            {
+                Constants.NOTSET_TABLE_STORAGE_GB )) {
                 tableLimits = new TableLimits(annotation.storageGB());
             }
 
@@ -394,5 +452,166 @@ public class NosqlEntityInformation <T, ID> extends
      */
     public TimeToLive getTtl() {
         return ttl;
+    }
+
+    public Map<String, FieldValue.Type> getShardKeys() {
+        return shardKeys;
+    }
+
+    public Map<String, FieldValue.Type> getNonShardKeys() {
+        return nonShardKeys;
+    }
+
+    private static class ProcessPrimaryKeys {
+        private Map<String, FieldValue.Type> shardKeys;
+        private Map<String, FieldValue.Type> nonShardKeys;
+
+        public ProcessPrimaryKeys(Field idField) {
+            shardKeys = new LinkedHashMap<>();
+            nonShardKeys = new LinkedHashMap<>();
+            process(idField);
+        }
+
+        private void process(Field idField) {
+            Class<?> idFieldClass = idField.getType();
+
+            if (isCompositeKeyType(idField.getType())) {
+                //composite key
+                Map<Integer, SortedSet<String>> shardMap = new TreeMap<>();
+                Map<Integer, SortedSet<String>> nonShardMap = new TreeMap<>();
+
+                for (Field primaryKey : idField.getType().getDeclaredFields()) {
+                    if (!primaryKey.isAnnotationPresent(Transient.class) &&
+                            !Modifier.isStatic(primaryKey.getModifiers())) {
+
+                        int order = NOTSET_PRIMARY_KEY_ORDER;
+                        boolean isShard = NOTSET_SHARD_KEY;
+
+                        if (primaryKey.isAnnotationPresent(NosqlKey.class)) {
+                            NosqlKey nosqlKey =
+                                    primaryKey.getAnnotation(NosqlKey.class);
+                            order = nosqlKey.order();
+                            isShard = nosqlKey.shardKey();
+                        }
+                        //If shard save in shardMap
+                        if (isShard) {
+                            SortedSet<String> ss = shardMap.getOrDefault(order,
+                                    new TreeSet<>(String.CASE_INSENSITIVE_ORDER));
+                            if (ss.contains(primaryKey.getName())) {
+                                throw new IllegalArgumentException(
+                                        String.format("Conflicting name %s " +
+                                                        "for primary key in " +
+                                                        "composite key class " +
+                                                        "%s",
+                                                primaryKey.getName(),
+                                                idFieldClass)
+                                );
+                            }
+                            ss.add(primaryKey.getName());
+                            shardMap.put(order, ss);
+                        } else {
+                            //save in nonShardMap
+                            SortedSet<String> ss =
+                                    nonShardMap.getOrDefault(order,
+                                    new TreeSet<>(String.CASE_INSENSITIVE_ORDER));
+                            if (ss.contains(primaryKey.getName())) {
+                                throw new IllegalArgumentException(
+                                        String.format("Conflicting name %s " +
+                                                        "for primary key in " +
+                                                        "composite key class " +
+                                                        "%s",
+                                                primaryKey.getName(),
+                                                idFieldClass)
+                                );
+                            }
+                            ss.add(primaryKey.getName());
+                            nonShardMap.put(order, ss);
+                        }
+                    }
+                }
+
+                List<String> sortedShardKeys = new ArrayList<>();
+                List<String> sortedNonShardKeys = new ArrayList<>();
+
+                shardMap.forEach((order, keys) -> {
+                    //order should be specified on all fields if at all is used
+                    if (order != NOTSET_PRIMARY_KEY_ORDER &&
+                            shardMap.get(NOTSET_PRIMARY_KEY_ORDER) != null) {
+                        throw new IllegalArgumentException("If order is " +
+                                "specified, it must be specified on all key" +
+                                " fields of the composite key class " +
+                                idField.getType().getName());
+                    }
+
+                    //order value must be unique
+                    if (order != NOTSET_PRIMARY_KEY_ORDER && keys.size() > 1) {
+                        throw new IllegalArgumentException("Order of " +
+                                "keys must be unique in composite key " +
+                                "class " + idFieldClass.getName());
+                    }
+                    sortedShardKeys.addAll(keys);
+                });
+
+                nonShardMap.forEach((order, keys) -> {
+                    //order should be specified on all fields if at all is used
+                    if (order != NOTSET_PRIMARY_KEY_ORDER &&
+                            nonShardMap.get(NOTSET_PRIMARY_KEY_ORDER) != null) {
+                        throw new IllegalArgumentException("If order is " +
+                                "specified, it must be specified on all key" +
+                                " fields of the composite key class " +
+                                idField.getType().getName());
+                    }
+
+                    //order value must be unique
+                    if (order != NOTSET_PRIMARY_KEY_ORDER && keys.size() > 1) {
+                        throw new IllegalArgumentException("Order of " +
+                                "keys must be unique in composite key " +
+                                "class " + idFieldClass.getName());
+                    }
+                    sortedNonShardKeys.addAll(keys);
+                });
+
+                if (sortedShardKeys.isEmpty()) {
+                    throw new IllegalArgumentException("At least one of the " +
+                            "@NosqlKey must be shard key in class " +
+                            idFieldClass.getName());
+                }
+
+                if (!nonShardMap.isEmpty()) {
+                    int shardMaxOrder =
+                            (int) ((TreeMap<?, ?>) shardMap).lastKey();
+                    int nonShardMinOrder =
+                            (int) ((TreeMap<?, ?>) nonShardMap).firstKey();
+
+                    if (shardMaxOrder != -1 && nonShardMinOrder <= shardMaxOrder) {
+                        throw new IllegalArgumentException("Order of non " +
+                                "shard " +
+                                "keys must be greater than all the shard keys" +
+                                " in " +
+                                "the composite key class " + idFieldClass.getName());
+                    }
+                }
+
+                sortedShardKeys.forEach(keyName -> {
+                    Field field = ReflectionUtils.findField(idField.getType(),
+                            keyName);
+                    shardKeys.put(keyName,
+                            NosqlEntityInformation.findIdNosqlType(
+                                    field.getType()));
+                });
+
+                sortedNonShardKeys.forEach(keyName -> {
+                    Field field = ReflectionUtils.findField(idField.getType(),
+                            keyName);
+                    nonShardKeys.put(keyName,
+                            NosqlEntityInformation.findIdNosqlType(
+                                    field.getType()));
+                });
+            } else { //simple key
+                shardKeys.put(idField.getName(),
+                        NosqlEntityInformation.findIdNosqlType(idField.getType())
+                );
+            }
+        }
     }
 }
