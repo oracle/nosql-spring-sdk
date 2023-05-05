@@ -28,7 +28,7 @@ project. The version changes with each release.
 <dependency>
   <groupId>com.oracle.nosql.sdk</groupId>
   <artifactId>spring-data-oracle-nosql</artifactId>
-  <version>1.5.0</version>
+  <version>1.6.0</version>
 </dependency>
 ```
 
@@ -127,7 +127,7 @@ Note: Depending on individual scenario use the appropriate AuthorizationProvider
      [setup](https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/callingservicesfrominstances.htm).
 
        ```java
-       SignatureProvider.createWithInstancePrincipal()
+       oracle.nosql.driver.iam.SignatureProvider.createWithInstancePrincipal()
        ```
 
  - For cloud simulator use:
