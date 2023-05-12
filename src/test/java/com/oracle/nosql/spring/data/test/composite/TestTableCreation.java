@@ -14,6 +14,7 @@ import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
 import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 import com.oracle.nosql.spring.data.test.app.AppConfig;
 import oracle.nosql.driver.ops.GetTableRequest;
+import oracle.nosql.driver.ops.TableLimits;
 import oracle.nosql.driver.ops.TableRequest;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -248,6 +249,7 @@ public class TestTableCreation {
                         "KV_JSON_ JSON, PRIMARY KEY(ID2,ID1))",
                 domainClass.getSimpleName());
         tableRequest.setStatement(ddl);
+        tableRequest.setTableLimits(new TableLimits(100,100,1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
@@ -267,6 +269,7 @@ public class TestTableCreation {
                         "kv_json_ JSON, PRIMARY KEY(SHARD(id2, id1), id3, id4))",
                 domainClass.getSimpleName());
         tableRequest.setStatement(ddl);
+        tableRequest.setTableLimits(new TableLimits(100,100,1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
@@ -285,6 +288,7 @@ public class TestTableCreation {
                         "KV_JSON_ JSON, PRIMARY KEY(ID1,ID2))",
                 domainClass.getSimpleName());
         tableRequest.setStatement(ddl);
+        tableRequest.setTableLimits(new TableLimits(100,100,1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
@@ -305,6 +309,7 @@ public class TestTableCreation {
                         "id3))",
                 domainClass.getSimpleName());
         tableRequest.setStatement(ddl);
+        tableRequest.setTableLimits(new TableLimits(100,100,1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
@@ -323,6 +328,7 @@ public class TestTableCreation {
                         "KV_JSON_ JSON, PRIMARY KEY(ID3,ID4))",
                 domainClass.getSimpleName());
         tableRequest.setStatement(ddl);
+        tableRequest.setTableLimits(new TableLimits(100,100,1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
@@ -340,6 +346,7 @@ public class TestTableCreation {
         String ddl = String.format("CREATE TABLE %s (id1 STRING, KV_JSON_ JSON, PRIMARY KEY(ID1))",
                 domainClass.getSimpleName());
         tableRequest.setStatement(ddl);
+        tableRequest.setTableLimits(new TableLimits(100,100,1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
@@ -358,6 +365,7 @@ public class TestTableCreation {
                         "kv JSON, PRIMARY KEY(ID1))",
                 domainClass.getSimpleName());
         tableRequest.setStatement(ddl);
+        tableRequest.setTableLimits(new TableLimits(100,100,1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
@@ -376,6 +384,7 @@ public class TestTableCreation {
                         "KV_json_ LONG, PRIMARY KEY(ID1,ID2))",
                 domainClass.getSimpleName());
         tableRequest.setStatement(ddl);
+        tableRequest.setTableLimits(new TableLimits(100,100,1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
@@ -395,6 +404,7 @@ public class TestTableCreation {
                         "KV_JSON_ JSON, PRIMARY KEY(ID))",
                 domainClass.getSimpleName());
         tableRequest.setStatement(ddl);
+        tableRequest.setTableLimits(new TableLimits(100,100,1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
@@ -414,6 +424,7 @@ public class TestTableCreation {
                         "KV_JSON_ JSON, PRIMARY KEY(ID))",
                 domainClass.getSimpleName());
         tableRequest.setStatement(ddl);
+        tableRequest.setTableLimits(new TableLimits(100,100,1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
@@ -432,6 +443,7 @@ public class TestTableCreation {
                 "ALWAYS AS IDENTITY, KV_JSON_ JSON, PRIMARY KEY(ID))",
                 domainClass.getSimpleName());
         tableRequest.setStatement(ddl);
+        tableRequest.setTableLimits(new TableLimits(100,100,1));
         template.dropTableIfExists(domainClass.getSimpleName());
         template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
         template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
@@ -447,6 +459,7 @@ public class TestTableCreation {
                         "USING TTL 5 DAYS",
                 domainClass.getSimpleName());
         tableRequest.setStatement(ddl);
+        tableRequest.setTableLimits(new TableLimits(100,100,1));
         template.dropTableIfExists(domainClass.getSimpleName());
         template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
         template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
@@ -462,6 +475,7 @@ public class TestTableCreation {
                         "USING TTL 5 DAYS",
                 domainClass.getSimpleName());
         tableRequest.setStatement(ddl);
+        tableRequest.setTableLimits(new TableLimits(100,100,1));
         template.dropTableIfExists(domainClass.getSimpleName());
         template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
         template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
