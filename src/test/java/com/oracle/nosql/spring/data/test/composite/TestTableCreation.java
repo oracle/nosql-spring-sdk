@@ -14,6 +14,7 @@ import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
 import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 import com.oracle.nosql.spring.data.test.app.AppConfig;
 import oracle.nosql.driver.ops.GetTableRequest;
+import oracle.nosql.driver.ops.TableRequest;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -238,6 +239,236 @@ public class TestTableCreation {
         } catch (IllegalArgumentException ignored) {
         }
     }
+
+    @Test
+    public void testTableDDLMismatchOrderOfShardKeys() {
+        Class<?> domainClass = CompositeEntityWithNoKeys.class;
+        TableRequest tableRequest = new TableRequest();
+        String ddl = String.format("CREATE TABLE %s (ID2 STRING, ID1 STRING, " +
+                        "KV_JSON_ JSON, PRIMARY KEY(ID2,ID1))",
+                domainClass.getSimpleName());
+        tableRequest.setStatement(ddl);
+        try {
+            template.dropTableIfExists(domainClass.getSimpleName());
+            template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
+            template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
+            fail("Expecting IllegalArgumentException but didn't get");
+        } catch (IllegalArgumentException ignored) {
+            template.dropTableIfExists(domainClass.getSimpleName());
+        }
+    }
+
+    @Test
+    public void testTableDDLMismatchOrderOfNonShardKeys() {
+        Class<?> domainClass = CompositeEntityRecommended.class;
+        TableRequest tableRequest = new TableRequest();
+        String ddl = String.format("CREATE TABLE IF NOT EXISTS %s (id2 " +
+                        "STRING, id1 STRING, id3 STRING, id4 STRING," +
+                        "kv_json_ JSON, PRIMARY KEY(SHARD(id2, id1), id3, id4))",
+                domainClass.getSimpleName());
+        tableRequest.setStatement(ddl);
+        try {
+            template.dropTableIfExists(domainClass.getSimpleName());
+            template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
+            template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
+            fail("Expecting IllegalArgumentException but didn't get");
+        } catch (IllegalArgumentException ignored) {
+            template.dropTableIfExists(domainClass.getSimpleName());
+        }
+    }
+
+    @Test
+    public void testTableDDLMismatchTypeOfShardKey() {
+        Class<?> domainClass = CompositeEntityWithNoKeys.class;
+        TableRequest tableRequest = new TableRequest();
+        String ddl = String.format("CREATE TABLE %s (id1 LONG, ID2 STRING, " +
+                        "KV_JSON_ JSON, PRIMARY KEY(ID1,ID2))",
+                domainClass.getSimpleName());
+        tableRequest.setStatement(ddl);
+        try {
+            template.dropTableIfExists(domainClass.getSimpleName());
+            template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
+            template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
+            fail("Expecting IllegalArgumentException but didn't get");
+        } catch (IllegalArgumentException ignored) {
+            template.dropTableIfExists(domainClass.getSimpleName());
+        }
+    }
+
+    @Test
+    public void testTableDDLMismatchTypeOfNonShardKey() {
+        Class<?> domainClass = CompositeEntityRecommended.class;
+        TableRequest tableRequest = new TableRequest();
+        String ddl = String.format("CREATE TABLE IF NOT EXISTS %s (id2 " +
+                        "STRING, id1 STRING, id4 STRING, id3 LONG," +
+                        "kv_json_ JSON, PRIMARY KEY(SHARD(id2, id1), id4, " +
+                        "id3))",
+                domainClass.getSimpleName());
+        tableRequest.setStatement(ddl);
+        try {
+            template.dropTableIfExists(domainClass.getSimpleName());
+            template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
+            template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
+            fail("Expecting IllegalArgumentException but didn't get");
+        } catch (IllegalArgumentException ignored) {
+            template.dropTableIfExists(domainClass.getSimpleName());
+        }
+    }
+
+    @Test
+    public void testTableMismatchDifferentColumn() {
+        Class<?> domainClass = CompositeEntityWithNoKeys.class;
+        TableRequest tableRequest = new TableRequest();
+        String ddl = String.format("CREATE TABLE %s (id3 STRING, ID4 STRING, " +
+                        "KV_JSON_ JSON, PRIMARY KEY(ID3,ID4))",
+                domainClass.getSimpleName());
+        tableRequest.setStatement(ddl);
+        try {
+            template.dropTableIfExists(domainClass.getSimpleName());
+            template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
+            template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
+            fail("Expecting IllegalArgumentException but didn't get");
+        } catch (IllegalArgumentException ignored) {
+            template.dropTableIfExists(domainClass.getSimpleName());
+        }
+    }
+
+    @Test
+    public void testTableMismatchMissingColumn() {
+        Class<?> domainClass = CompositeEntityWithNoKeys.class;
+        TableRequest tableRequest = new TableRequest();
+        String ddl = String.format("CREATE TABLE %s (id1 STRING, KV_JSON_ JSON, PRIMARY KEY(ID1))",
+                domainClass.getSimpleName());
+        tableRequest.setStatement(ddl);
+        try {
+            template.dropTableIfExists(domainClass.getSimpleName());
+            template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
+            template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
+            fail("Expecting IllegalArgumentException but didn't get");
+        } catch (IllegalArgumentException ignored) {
+            template.dropTableIfExists(domainClass.getSimpleName());
+        }
+    }
+
+    @Test
+    public void testTableMismatchMissingJson() {
+        Class<?> domainClass = CompositeEntityWithNoKeys.class;
+        TableRequest tableRequest = new TableRequest();
+        String ddl = String.format("CREATE TABLE %s (id1 STRING, id2 STRING, " +
+                        "kv JSON, PRIMARY KEY(ID1))",
+                domainClass.getSimpleName());
+        tableRequest.setStatement(ddl);
+        try {
+            template.dropTableIfExists(domainClass.getSimpleName());
+            template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
+            template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
+            fail("Expecting IllegalArgumentException but didn't get");
+        } catch (IllegalArgumentException ignored) {
+            template.dropTableIfExists(domainClass.getSimpleName());
+        }
+    }
+
+    @Test
+    public void testTableMismatchMissingJsonType() {
+        Class<?> domainClass = CompositeEntityWithNoKeys.class;
+        TableRequest tableRequest = new TableRequest();
+        String ddl = String.format("CREATE TABLE %s (id1 STRING, id2 STRING, " +
+                        "KV_json_ LONG, PRIMARY KEY(ID1,ID2))",
+                domainClass.getSimpleName());
+        tableRequest.setStatement(ddl);
+        try {
+            template.dropTableIfExists(domainClass.getSimpleName());
+            template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
+            template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
+            fail("Expecting IllegalArgumentException but didn't get");
+        } catch (IllegalArgumentException ignored) {
+            template.dropTableIfExists(domainClass.getSimpleName());
+        }
+    }
+
+    @Test
+    public void testTableMismatchIdentity() {
+        Class<?> domainClass = IdEntity.class;
+        TableRequest tableRequest = new TableRequest();
+        String ddl = String.format("CREATE TABLE %s (" +
+                        "ID integer GENERATED ALWAYS as IDENTITY, " +
+                        "KV_JSON_ JSON, PRIMARY KEY(ID))",
+                domainClass.getSimpleName());
+        tableRequest.setStatement(ddl);
+        try {
+            template.dropTableIfExists(domainClass.getSimpleName());
+            template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
+            template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
+            fail("Expecting IllegalArgumentException but didn't get");
+        } catch (IllegalArgumentException ignored) {
+            template.dropTableIfExists(domainClass.getSimpleName());
+        }
+    }
+
+    @Test
+    public void testTableMismatchIdentity1() {
+        Class<?> domainClass = IdEntity1.class;
+        TableRequest tableRequest = new TableRequest();
+        String ddl = String.format("CREATE TABLE %s (" +
+                        "ID integer, " +
+                        "KV_JSON_ JSON, PRIMARY KEY(ID))",
+                domainClass.getSimpleName());
+        tableRequest.setStatement(ddl);
+        try {
+            template.dropTableIfExists(domainClass.getSimpleName());
+            template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
+            template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
+            fail("Expecting IllegalArgumentException but didn't get");
+        } catch (IllegalArgumentException ignored) {
+            template.dropTableIfExists(domainClass.getSimpleName());
+        }
+    }
+
+    @Test
+    public void testTTLMismatch() {
+        Class<?> domainClass = TTLEntity.class;
+        TableRequest tableRequest = new TableRequest();
+        String ddl = String.format("CREATE TABLE %s (ID INTEGER GENERATED " +
+                "ALWAYS AS IDENTITY, KV_JSON_ JSON, PRIMARY KEY(ID))",
+                domainClass.getSimpleName());
+        tableRequest.setStatement(ddl);
+        template.dropTableIfExists(domainClass.getSimpleName());
+        template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
+        template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
+        template.dropTableIfExists(domainClass.getSimpleName());
+    }
+
+    @Test
+    public void testTTLMismatch1() {
+        Class<?> domainClass = TTLEntity.class;
+        TableRequest tableRequest = new TableRequest();
+        String ddl = String.format("CREATE TABLE %s (ID INTEGER GENERATED " +
+                        "ALWAYS AS IDENTITY, KV_JSON_ JSON, PRIMARY KEY(ID)) " +
+                        "USING TTL 5 DAYS",
+                domainClass.getSimpleName());
+        tableRequest.setStatement(ddl);
+        template.dropTableIfExists(domainClass.getSimpleName());
+        template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
+        template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
+        template.dropTableIfExists(domainClass.getSimpleName());
+    }
+
+    @Test
+    public void testTTLMismatch2() {
+        Class<?> domainClass = TTLEntity1.class;
+        TableRequest tableRequest = new TableRequest();
+        String ddl = String.format("CREATE TABLE %s (ID INTEGER GENERATED " +
+                        "ALWAYS AS IDENTITY, KV_JSON_ JSON, PRIMARY KEY(ID)) " +
+                        "USING TTL 5 DAYS",
+                domainClass.getSimpleName());
+        tableRequest.setStatement(ddl);
+        template.dropTableIfExists(domainClass.getSimpleName());
+        template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
+        template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
+        template.dropTableIfExists(domainClass.getSimpleName());
+    }
+
+
 
     @NosqlTable
     public static class CompositeEntityWithNoKeys {
@@ -483,5 +714,29 @@ public class TestTableCreation {
     public static class CompositeKeyKvJsonField {
         @NosqlKey(shardKey = true, order = 1)
         private String kv_json_;
+    }
+
+    @NosqlTable
+    public static class IdEntity {
+        @NosqlId
+        private int id;
+    }
+
+    @NosqlTable
+    public static class IdEntity1 {
+        @NosqlId(generated = true)
+        private int id;
+    }
+
+    @NosqlTable(ttl = 10, ttlUnit = NosqlTable.TtlUnit.DAYS)
+    public static class TTLEntity {
+        @NosqlId(generated = true)
+        private int id;
+    }
+
+    @NosqlTable()
+    public static class TTLEntity1 {
+        @NosqlId(generated = true)
+        private int id;
     }
 }
