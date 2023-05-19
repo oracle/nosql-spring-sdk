@@ -187,6 +187,14 @@ public abstract class NosqlTemplateBase
     }
 
     protected void doCheckExistingTable(NosqlEntityInformation<?, ?> entityInformation) {
+        final String columnsField = "fields";
+        final String columnNameField = "name";
+        final String columnTypeField = "type";
+        final String shardField = "shardKey";
+        final String primaryField = "primaryKey";
+        final String ttlField = "ttl";
+        final String identityField = "identity";
+
         TableResult tableResult = doGetTable(entityInformation);
         /*If table already exist in the database compare and throw error if
           mismatch*/
@@ -201,13 +209,6 @@ public abstract class NosqlTemplateBase
             Map<String, FieldValue.Type> nonShardKeys = entityInformation.
                     getNonShardKeys();
 
-            ArrayValue columns = jsonSchema.get("fields").asArray();
-            //check number of columns are same
-            if (columns.size() != shardKeys.size() + nonShardKeys.size() + 1) {
-                throw new IllegalArgumentException(
-                        "Number of columns are not same");
-            }
-
             //lower case maps
             Map<String, FieldValue.Type> caseShardKey = new LinkedHashMap<>();
             shardKeys.forEach((k, v) -> caseShardKey.put(k.toLowerCase(), v));
@@ -216,74 +217,92 @@ public abstract class NosqlTemplateBase
                     new LinkedHashMap<>();
             nonShardKeys.forEach((k, v) -> caseNonShardKey.put(k.toLowerCase(), v));
 
-            //check column names and types are same
-            for (int i = 0; i < columns.size(); i++) {
-                MapValue column = columns.get(i).asMap();
-                String columnName = column.getString("name").toLowerCase();
-                String columnType = column.getString("type").toLowerCase();
-                String msg;
-                if (i < caseShardKey.size()) {
-                    if (!caseShardKey.containsKey(columnName)) {
-                        msg = String.format("column '%s' mismatch", columnName);
-                        throw new IllegalArgumentException(msg);
-                    }
-                    if (!columnType.equalsIgnoreCase(caseShardKey.get(columnName).name())) {
-                        msg = String.format("type mismatch for " +
-                                "column '%s'", columnName);
-                        throw new IllegalArgumentException(msg);
-                    }
-                } else if (i < caseShardKey.size() + caseNonShardKey.size()) {
-                    if (!caseNonShardKey.containsKey(columnName)) {
-                        msg = String.format("column '%s' mismatch", columnName);
-                        throw new IllegalArgumentException(msg);
-                    }
-                    if (!columnType.equalsIgnoreCase(caseNonShardKey.get(columnName).name())) {
-                        msg = String.format("type mismatch for " +
-                                "column '%s'", columnName);
-                        throw new IllegalArgumentException(msg);
-                    }
-                } else {
-                    if (!columnName.equalsIgnoreCase(JSON_COLUMN)) {
-                        msg = String.format("%s column not present",
-                                JSON_COLUMN);
-                        throw new IllegalArgumentException(msg);
-                    }
-                    if (!columnType.equalsIgnoreCase("JSON")) {
-                        msg = String.format("%s column type is not JSON",
-                                JSON_COLUMN);
-                        throw new IllegalArgumentException(msg);
+
+            ArrayValue columns = jsonSchema.get(columnsField).asArray();
+            if (columns != null) {
+                //check number of columns are same
+                if (columns.size() != shardKeys.size() + nonShardKeys.size() + 1) {
+                    throw new IllegalArgumentException(
+                            "Number of columns are not same");
+                }
+
+                //check column names and types are same
+                for (int i = 0; i < columns.size(); i++) {
+                    MapValue column = columns.get(i).asMap();
+                    String columnName =
+                            column.getString(columnNameField).toLowerCase();
+                    String columnType =
+                            column.getString(columnTypeField).toLowerCase();
+                    String msg;
+                    if (i < caseShardKey.size()) {
+                        if (!caseShardKey.containsKey(columnName)) {
+                            msg = String.format("column '%s' mismatch",
+                                    columnName);
+                            throw new IllegalArgumentException(msg);
+                        }
+                        if (!columnType.equalsIgnoreCase(caseShardKey.get(columnName).name())) {
+                            msg = String.format("type mismatch for " +
+                                    "column '%s'", columnName);
+                            throw new IllegalArgumentException(msg);
+                        }
+                    } else if (i < caseShardKey.size() + caseNonShardKey.size()) {
+                        if (!caseNonShardKey.containsKey(columnName)) {
+                            msg = String.format("column '%s' mismatch",
+                                    columnName);
+                            throw new IllegalArgumentException(msg);
+                        }
+                        if (!columnType.equalsIgnoreCase(caseNonShardKey.get(columnName).name())) {
+                            msg = String.format("type mismatch for " +
+                                    "column '%s'", columnName);
+                            throw new IllegalArgumentException(msg);
+                        }
+                    } else {
+                        if (!columnName.equalsIgnoreCase(JSON_COLUMN)) {
+                            msg = String.format("%s column not present",
+                                    JSON_COLUMN);
+                            throw new IllegalArgumentException(msg);
+                        }
+                        if (!columnType.equalsIgnoreCase("JSON")) {
+                            msg = String.format("%s column type is not JSON",
+                                    JSON_COLUMN);
+                            throw new IllegalArgumentException(msg);
+                        }
                     }
                 }
             }
 
             //check order of the shard keys are same
-            ArrayValue shards = jsonSchema.get("shardKey").asArray();
-            if (shards.size() != shardKeys.size()) {
-                throw new IllegalArgumentException("number of shard keys do " +
-                        "not match");
-
-            }
             int i = 0;
-            for (String key : shardKeys.keySet()) {
-                if (!key.equalsIgnoreCase(shards.get(i).getString())) {
-                    throw new IllegalArgumentException("Order of shard keys " +
+            ArrayValue shards = jsonSchema.get(shardField).asArray();
+            if (shards != null) {
+                if (shards.size() != shardKeys.size()) {
+                    throw new IllegalArgumentException("number of shard keys " +
                             "do not match");
+
                 }
-                i++;
+                for (String key : shardKeys.keySet()) {
+                    if (!key.equalsIgnoreCase(shards.get(i).getString())) {
+                        throw new IllegalArgumentException("Order of shard " +
+                                "keys do not match");
+                    }
+                    i++;
+                }
             }
 
             //check order of non shard keys are same
-            ArrayValue primaryKeys = jsonSchema.get("primaryKey").asArray();
-            for (String key : nonShardKeys.keySet()) {
-                if (!key.equalsIgnoreCase(primaryKeys.get(i).getString())) {
-                    throw new IllegalArgumentException("Order of non-shard " +
-                            "keys do not match");
+            ArrayValue primaryKeys = jsonSchema.get(primaryField).asArray();
+            if (primaryKeys != null) {
+                for (String key : nonShardKeys.keySet()) {
+                    if (!key.equalsIgnoreCase(primaryKeys.get(i).getString())) {
+                        throw new IllegalArgumentException("Order of " +
+                                "non-shard keys do not match");
+                    }
+                    i++;
                 }
-                i++;
             }
 
             //check identity same
-            FieldValue identity = jsonSchema.get("identity");
+            FieldValue identity = jsonSchema.get(identityField);
             if (identity != null && !entityInformation.isAutoGeneratedId()) {
                 throw new IllegalArgumentException("Identity information " +
                         "mismatch");
@@ -295,7 +314,7 @@ public abstract class NosqlTemplateBase
             }
 
             //TTL warning
-            FieldValue ttlValue = jsonSchema.get("ttl");
+            FieldValue ttlValue = jsonSchema.get(ttlField);
             TimeToLive ttl = entityInformation.getTtl();
             //TTL is present in database but not in the entity
             if (ttlValue != null && ttl != null &&
