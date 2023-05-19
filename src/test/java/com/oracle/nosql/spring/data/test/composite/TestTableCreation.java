@@ -147,7 +147,6 @@ public class TestTableCreation {
         try {
             NosqlEntityInformation<?, ?> entityInformation =
                     template.getNosqlEntityInformation(domainClass);
-            template.createTableIfNotExists(entityInformation);
             fail("Expecting IllegalArgumentException but didn't get");
         } catch (IllegalArgumentException ignored) {
 
@@ -160,7 +159,6 @@ public class TestTableCreation {
         try {
             NosqlEntityInformation<?, ?> entityInformation =
                     template.getNosqlEntityInformation(domainClass);
-            template.createTableIfNotExists(entityInformation);
             fail("Expecting IllegalArgumentException but didn't get");
         } catch (IllegalArgumentException ignored) {
 

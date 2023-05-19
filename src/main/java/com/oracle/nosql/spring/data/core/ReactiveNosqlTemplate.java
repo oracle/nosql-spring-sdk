@@ -79,7 +79,16 @@ public class ReactiveNosqlTemplate
         NosqlEntityInformation<?, ?> entityInformation) {
         Assert.notNull(entityInformation, "Entity information should not be null");
 
-        return Mono.just(doCreateTableIfNotExists(entityInformation));
+        String ddl = getCreateTableDDL(entityInformation);
+        try {
+            doCheckExistingTable(entityInformation);
+        } catch (IllegalArgumentException iae) {
+            String msg = String.format("Error executing DDL '%s': Table %s " +
+                            "exists but definitions do not match : %s" , ddl,
+                    entityInformation.getTableName(), iae.getMessage());
+            throw new IllegalArgumentException(msg, iae);
+        }
+        return Mono.just(doCreateTable(entityInformation, ddl));
     }
 
     /**

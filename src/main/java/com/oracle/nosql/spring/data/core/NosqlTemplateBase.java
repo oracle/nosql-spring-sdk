@@ -117,12 +117,8 @@ public abstract class NosqlTemplateBase
         return tableRes;
     }
 
-    protected boolean doCreateTableIfNotExists(
-        NosqlEntityInformation<?, ?> entityInformation) {
-
+    protected String getCreateTableDDL(NosqlEntityInformation<?, ?> entityInformation) {
         String tableName = entityInformation.getTableName();
-        String autogen = getAutoGenType(entityInformation);
-        TimeToLive ttl = entityInformation.getTtl();
         String sql;
 
         Map<String, FieldValue.Type> shardKeys =
@@ -140,6 +136,7 @@ public abstract class NosqlTemplateBase
             if (keyType.equals(FieldValue.Type.TIMESTAMP.toString())) {
                 keyType += "(" + nosqlDbFactory.getTimestampPrecision() + ")";
             }
+            String autogen = getAutoGenType(entityInformation);
             tableBuilder.append(key).append(" ").append(keyType)
                     .append(" ").append(autogen).append(",");
         });
@@ -149,6 +146,7 @@ public abstract class NosqlTemplateBase
             if (keyType.equals(FieldValue.Type.TIMESTAMP.toString())) {
                 keyType += "(" + nosqlDbFactory.getTimestampPrecision() + ")";
             }
+            String autogen = getAutoGenType(entityInformation);
             tableBuilder.append(key).append(" ").append(keyType)
                     .append(" ").append(autogen).append(",");
         });
@@ -167,34 +165,151 @@ public abstract class NosqlTemplateBase
         tableBuilder.append(")"); //create close )
 
         //ttl
-        if (ttl != null && ttl.getValue() != 0) {
+        if (entityInformation.getTtl() != null &&
+                entityInformation.getTtl().getValue() != 0) {
             tableBuilder.append(String.format(TEMPLATE_TTL_CREATE,
                     entityInformation.getTtl().toString()));
         }
         sql = tableBuilder.toString();
+        return sql;
+    }
 
-        TableResult tableResult = doGetTable(entityInformation);
-        if (tableResult != null) {
-            /*table already exist in the database. Compare and throw error if
-            mismatch*/
-            String schema = tableResult.getSchema();
-            MapValue jsonSchema = JsonUtils.createValueFromJson(schema,
-                    new JsonOptions().setMaintainInsertionOrder(true)).asMap();
-            if (!compareTables(shardKeys, nonShardKeys, entityInformation,
-                    jsonSchema)) {
-                throw new IllegalArgumentException(String.format(
-                        "Error executing DDL '%s': Table %s exists" +
-                                " but definitions do not match", sql,
-                        tableName));
-            }
-        }
-        TableRequest tableReq = new TableRequest().setStatement(sql)
+    protected boolean doCreateTable(
+        NosqlEntityInformation<?, ?> entityInformation,
+        String ddl) {
+        TableRequest tableReq = new TableRequest().setStatement(ddl)
             .setTableLimits(entityInformation.getTableLimits(nosqlDbFactory));
 
         TableResult tableRes = doTableRequest(entityInformation, tableReq);
 
         TableResult.State tableState = tableRes.getTableState();
         return tableState == TableResult.State.ACTIVE;
+    }
+
+    protected void doCheckExistingTable(NosqlEntityInformation<?, ?> entityInformation) {
+        TableResult tableResult = doGetTable(entityInformation);
+        /*If table already exist in the database compare and throw error if
+          mismatch*/
+        if (tableResult != null) {
+            MapValue jsonSchema = JsonUtils.createValueFromJson(
+                            tableResult.getSchema(),
+                            new JsonOptions().setMaintainInsertionOrder(true)).
+                    asMap();
+
+            Map<String, FieldValue.Type> shardKeys = entityInformation.
+                    getShardKeys();
+            Map<String, FieldValue.Type> nonShardKeys = entityInformation.
+                    getNonShardKeys();
+
+            ArrayValue columns = jsonSchema.get("fields").asArray();
+            //check number of columns are same
+            if (columns.size() != shardKeys.size() + nonShardKeys.size() + 1) {
+                throw new IllegalArgumentException(
+                        "Number of columns are not same");
+            }
+
+            //lower case maps
+            Map<String, FieldValue.Type> caseShardKey = new LinkedHashMap<>();
+            shardKeys.forEach((k, v) -> caseShardKey.put(k.toLowerCase(), v));
+
+            Map<String, FieldValue.Type> caseNonShardKey =
+                    new LinkedHashMap<>();
+            nonShardKeys.forEach((k, v) -> caseNonShardKey.put(k.toLowerCase(), v));
+
+            //check column names and types are same
+            for (int i = 0; i < columns.size(); i++) {
+                MapValue column = columns.get(i).asMap();
+                String columnName = column.getString("name").toLowerCase();
+                String columnType = column.getString("type").toLowerCase();
+                String msg;
+                if (i < caseShardKey.size()) {
+                    if (!caseShardKey.containsKey(columnName)) {
+                        msg = String.format("column '%s' mismatch", columnName);
+                        throw new IllegalArgumentException(msg);
+                    }
+                    if (!columnType.equalsIgnoreCase(caseShardKey.get(columnName).name())) {
+                        msg = String.format("type mismatch for " +
+                                "column '%s'", columnName);
+                        throw new IllegalArgumentException(msg);
+                    }
+                } else if (i < caseShardKey.size() + caseNonShardKey.size()) {
+                    if (!caseNonShardKey.containsKey(columnName)) {
+                        msg = String.format("column '%s' mismatch", columnName);
+                        throw new IllegalArgumentException(msg);
+                    }
+                    if (!columnType.equalsIgnoreCase(caseNonShardKey.get(columnName).name())) {
+                        msg = String.format("type mismatch for " +
+                                "column '%s'", columnName);
+                        throw new IllegalArgumentException(msg);
+                    }
+                } else {
+                    if (!columnName.equalsIgnoreCase(JSON_COLUMN)) {
+                        msg = String.format("%s column not present",
+                                JSON_COLUMN);
+                        throw new IllegalArgumentException(msg);
+                    }
+                    if (!columnType.equalsIgnoreCase("JSON")) {
+                        msg = String.format("%s column type is not JSON",
+                                JSON_COLUMN);
+                        throw new IllegalArgumentException(msg);
+                    }
+                }
+            }
+
+            //check order of the shard keys are same
+            ArrayValue shards = jsonSchema.get("shardKey").asArray();
+            if (shards.size() != shardKeys.size()) {
+                throw new IllegalArgumentException("number of shard keys do " +
+                        "not match");
+
+            }
+            int i = 0;
+            for (String key : shardKeys.keySet()) {
+                if (!key.equalsIgnoreCase(shards.get(i).getString())) {
+                    throw new IllegalArgumentException("Order of shard keys " +
+                            "do not match");
+                }
+                i++;
+            }
+
+            //check order of non shard keys are same
+            ArrayValue primaryKeys = jsonSchema.get("primaryKey").asArray();
+            for (String key : nonShardKeys.keySet()) {
+                if (!key.equalsIgnoreCase(primaryKeys.get(i).getString())) {
+                    throw new IllegalArgumentException("Order of non-shard " +
+                            "keys do not match");
+                }
+                i++;
+            }
+
+            //check identity same
+            FieldValue identity = jsonSchema.get("identity");
+            if (identity != null && !entityInformation.isAutoGeneratedId()) {
+                throw new IllegalArgumentException("Identity information " +
+                        "mismatch");
+
+            } else if (identity == null && entityInformation.isAutoGeneratedId() &&
+                    entityInformation.getIdNosqlType() != FieldValue.Type.STRING) {
+                throw new IllegalArgumentException("Identity information " +
+                        "mismatch");
+            }
+
+            //TTL warning
+            FieldValue ttlValue = jsonSchema.get("ttl");
+            TimeToLive ttl = entityInformation.getTtl();
+            //TTL is present in database but not in the entity
+            if (ttlValue != null && ttl != null &&
+                    !ttl.toString().equalsIgnoreCase(ttlValue.getString())) {
+                LOG.warn("TTL of the table in database is different from the " +
+                        "TTL " +
+                        "of the entity " + entityInformation.getJavaType().getName());
+            } else if (ttlValue == null && ttl != null && ttl.getValue() != 0) {
+                //TTL is present in entity but not in the database
+                LOG.warn("TTL of the table in database is different from the " +
+                        "TTL " +
+                        "of the entity " + entityInformation.getJavaType().getName());
+            }
+        }
     }
 
     protected DeleteResult doDelete(
@@ -252,7 +367,7 @@ public abstract class NosqlTemplateBase
                 putRes = nosqlClient.put(putReq);
             } catch (TableNotFoundException tnfe) {
                 if (entityInformation.isAutoCreateTable()) {
-                    doCreateTableIfNotExists(entityInformation);
+                    doCreateTable(entityInformation, getCreateTableDDL(entityInformation));
                     putRes = nosqlClient.put(putReq);
                 } else {
                     throw tnfe;
@@ -448,102 +563,5 @@ public abstract class NosqlTemplateBase
                     TEMPLATE_GENERATED_UUID : TEMPLATE_GENERATED_ALWAYS;
         }
         return "";
-    }
-
-    /**
-     * Compare table present in the database against the DDL generated from
-     * entity
-     */
-    private boolean compareTables(Map<String, FieldValue.Type> shardKeys,
-                                  Map<String, FieldValue.Type> nonShardKeys,
-                                  NosqlEntityInformation<?, ?> entityInformation,
-                                  MapValue jsonSchema) {
-        ArrayValue columns = jsonSchema.get("fields").asArray();
-        //check number of columns are same
-        if (columns.size() != shardKeys.size() + nonShardKeys.size() + 1) {
-            return false;
-        }
-
-        //lower case maps
-        Map<String, FieldValue.Type> caseShardKey = new LinkedHashMap<>();
-        shardKeys.forEach((k, v) -> caseShardKey.put(k.toLowerCase(), v));
-
-        Map<String, FieldValue.Type> caseNonShardKey = new LinkedHashMap<>();
-        nonShardKeys.forEach((k, v) -> caseNonShardKey.put(k.toLowerCase(), v));
-
-        //check column names and types are same
-        for (int i = 0; i < columns.size(); i++) {
-            MapValue column = columns.get(i).asMap();
-            String columnName = column.getString("name").toLowerCase();
-            String columnType = column.getString("type").toLowerCase();
-            if (i < caseShardKey.size()) {
-                if (!caseShardKey.containsKey(columnName)) {
-                    return false;
-                }
-                if (!columnType.equalsIgnoreCase(caseShardKey.get(columnName).name())) {
-                    return false;
-                }
-            } else if (i < caseShardKey.size() + caseNonShardKey.size()) {
-                if (!caseNonShardKey.containsKey(columnName)) {
-                    return false;
-                }
-                if (!columnType.equalsIgnoreCase(caseNonShardKey.get(columnName).name())) {
-                    return false;
-                }
-            } else {
-                if (!columnName.equalsIgnoreCase(JSON_COLUMN)) {
-                    return false;
-                }
-                if (!columnType.equalsIgnoreCase("JSON")) {
-                    return false;
-                }
-            }
-        }
-
-        //check order of the shard keys are sane
-        ArrayValue shards = jsonSchema.get("shardKey").asArray();
-        if (shards.size() != shardKeys.size()) {
-            return false;
-        }
-        int i = 0;
-        for (String key : shardKeys.keySet()) {
-            if (!key.equalsIgnoreCase(shards.get(i).getString())) {
-                return false;
-            }
-            i++;
-        }
-
-        //check order of non shard keys are same
-        ArrayValue primaryKeys = jsonSchema.get("primaryKey").asArray();
-        for (String key : nonShardKeys.keySet()) {
-            if (!key.equalsIgnoreCase(primaryKeys.get(i).getString())) {
-                return false;
-            }
-            i++;
-        }
-
-        //check identity same
-        FieldValue identity = jsonSchema.get("identity");
-        if (identity != null && !entityInformation.isAutoGeneratedId()) {
-            return false;
-        } else if (identity == null && entityInformation.isAutoGeneratedId() &&
-                entityInformation.getIdNosqlType() != FieldValue.Type.STRING) {
-            return false;
-        }
-
-        //TTL warning
-        FieldValue ttlValue = jsonSchema.get("ttl");
-        TimeToLive ttl = entityInformation.getTtl();
-        //TTL is present in database but not in the entity
-        if (ttlValue != null && ttl != null &&
-                !ttl.toString().equalsIgnoreCase(ttlValue.getString())) {
-            LOG.warn("TTL of the table in database is different from the TTL " +
-                    "of the entity " + entityInformation.getJavaType().getName());
-        } else if (ttlValue == null && ttl != null && ttl.getValue() != 0) {
-            //TTL is present in entity but not in the database
-            LOG.warn("TTL of the table in database is different from the TTL " +
-                    "of the entity " + entityInformation.getJavaType().getName());
-        }
-        return true;
     }
 }
