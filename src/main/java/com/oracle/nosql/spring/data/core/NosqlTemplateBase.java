@@ -6,9 +6,12 @@
  */
 package com.oracle.nosql.spring.data.core;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import oracle.nosql.driver.NoSQLException;
 import oracle.nosql.driver.NoSQLHandle;
@@ -174,9 +177,8 @@ public abstract class NosqlTemplateBase
         return sql;
     }
 
-    protected boolean doCreateTable(
-        NosqlEntityInformation<?, ?> entityInformation,
-        String ddl) {
+    protected boolean doCreateTable(NosqlEntityInformation<?, ?> entityInformation) {
+        String ddl = getCreateTableDDL(entityInformation);
         TableRequest tableReq = new TableRequest().setStatement(ddl)
             .setTableLimits(entityInformation.getTableLimits(nosqlDbFactory));
 
@@ -187,147 +189,158 @@ public abstract class NosqlTemplateBase
     }
 
     protected void doCheckExistingTable(NosqlEntityInformation<?, ?> entityInformation) {
-        final String columnsField = "fields";
-        final String columnNameField = "name";
-        final String columnTypeField = "type";
+        final String colField = "fields";
+        final String colNameField = "name";
+        final String colTypeField = "type";
         final String shardField = "shardKey";
         final String primaryField = "primaryKey";
         final String ttlField = "ttl";
         final String identityField = "identity";
 
-        TableResult tableResult = doGetTable(entityInformation);
-        /*If table already exist in the database compare and throw error if
-          mismatch*/
-        if (tableResult != null) {
-            MapValue jsonSchema = JsonUtils.createValueFromJson(
-                            tableResult.getSchema(),
-                            new JsonOptions().setMaintainInsertionOrder(true)).
-                    asMap();
+        List<String> errors = new ArrayList<>();
+        try {
+            TableResult tableResult = doGetTable(entityInformation);
 
-            Map<String, FieldValue.Type> shardKeys = entityInformation.
-                    getShardKeys();
-            Map<String, FieldValue.Type> nonShardKeys = entityInformation.
-                    getNonShardKeys();
+            /* If table already exist in the database compare and throw error if
+               mismatch*/
+            if (tableResult != null) {
+                MapValue tableSchema = JsonUtils.createValueFromJson(
+                                tableResult.getSchema(),
+                                new JsonOptions().setMaintainInsertionOrder(true)).
+                        asMap();
 
-            //lower case maps
-            Map<String, FieldValue.Type> caseShardKey = new LinkedHashMap<>();
-            shardKeys.forEach((k, v) -> caseShardKey.put(k.toLowerCase(), v));
+                ArrayValue tableColumns = tableSchema.get(colField).asArray();
+                ArrayValue tableShardKeys =
+                        tableSchema.get(shardField).asArray();
+                ArrayValue tablePrimaryKeys =
+                        tableSchema.get(primaryField).asArray();
 
-            Map<String, FieldValue.Type> caseNonShardKey =
-                    new LinkedHashMap<>();
-            nonShardKeys.forEach((k, v) -> caseNonShardKey.put(k.toLowerCase(), v));
+                Map<String, String> tableShardMap = new LinkedHashMap<>();
+                Map<String, String> tableNonShardMap = new LinkedHashMap<>();
+                Map<String, String> tableOthersMap = new LinkedHashMap<>();
 
-
-            ArrayValue columns = jsonSchema.get(columnsField).asArray();
-            if (columns != null) {
-                //check number of columns are same
-                if (columns.size() != shardKeys.size() + nonShardKeys.size() + 1) {
-                    throw new IllegalArgumentException(
-                            "Number of columns are not same");
-                }
-
-                //check column names and types are same
-                for (int i = 0; i < columns.size(); i++) {
-                    MapValue column = columns.get(i).asMap();
-                    String columnName =
-                            column.getString(columnNameField).toLowerCase();
+                // extract table details into maps
+                for (int i = 0; i < tableColumns.size(); i++) {
+                    MapValue column = tableColumns.get(i).asMap();
+                    String colName =
+                            column.getString(colNameField).toLowerCase();
                     String columnType =
-                            column.getString(columnTypeField).toLowerCase();
-                    String msg;
-                    if (i < caseShardKey.size()) {
-                        if (!caseShardKey.containsKey(columnName)) {
-                            msg = String.format("column '%s' mismatch",
-                                    columnName);
-                            throw new IllegalArgumentException(msg);
-                        }
-                        if (!columnType.equalsIgnoreCase(caseShardKey.get(columnName).name())) {
-                            msg = String.format("type mismatch for " +
-                                    "column '%s'", columnName);
-                            throw new IllegalArgumentException(msg);
-                        }
-                    } else if (i < caseShardKey.size() + caseNonShardKey.size()) {
-                        if (!caseNonShardKey.containsKey(columnName)) {
-                            msg = String.format("column '%s' mismatch",
-                                    columnName);
-                            throw new IllegalArgumentException(msg);
-                        }
-                        if (!columnType.equalsIgnoreCase(caseNonShardKey.get(columnName).name())) {
-                            msg = String.format("type mismatch for " +
-                                    "column '%s'", columnName);
-                            throw new IllegalArgumentException(msg);
-                        }
+                            column.getString(colTypeField).toLowerCase();
+
+                    if (i < tableShardKeys.size()) {
+                        tableShardMap.put(colName, columnType);
+                    } else if (i < tablePrimaryKeys.size()) {
+                        tableNonShardMap.put(colName, columnType);
                     } else {
-                        if (!columnName.equalsIgnoreCase(JSON_COLUMN)) {
-                            msg = String.format("%s column not present",
-                                    JSON_COLUMN);
-                            throw new IllegalArgumentException(msg);
-                        }
-                        if (!columnType.equalsIgnoreCase("JSON")) {
-                            msg = String.format("%s column type is not JSON",
-                                    JSON_COLUMN);
-                            throw new IllegalArgumentException(msg);
-                        }
+                        tableOthersMap.put(colName, columnType);
                     }
                 }
-            }
 
-            //check order of the shard keys are same
-            int i = 0;
-            ArrayValue shards = jsonSchema.get(shardField).asArray();
-            if (shards != null) {
-                if (shards.size() != shardKeys.size()) {
-                    throw new IllegalArgumentException("number of shard keys " +
-                            "do not match");
+                // extract entity details into maps
+                Map<String, FieldValue.Type> shardKeys = entityInformation.
+                        getShardKeys();
+                Map<String, FieldValue.Type> nonShardKeys = entityInformation.
+                        getNonShardKeys();
 
+                Map<String, String> entityShardMap = new LinkedHashMap<>();
+                shardKeys.forEach((k, v) -> entityShardMap.put(
+                        k.toLowerCase(), v.name().toLowerCase()));
+
+                Map<String, String> entityNonShardMap = new LinkedHashMap<>();
+                nonShardKeys.forEach((k, v) -> entityNonShardMap.put(
+                        k.toLowerCase(), v.name().toLowerCase()));
+
+                Map<String, String> entityOthersMap = new LinkedHashMap<>();
+                entityOthersMap.put(JSON_COLUMN.toLowerCase(), "json");
+
+                // convert maps to String
+                String tableShards = "{" + tableShardMap.entrySet().stream()
+                        .map(e -> e.getKey() + " " + e.getValue()).
+                        collect(Collectors.joining(",")) + "}";
+                String tableNonShards = "{" + tableNonShardMap.entrySet()
+                        .stream().map(e -> e.getKey() + " " + e.getValue()).
+                        collect(Collectors.joining(",")) + "}";
+                String tableOthers = "{" + tableOthersMap.entrySet().stream()
+                        .map(e -> e.getKey() + " " + e.getValue()).
+                        collect(Collectors.joining(",")) + "}";
+
+                String entityShards = "{" + entityShardMap.entrySet().stream()
+                        .map(e -> e.getKey() + " " + e.getValue()).
+                        collect(Collectors.joining(",")) + "}";
+                String entityNonShards = "{" + entityNonShardMap.entrySet()
+                        .stream().map(e -> e.getKey() + " " + e.getValue()).
+                        collect(Collectors.joining(",")) + "}";
+                String entityOthers = "{" + entityOthersMap.entrySet().stream()
+                        .map(e -> e.getKey() + " " + e.getValue()).
+                        collect(Collectors.joining(",")) + "}";
+
+                String msg;
+                // check shard keys and types match
+                if (!tableShards.equals(entityShards)) {
+                    msg = String.format("Shard primary keys mismatch: " +
+                            "table=%s, entity=%s.", tableShards, entityShards);
+                    errors.add(msg);
                 }
-                for (String key : shardKeys.keySet()) {
-                    if (!key.equalsIgnoreCase(shards.get(i).getString())) {
-                        throw new IllegalArgumentException("Order of shard " +
-                                "keys do not match");
-                    }
-                    i++;
+
+                // check non-shard keys and types match
+                if (!tableNonShards.equals(entityNonShards)) {
+                    msg = String.format("Non-shard primary keys mismatch: " +
+                                    "table=%s, entity=%s.", tableNonShards,
+                            entityNonShards);
+                    errors.add(msg);
+                }
+
+                // check non-primary keys and types match
+                if (!tableOthers.equals(entityOthers)) {
+                    msg = String.format("Non-primary key columns mismatch:" +
+                                    "table=%s, entity=%s.", tableOthers,
+                            entityOthers);
+                    errors.add(msg);
+                }
+
+                // check identity same
+                FieldValue identity = tableSchema.get(identityField);
+                if (identity != null && !entityInformation.isAutoGeneratedId()) {
+                    errors.add("Identity information mismatch.");
+
+                } else if (identity == null && entityInformation.isAutoGeneratedId() &&
+                        entityInformation.getIdNosqlType() != FieldValue.Type.STRING) {
+                    errors.add("Identity information mismatch.");
+                }
+
+                // TTL warning
+                FieldValue ttlValue = tableSchema.get(ttlField);
+                TimeToLive ttl = entityInformation.getTtl();
+                // TTL is present in database but not in the entity
+                if (ttlValue != null && ttl != null &&
+                        !ttl.toString().equalsIgnoreCase(ttlValue.getString())) {
+                    LOG.warn("TTL of the table in database is different from " +
+                            "the TTL of the entity " +
+                            entityInformation.getJavaType().getName());
+                } else if (ttlValue == null && ttl != null && ttl.getValue() != 0) {
+                    // TTL is present in entity but not in the database
+                    LOG.warn("TTL of the table in database is different from " +
+                            "the TTL of the entity " +
+                            entityInformation.getJavaType().getName());
                 }
             }
+        } catch (Exception e) {
+            LOG.warn("Error while checking DDLs of table and entity " + e.getMessage());
+        }
 
-            //check order of non shard keys are same
-            ArrayValue primaryKeys = jsonSchema.get(primaryField).asArray();
-            if (primaryKeys != null) {
-                for (String key : nonShardKeys.keySet()) {
-                    if (!key.equalsIgnoreCase(primaryKeys.get(i).getString())) {
-                        throw new IllegalArgumentException("Order of " +
-                                "non-shard keys do not match");
-                    }
-                    i++;
-                }
-            }
-
-            //check identity same
-            FieldValue identity = jsonSchema.get(identityField);
-            if (identity != null && !entityInformation.isAutoGeneratedId()) {
-                throw new IllegalArgumentException("Identity information " +
-                        "mismatch");
-
-            } else if (identity == null && entityInformation.isAutoGeneratedId() &&
-                    entityInformation.getIdNosqlType() != FieldValue.Type.STRING) {
-                throw new IllegalArgumentException("Identity information " +
-                        "mismatch");
-            }
-
-            //TTL warning
-            FieldValue ttlValue = jsonSchema.get(ttlField);
-            TimeToLive ttl = entityInformation.getTtl();
-            //TTL is present in database but not in the entity
-            if (ttlValue != null && ttl != null &&
-                    !ttl.toString().equalsIgnoreCase(ttlValue.getString())) {
-                LOG.warn("TTL of the table in database is different from the " +
-                        "TTL " +
-                        "of the entity " + entityInformation.getJavaType().getName());
-            } else if (ttlValue == null && ttl != null && ttl.getValue() != 0) {
-                //TTL is present in entity but not in the database
-                LOG.warn("TTL of the table in database is different from the " +
-                        "TTL " +
-                        "of the entity " + entityInformation.getJavaType().getName());
-            }
+        if (!errors.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("The following mismatch have been found between the " +
+                    "entity class ");
+            sb.append(entityInformation.getJavaType().getName());
+            sb.append(" definition and the existing table ");
+            sb.append(entityInformation.getTableName());
+            sb.append(" in the database:\n");
+            errors.forEach(err -> sb.append(err).append("\n"));
+            sb.append("To fix this errors, either make the entity class to" +
+                    " match the table definition or use NosqlTable.name" +
+                    " annotation to use a different table.");
+            throw new IllegalArgumentException(sb.toString());
         }
     }
 
@@ -382,16 +395,7 @@ public abstract class NosqlTemplateBase
 
         PutResult putRes;
         try {
-            try {
-                putRes = nosqlClient.put(putReq);
-            } catch (TableNotFoundException tnfe) {
-                if (entityInformation.isAutoCreateTable()) {
-                    doCreateTable(entityInformation, getCreateTableDDL(entityInformation));
-                    putRes = nosqlClient.put(putReq);
-                } else {
-                    throw tnfe;
-                }
-            }
+            putRes = nosqlClient.put(putReq);
         } catch (NoSQLException nse) {
             LOG.error("Put: table: {} key: {}", putReq.getTableName(),
                 row.get(entityInformation.getIdColumnName()));

@@ -51,6 +51,8 @@ public class MachineAppWithoutAnnotation {
     @Before
     public void setup() {
         template.dropTableIfExists(MachineWithoutAnnotation.class.getSimpleName());
+        template.createTableIfNotExists(template.
+                getNosqlEntityInformation(MachineWithoutAnnotation.class));
     }
 
     @After

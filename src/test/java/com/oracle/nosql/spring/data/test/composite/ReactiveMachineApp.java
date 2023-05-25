@@ -51,6 +51,8 @@ public class ReactiveMachineApp {
     @Before
     public void setup() {
         template.dropTableIfExists(Machine.class.getSimpleName());
+        template.createTableIfNotExists(template.
+                getNosqlEntityInformation(Machine.class));
         machineCache = new HashMap<>();
         List<IpAddress> routeAddress = new ArrayList<>();
         routeAddress.add(new IpAddress("127.0.0.1"));
