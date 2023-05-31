@@ -93,8 +93,9 @@ public class NosqlTemplate
     @Override
     public boolean createTableIfNotExists(
         NosqlEntityInformation<?, ?> entityInformation) {
-        doCheckExistingTable(entityInformation);
-        return doCreateTable(entityInformation);
+        boolean isTableExist = doCheckExistingTable(entityInformation);
+        // if table does not exist create
+        return (!isTableExist) ? doCreateTable(entityInformation) : true;
     }
 
     @SuppressWarnings("unchecked")

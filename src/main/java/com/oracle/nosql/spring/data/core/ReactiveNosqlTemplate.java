@@ -78,8 +78,10 @@ public class ReactiveNosqlTemplate
     public Mono<Boolean> createTableIfNotExists(
         NosqlEntityInformation<?, ?> entityInformation) {
         Assert.notNull(entityInformation, "Entity information should not be null");
-        doCheckExistingTable(entityInformation);
-        return Mono.just(doCreateTable(entityInformation));
+        boolean isTableExist = doCheckExistingTable(entityInformation);
+        // if table does not exist create
+        return (!isTableExist) ? Mono.just(doCreateTable(entityInformation)) :
+                Mono.just(true);
     }
 
     /**
