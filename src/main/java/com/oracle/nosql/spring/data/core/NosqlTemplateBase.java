@@ -196,6 +196,8 @@ public abstract class NosqlTemplateBase
         final String primaryField = "primaryKey";
         final String ttlField = "ttl";
         final String identityField = "identity";
+        final String schemaVersionField = "json_version";
+        final int supportedSchemaVersion = 1;
 
         List<String> errors = new ArrayList<>();
         try {
@@ -212,6 +214,22 @@ public abstract class NosqlTemplateBase
                             tableResult.getSchema(),
                             new JsonOptions().setMaintainInsertionOrder(true)).
                     asMap();
+
+            int currentSchemaVersion = tableSchema.get(schemaVersionField).
+                    getInt();
+
+            // If JSON schema version mismatch throw error
+            if (currentSchemaVersion != supportedSchemaVersion) {
+                String msg = String.format("Could not validate schema of the " +
+                                "table %s in the database and entity %s : " +
+                                "json schema version mismatch. " +
+                                "Expected version is %s but version is %s",
+                        entityInformation.getTableName(),
+                        entityInformation.getJavaType().getName(),
+                        currentSchemaVersion,
+                        supportedSchemaVersion);
+                throw new IllegalStateException(msg);
+            }
 
             ArrayValue tableColumns = tableSchema.get(colField).asArray();
             ArrayValue tableShardKeys =
@@ -327,11 +345,13 @@ public abstract class NosqlTemplateBase
                         "the TTL of the entity " +
                         entityInformation.getJavaType().getName());
             }
-        } catch (NullPointerException npe) {
-            LOG.warn("Error while checking DDLs of table and entity " + npe.getMessage());
-            if (LOG.isDebugEnabled()) {
-                npe.printStackTrace();
-            }
+        } catch (NullPointerException | ClassCastException ex) {
+            // something is wrong in parsing json schema
+            String msg = String.format("Table %s json schema is not " +
+                            "compatible with schema version %s",
+                    entityInformation.getTableName(),
+                    supportedSchemaVersion);
+            throw new IllegalStateException(msg, ex);
         }
 
         if (!errors.isEmpty()) {
