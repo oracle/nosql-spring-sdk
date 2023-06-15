@@ -196,12 +196,13 @@ public abstract class NosqlTemplateBase
         final String primaryField = "primaryKey";
         final String ttlField = "ttl";
         final String identityField = "identity";
-        final String schemaVersionField = "json_version";
-        final int supportedSchemaVersion = 1;
 
         List<String> errors = new ArrayList<>();
+
+        TableResult tableResult = null;
+        String jsonSchema = null;
         try {
-            TableResult tableResult = doGetTable(entityInformation);
+            tableResult = doGetTable(entityInformation);
 
             // table does not exist return false
             if (tableResult == null) {
@@ -210,26 +211,10 @@ public abstract class NosqlTemplateBase
 
             /* If table already exist in the database compare and throw error if
                mismatch*/
-            MapValue tableSchema = JsonUtils.createValueFromJson(
-                            tableResult.getSchema(),
+            jsonSchema = tableResult.getSchema();
+            MapValue tableSchema = JsonUtils.createValueFromJson(jsonSchema,
                             new JsonOptions().setMaintainInsertionOrder(true)).
                     asMap();
-
-            int currentSchemaVersion = tableSchema.get(schemaVersionField).
-                    getInt();
-
-            // If JSON schema version mismatch throw error
-            if (currentSchemaVersion != supportedSchemaVersion) {
-                String msg = String.format("Could not validate schema of the " +
-                                "table %s in the database and entity %s : " +
-                                "json schema version mismatch. " +
-                                "Expected version is %s but version is %s",
-                        entityInformation.getTableName(),
-                        entityInformation.getJavaType().getName(),
-                        currentSchemaVersion,
-                        supportedSchemaVersion);
-                throw new IllegalStateException(msg);
-            }
 
             ArrayValue tableColumns = tableSchema.get(colField).asArray();
             ArrayValue tableShardKeys =
@@ -275,7 +260,7 @@ public abstract class NosqlTemplateBase
             Map<String, String> entityOthersMap = new LinkedHashMap<>();
             entityOthersMap.put(JSON_COLUMN.toLowerCase(), "json");
 
-            // convert maps to String
+            // convert maps to String. String format is {k1 v1, k2 v2 ...}
             String tableShards = "{" + tableShardMap.entrySet().stream()
                     .map(e -> e.getKey() + " " + e.getValue()).
                     collect(Collectors.joining(",")) + "}";
@@ -347,10 +332,16 @@ public abstract class NosqlTemplateBase
             }
         } catch (NullPointerException | ClassCastException ex) {
             // something is wrong in parsing json schema
-            String msg = String.format("Table %s json schema is not " +
-                            "compatible with schema version %s",
+            String msg = String.format("Could not validate schema of the " +
+                            "table %s in the database against entity %s : " +
+                            "%s",
                     entityInformation.getTableName(),
-                    supportedSchemaVersion);
+                    entityInformation.getJavaType().getName(),
+                    ex.getMessage());
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("JSON Schema of the table is " + jsonSchema);
+            }
             throw new IllegalStateException(msg, ex);
         }
 
