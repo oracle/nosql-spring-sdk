@@ -54,7 +54,7 @@ API documentation.
 
 ## Documentation
 
-See [Oracle NoSQL SDK for Spring Data javadoc](https://oracle.github.io/nosql-spring-sdk/) for the latest API documentation.  See [Spring Data SDK Developers Guide](https://docs.oracle.com/en/database/other-databases/nosql-database/22.3/springsdk/index.html) for examples and additional details on the SDK.
+See [Oracle NoSQL SDK for Spring Data javadoc](https://oracle.github.io/nosql-spring-sdk/) for the latest API documentation.  See [Spring Data SDK Developers Guide](https://docs.oracle.com/en/database/other-databases/nosql-database/23.1/springsdk/index.html) for examples and additional details on the SDK.
 
 General documentation about the Oracle NoSQL Database Cloud Service, Oracle NoSQL Database and Spring Data SDK
 Developers Guide can be found in these locations:
@@ -137,11 +137,8 @@ Note: Depending on individual scenario use the appropriate AuthorizationProvider
     ```
 
  - For on-prem configuration use one of the following examples or see
-<<<<<<< HEAD
  [documentation](https://docs.oracle.com/en/database/other-databases/nosql-database/23.1/admin/obtaining-nosql-handle.html).
-=======
- [documentation](https://docs.oracle.com/en/database/other-databases/nosql-database/22.3/admin/obtaining-nosql-handle.html).
->>>>>>> f797c7d7b61ce5e748ace1d1a21f57cb32d0abe5
+
    * For unsecure example:
 
      ```java
@@ -329,12 +326,11 @@ See the [LICENSE](LICENSE.txt) file.
 The [THIRD\_PARTY\_LICENSES](THIRD_PARTY_LICENSES.txt) file contains third
 party notices and licenses.
 
-<<<<<<< HEAD
+## Documentation
 * [API documentation](https://oracle.github.io/nosql-spring-sdk/)
 * [Developer's Guide](https://docs.oracle.com/en/database/other-databases/nosql-database/23.1/springsdk/index.html)
-=======
+
 ## Help
->>>>>>> f797c7d7b61ce5e748ace1d1a21f57cb32d0abe5
 
 * Open an issue in the [Issues](https://github.com/oracle/nosql-spring-sdk/issues) page
 * Post your question on the [Oracle NoSQL Database Community](https://community.oracle.com/community/groundbreakers/database/nosql_database).
