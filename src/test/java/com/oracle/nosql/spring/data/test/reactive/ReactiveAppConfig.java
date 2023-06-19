@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -15,7 +15,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableReactiveNosqlRepositories
+@EnableReactiveNosqlRepositories(basePackages = {
+        "com.oracle.nosql.spring.data.test.reactive",
+        "com.oracle.nosql.spring.data.test.composite"
+})
 public class ReactiveAppConfig extends AbstractNosqlConfiguration {
     @Bean
     public NosqlDbConfig nosqlDbConfig() {

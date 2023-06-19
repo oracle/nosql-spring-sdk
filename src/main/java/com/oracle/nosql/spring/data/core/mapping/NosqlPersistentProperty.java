@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -33,16 +33,16 @@ public interface NosqlPersistentProperty
         GEO_JSON_POLYGON(24),   // org.springframework.data.geo.Polygon
         FIELD_VALUE(25),        // any of oracle.nosql.driver.values.FieldValue
         ENUM(26),               // any enum class
+        MAP(27),                // java.util.Map
 
         // array like  100 .. 199
         ARRAY(100),      // <?>[]
         COLLECTION(101), // java.util.Collection<?>
 
-
         // POJO like 1000 .. 1999
         POJO(1000);      // ?
 
-        private int code;
+        private final int code;
         TypeCode(int code) {
             this.code = code;
         }
@@ -62,4 +62,18 @@ public interface NosqlPersistentProperty
      * @return The property type code
      */
     TypeCode getTypeCode();
+
+    /**
+     * Whether the property is a composite primary key.
+     *
+     * @since 1.6.0
+     */
+    boolean isCompositeKey();
+
+    /**
+     * Whether the property is a {@link NosqlKey}
+     *
+     * @since 1.6.0
+     */
+    boolean isNosqlKey();
 }

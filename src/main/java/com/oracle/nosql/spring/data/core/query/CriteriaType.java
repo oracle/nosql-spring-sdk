@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -46,7 +46,7 @@ public enum CriteriaType {
     WITHIN("geo_inside");
 
 
-    private String sqlKeyword;
+    private final String sqlKeyword;
 
     private static final Map<Part.Type, CriteriaType> PART_TREE_TYPE_TO_CRITERIA;
 

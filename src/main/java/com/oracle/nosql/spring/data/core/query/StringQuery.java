@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -8,6 +8,7 @@ package com.oracle.nosql.spring.data.core.query;
 
 import java.util.Map;
 
+import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentEntity;
 import com.oracle.nosql.spring.data.repository.query.NosqlParameterAccessor;
 import com.oracle.nosql.spring.data.repository.query.NosqlQueryMethod;
 
@@ -28,7 +29,8 @@ public class StringQuery extends NosqlQuery {
 
     @Override
     public String generateSql(String tableName,
-        Map<String, Object> params, String idPropertyName) {
+        Map<String, Object> params, String idPropertyName,
+        NosqlPersistentEntity<?> entity) {
 
         Parameters<?, ?> methodParams = method.getParameters();
         int i = 0;

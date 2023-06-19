@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -40,7 +40,7 @@ public class ReactiveNosqlRepositoryFactory  extends
 
     @Override
     public <T, ID> EntityInformation<T, ID> getEntityInformation(Class<T> domainClass) {
-        return new NosqlEntityInformation<>(domainClass);
+        return new NosqlEntityInformation<>(applicationContext, domainClass);
     }
 
     @Override
@@ -61,15 +61,20 @@ public class ReactiveNosqlRepositoryFactory  extends
         QueryLookupStrategy.Key key,
         QueryMethodEvaluationContextProvider evaluationContextProvider) {
         return Optional.of(new ReactiveNosqlQueryLookupStrategy(
+            applicationContext,
             reactiveNosqlOperations,
             evaluationContextProvider));
     }
 
     private static class ReactiveNosqlQueryLookupStrategy implements QueryLookupStrategy {
+        private final ApplicationContext applicationContext;
         private final ReactiveNosqlOperations nosqlOperations;
 
         public ReactiveNosqlQueryLookupStrategy(
-            ReactiveNosqlOperations operations, QueryMethodEvaluationContextProvider provider) {
+            ApplicationContext applicationContext,
+            ReactiveNosqlOperations operations,
+            QueryMethodEvaluationContextProvider provider) {
+            this.applicationContext = applicationContext;
             this.nosqlOperations = operations;
         }
 
@@ -78,7 +83,7 @@ public class ReactiveNosqlRepositoryFactory  extends
             ProjectionFactory factory, NamedQueries namedQueries) {
 
             final NosqlQueryMethod queryMethod =
-                new NosqlQueryMethod(method, metadata, factory);
+                new NosqlQueryMethod(applicationContext, method, metadata, factory);
 
             Assert.notNull(queryMethod, "queryMethod must not be null!");
             Assert.notNull(nosqlOperations, "dbOperations must not be null!");

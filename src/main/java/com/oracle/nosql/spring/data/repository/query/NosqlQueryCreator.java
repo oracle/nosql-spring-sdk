@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -120,13 +120,11 @@ public class NosqlQueryCreator  extends
     @Override
     protected NosqlQuery complete(@Nullable Criteria criteria, Sort sort) {
 
-        CriteriaQuery query = new CriteriaQuery(criteria, mappingContext)
+        return new CriteriaQuery(criteria, mappingContext)
             .with(sort)
             .setCount(tree.isCountProjection())
             .setDistinct(tree.isDistinct())
             .limit(tree.getMaxResults())
             .project(returnedType);
-
-        return query;
     }
 }

@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -191,7 +191,7 @@ public class TestIdTypes {
         Assert.assertEquals(1, idBIRepo.count());
 
         Assert.assertEquals("key1", r.name);
-        Assert.assertTrue(BigInteger.valueOf(100).equals(r.temp));
+        Assert.assertEquals(BigInteger.valueOf(100), r.temp);
         Assert.assertEquals(1, r.time);
     }
 
@@ -206,7 +206,7 @@ public class TestIdTypes {
         Assert.assertEquals(1, idBDRepo.count());
 
         Assert.assertEquals("key1", r.name);
-        Assert.assertTrue(BigDecimal.valueOf(100.001).equals(r.temp));
+        Assert.assertEquals(BigDecimal.valueOf(100.001), r.temp);
         Assert.assertEquals(1, r.time);
     }
 

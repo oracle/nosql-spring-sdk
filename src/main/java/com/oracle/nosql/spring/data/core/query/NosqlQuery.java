@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -8,6 +8,7 @@ package com.oracle.nosql.spring.data.core.query;
 
 import java.util.Map;
 
+import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
@@ -55,7 +56,8 @@ public abstract class NosqlQuery {
     }
 
     public abstract String generateSql(String tableName,
-        final Map<String, Object> params, String idPropertyName);
+        final Map<String, Object> params, String idPropertyName,
+        NosqlPersistentEntity<?> entity);
 
     public NosqlQuery setCount(boolean isCount) {
         this.isCount = isCount;

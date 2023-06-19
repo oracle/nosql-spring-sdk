@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -44,7 +44,7 @@ public class SimpleNosqlRepository <T, ID extends Serializable>
 
     public SimpleNosqlRepository(NosqlEntityInformation<T, ID> metadata,
         NosqlOperations dbOperations) {
-        Assert.notNull(dbOperations, "NosqlOprerations must not be null.");
+        Assert.notNull(dbOperations, "NosqlOperations must not be null.");
         this.operation = dbOperations;
         this.entityInformation = metadata;
 
@@ -236,7 +236,7 @@ public class SimpleNosqlRepository <T, ID extends Serializable>
      */
     @Override
     public String getConsistency() {
-        return entityInformation.getConsistency().name();
+        return entityInformation.getConsistency().getType().name();
     }
 
     /**
@@ -266,7 +266,7 @@ public class SimpleNosqlRepository <T, ID extends Serializable>
             return "COMMIT_WRITE_NO_SYNC";
         }
 
-        return durability.toString();
+        return "COMMIT_NO_SYNC";
     }
 
     /**

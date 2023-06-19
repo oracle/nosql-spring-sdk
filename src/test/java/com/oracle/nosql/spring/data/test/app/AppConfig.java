@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -20,14 +20,16 @@ import org.springframework.context.annotation.PropertySource;
 @Configuration
 /* Looks for configuration properties in a this file. */
 @PropertySource(value = "classpath:application.properties")
-@EnableNosqlRepositories
+@EnableNosqlRepositories(basePackageClasses =
+        {com.oracle.nosql.spring.data.test.TestTTL.class},
+        considerNestedRepositories = true)
 public class AppConfig extends AppConfigBase {
 
     /* Get values specified in application.properties file or use
     specified default otherwise. */
     @Value("${test.config.defaultStorageGB:25}")
     private int defaultStorageGB;
-    @Value(("${test.config.defaultCapacityMode:PROVISIONED}"))
+    @Value("${test.config.defaultCapacityMode:PROVISIONED}")
     private String defaultCapacityMode;
     @Value("${test.config.defaultReadUnits:50}")
     private int defaultReadUnits;

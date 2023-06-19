@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -14,11 +14,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.TreeSet;
 
 import oracle.nosql.driver.values.FieldValue;
 
 import com.oracle.nosql.spring.data.Constants;
+import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 
 import org.springframework.data.geo.Point;
 import org.springframework.data.geo.Polygon;
@@ -68,6 +70,7 @@ public class BasicNosqlPersistentProperty
      *
      * @return The property type code
      */
+    @Override
     public TypeCode getTypeCode() {
         if (typeCode == null) {
             typeCode = getCodeForDeserialization(getType());
@@ -156,6 +159,8 @@ public class BasicNosqlPersistentProperty
             return TypeCode.ARRAY;
         } else if (Collection.class.isAssignableFrom(cls)) {
             return TypeCode.COLLECTION;
+        } else if (Map.class.isAssignableFrom(cls)) {
+            return TypeCode.MAP;
         } else if (Object.class.equals(cls)) {
             return TypeCode.OBJECT;
         } else if (FieldValue.class.isAssignableFrom(cls)) {
@@ -165,5 +170,16 @@ public class BasicNosqlPersistentProperty
         } else {
             return TypeCode.POJO;
         }
+    }
+
+    @Override
+    public boolean isCompositeKey() {
+        return isIdProperty() &&
+                NosqlEntityInformation.isCompositeKeyType(getType());
+    }
+
+    @Override
+    public boolean isNosqlKey() {
+        return isAnnotationPresent(NosqlKey.class);
     }
 }

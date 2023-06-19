@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2022 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -29,6 +29,7 @@ public class BasicNosqlPersistentEntity<T>
         this.context = new StandardEvaluationContext();
     }
 
+    @Override
     public void setApplicationContext(ApplicationContext applicationContext)
         throws BeansException {
         context.addPropertyAccessor(new BeanFactoryAccessor());
@@ -37,6 +38,7 @@ public class BasicNosqlPersistentEntity<T>
     }
 
     @Nullable
+    @Override
     protected NosqlPersistentProperty
         returnPropertyIfBetterIdPropertyCandidateOrNull(
             NosqlPersistentProperty property) {
