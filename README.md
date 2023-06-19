@@ -101,7 +101,7 @@ Note: Depending on individual scenario use the appropriate AuthorizationProvider
     ```
 
  - For on-prem configuration use one of the following examples or see
- [documentation](https://docs.oracle.com/en/database/other-databases/nosql-database/22.3/admin/obtaining-nosql-handle.html).
+ [documentation](https://docs.oracle.com/en/database/other-databases/nosql-database/23.1/admin/obtaining-nosql-handle.html).
    * For unsecure example:
 
      ```java
@@ -283,7 +283,7 @@ Tests can be also be run on:
 ## Help
 
 * [API documentation](https://oracle.github.io/nosql-spring-sdk/)
-* [Developer's Guide](https://docs.oracle.com/en/database/other-databases/nosql-database/22.3/springsdk/index.html)
+* [Developer's Guide](https://docs.oracle.com/en/database/other-databases/nosql-database/23.1/springsdk/index.html)
 
 * Open an issue in the [Issues](https://github.com/oracle/nosql-spring-sdk/issues) page
 * Post your question on the [Oracle NoSQL Database Community](https://community.oracle.com/community/groundbreakers/database/nosql_database).
