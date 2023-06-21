@@ -267,18 +267,12 @@ public abstract class NosqlTemplateBase
             String tableNonShards = "{" + tableNonShardMap.entrySet()
                     .stream().map(e -> e.getKey() + " " + e.getValue()).
                     collect(Collectors.joining(",")) + "}";
-            String tableOthers = "{" + tableOthersMap.entrySet().stream()
-                    .map(e -> e.getKey() + " " + e.getValue()).
-                    collect(Collectors.joining(",")) + "}";
 
             String entityShards = "{" + entityShardMap.entrySet().stream()
                     .map(e -> e.getKey() + " " + e.getValue()).
                     collect(Collectors.joining(",")) + "}";
             String entityNonShards = "{" + entityNonShardMap.entrySet()
                     .stream().map(e -> e.getKey() + " " + e.getValue()).
-                    collect(Collectors.joining(",")) + "}";
-            String entityOthers = "{" + entityOthersMap.entrySet().stream()
-                    .map(e -> e.getKey() + " " + e.getValue()).
                     collect(Collectors.joining(",")) + "}";
 
             String msg;
@@ -297,11 +291,15 @@ public abstract class NosqlTemplateBase
                 errors.add(msg);
             }
 
-            // check non-primary keys and types match
-            if (!tableOthers.equals(entityOthers)) {
-                msg = String.format("Non-primary key columns mismatch:" +
-                                "table=%s, entity=%s.", tableOthers,
-                        entityOthers);
+            // check kv_json_ column exist and it's type is JSON
+            if (!tableOthersMap.containsKey(JSON_COLUMN.toLowerCase())) {
+                msg = String.format("'%s' column does not exist in the table",
+                        JSON_COLUMN);
+                errors.add(msg);
+            } else if (!tableOthersMap.get(JSON_COLUMN.toLowerCase()).
+                    equalsIgnoreCase("json")) {
+                msg = String.format("'%s' column type is not JSON in the " +
+                        "table", JSON_COLUMN);
                 errors.add(msg);
             }
 
@@ -342,7 +340,7 @@ public abstract class NosqlTemplateBase
             if (LOG.isDebugEnabled()) {
                 LOG.debug("JSON Schema of the table is " + jsonSchema);
             }
-            throw new IllegalStateException(msg, ex);
+            LOG.warn(msg);
         }
 
         if (!errors.isEmpty()) {

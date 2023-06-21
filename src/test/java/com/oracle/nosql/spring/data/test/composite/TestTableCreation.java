@@ -388,8 +388,8 @@ public class TestTableCreation {
         } catch (IllegalArgumentException iae) {
             assertTrue(iae.getMessage().contains("Shard primary keys " +
                     "mismatch"));
-            assertTrue(iae.getMessage().contains("Non-primary key columns " +
-                    "mismatch"));
+            assertTrue(iae.getMessage().contains("'kv_json_' column does not " +
+                    "exist in the table"));
             template.dropTableIfExists(domainClass.getSimpleName());
         }
     }
@@ -409,8 +409,8 @@ public class TestTableCreation {
             template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
             fail("Expecting IllegalArgumentException but didn't get");
         } catch (IllegalArgumentException iae) {
-            assertTrue(iae.getMessage().contains("Non-primary key columns " +
-                    "mismatch"));
+            assertTrue(iae.getMessage().contains("'kv_json_' column type is " +
+                    "not JSON in the table"));
             template.dropTableIfExists(domainClass.getSimpleName());
         }
     }
@@ -435,8 +435,8 @@ public class TestTableCreation {
                     "mismatch"));
             assertTrue(iae.getMessage().contains("Non-shard primary keys " +
                     "mismatch"));
-            assertTrue(iae.getMessage().contains("Non-primary key columns " +
-                    "mismatch"));
+            assertTrue(iae.getMessage().contains("'kv_json_' column type is " +
+                    "not JSON in the table"));
             template.dropTableIfExists(domainClass.getSimpleName());
         }
     }
