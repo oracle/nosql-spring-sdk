@@ -318,9 +318,10 @@ Tests can be also be run on:
 
 ## License
 
-Copyright (c) 2014б 2023 Oracle and/or its affiliates.
+Copyright (c) 2020, 2023 Oracle and/or its affiliates.
 Released under the Universal Permissive License v1.0 as shown at
 <https://oss.oracle.com/licenses/upl/>.
+
 See the [LICENSE](LICENSE.txt) file.
 
 The [THIRD\_PARTY\_LICENSES](THIRD_PARTY_LICENSES.txt) file contains third
