@@ -3,6 +3,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [1.7.0] [unreleased]
+### Added
+- Added the checks to verify entity definition matches with corresponding 
+  table in the database during table creation.
+
+### Changed
+
 ## [1.6.0]
 ### Added
 - Added support for composite primary keys.
