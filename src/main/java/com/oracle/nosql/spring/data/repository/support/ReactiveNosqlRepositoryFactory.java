@@ -14,6 +14,7 @@ import com.oracle.nosql.spring.data.core.ReactiveNosqlOperations;
 import com.oracle.nosql.spring.data.repository.query.NosqlQueryMethod;
 import com.oracle.nosql.spring.data.repository.query.PartTreeReactiveNosqlQuery;
 
+import com.oracle.nosql.spring.data.repository.query.ReactiveStringBasedNosqlQuery;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.core.EntityInformation;
@@ -69,6 +70,8 @@ public class ReactiveNosqlRepositoryFactory  extends
     private static class ReactiveNosqlQueryLookupStrategy implements QueryLookupStrategy {
         private final ApplicationContext applicationContext;
         private final ReactiveNosqlOperations nosqlOperations;
+        private final QueryMethodEvaluationContextProvider
+                evaluationContextProvider;
 
         public ReactiveNosqlQueryLookupStrategy(
             ApplicationContext applicationContext,
@@ -76,6 +79,7 @@ public class ReactiveNosqlRepositoryFactory  extends
             QueryMethodEvaluationContextProvider provider) {
             this.applicationContext = applicationContext;
             this.nosqlOperations = operations;
+            this.evaluationContextProvider = provider;
         }
 
         @Override
@@ -87,7 +91,18 @@ public class ReactiveNosqlRepositoryFactory  extends
 
             Assert.notNull(queryMethod, "queryMethod must not be null!");
             Assert.notNull(nosqlOperations, "dbOperations must not be null!");
-            return new PartTreeReactiveNosqlQuery(queryMethod, nosqlOperations);
+
+            String namedQueryName = queryMethod.getNamedQueryName();
+            if (namedQueries.hasQuery(namedQueryName)) {
+                String namedQuery = namedQueries.getQuery(namedQueryName);
+                return new ReactiveStringBasedNosqlQuery(namedQuery, queryMethod,
+                        nosqlOperations, evaluationContextProvider);
+            } else if (queryMethod.hasAnnotatedQuery()) {
+                return new ReactiveStringBasedNosqlQuery(queryMethod, nosqlOperations,
+                        evaluationContextProvider);
+            } else {
+                return new PartTreeReactiveNosqlQuery(queryMethod, nosqlOperations);
+            }
         }
     }
 }

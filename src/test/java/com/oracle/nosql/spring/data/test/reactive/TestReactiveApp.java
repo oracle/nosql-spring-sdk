@@ -169,6 +169,19 @@ public class TestReactiveApp {
         Mono<Long> count = repo.count();
         StepVerifier.create(count).expectNext(7L).verifyComplete();
 
+        //native queries
+        List<Customer> johns =
+                repo.findCustomersByFirstNameJohn().collectList().block();
+        Assert.assertTrue(johns.contains(c3) && johns.contains(c4));
+
+        johns = repo.findCustomersByFirstName("John").collectList().block();
+        Assert.assertTrue(johns.size() == 2 &&
+                johns.contains(c3) && johns.contains(c4));
+
+        johns = repo.findCustomersWithLastAndFirstNames("Doe", "John").
+                        collectList().block();
+        Assert.assertTrue(johns.size() == 1 && johns.contains(c4));
+
         // deleteById
         repo.deleteById(c7.customerId).subscribe();
         exists = repo.existsById(c7.customerId);
