@@ -54,7 +54,7 @@ API documentation.
 
 ## Documentation
 
-See [Oracle NoSQL SDK for Spring Data javadoc](https://oracle.github.io/nosql-spring-sdk/) for the latest API documentation.  See [Spring Data SDK Developers Guide](https://docs.oracle.com/en/database/other-databases/nosql-database/22.3/springsdk/index.html) for examples and additional details on the SDK.
+See [Oracle NoSQL SDK for Spring Data javadoc](https://oracle.github.io/nosql-spring-sdk/) for the latest API documentation.  See [Spring Data SDK Developers Guide](https://docs.oracle.com/en/database/other-databases/nosql-database/23.1/springsdk/index.html) for examples and additional details on the SDK.
 
 General documentation about the Oracle NoSQL Database Cloud Service, Oracle NoSQL Database and Spring Data SDK
 Developers Guide can be found in these locations:
@@ -137,7 +137,8 @@ Note: Depending on individual scenario use the appropriate AuthorizationProvider
     ```
 
  - For on-prem configuration use one of the following examples or see
- [documentation](https://docs.oracle.com/en/database/other-databases/nosql-database/22.3/admin/obtaining-nosql-handle.html).
+ [documentation](https://docs.oracle.com/en/database/other-databases/nosql-database/23.1/admin/obtaining-nosql-handle.html).
+
    * For unsecure example:
 
      ```java
@@ -315,12 +316,20 @@ Tests can be also be run on:
     mvn -B -Ptest-cloudsim test -DargLine="-Dtest.endpoint=$CLOUDSIM_ENDPOINT"
     ```
 
-## Licenses
+## License
+
+Copyright (c) 2020, 2023 Oracle and/or its affiliates.
+Released under the Universal Permissive License v1.0 as shown at
+<https://oss.oracle.com/licenses/upl/>.
 
 See the [LICENSE](LICENSE.txt) file.
 
 The [THIRD\_PARTY\_LICENSES](THIRD_PARTY_LICENSES.txt) file contains third
 party notices and licenses.
+
+## Documentation
+* [API documentation](https://oracle.github.io/nosql-spring-sdk/)
+* [Developer's Guide](https://docs.oracle.com/en/database/other-databases/nosql-database/23.1/springsdk/index.html)
 
 ## Help
 

@@ -47,6 +47,11 @@ public class TestTTL {
         template.dropTableIfExists(EntityWith10DaysTTL.class.getSimpleName());
         template.dropTableIfExists(EntityWithDefaultTTL.class.getSimpleName());
         template.dropTableIfExists(EntityWithNegativeTTL.class.getSimpleName());
+
+        template.createTableIfNotExists(template.
+                getNosqlEntityInformation(EntityWith10DaysTTL.class));
+        template.createTableIfNotExists(template.
+                getNosqlEntityInformation(EntityWithDefaultTTL.class));
     }
 
     @After
