@@ -197,4 +197,20 @@ public class ReactiveMachineApp {
         machines.forEach(m -> TestCase.assertEquals(machineCache.get(m.getMachineId())
                 , m));
     }
+
+    @Test
+    public void testNative() {
+        List<Machine> machines = repo.
+                findAllByLocationNative().collectList().block();
+        TestCase.assertEquals(8, machines.size());
+        machines.forEach(m -> {
+            TestCase.assertNotNull(m.getMachineId());
+            TestCase.assertNotNull(m.getMachineId().getName());
+            TestCase.assertNotNull(m.getMachineId().getVersion());
+        });
+
+        machines = repo.findByMachineIdNameNative("name3").collectList().block();
+        TestCase.assertEquals(4, machines.size());
+        machines.forEach(m -> TestCase.assertEquals(machineCache.get(m.getMachineId()), m));
+    }
 }

@@ -9,6 +9,7 @@ package com.oracle.nosql.spring.data.test.composite;
 
 import com.oracle.nosql.spring.data.repository.Query;
 import com.oracle.nosql.spring.data.repository.ReactiveNosqlRepository;
+import org.springframework.data.repository.query.Param;
 import reactor.core.publisher.Flux;
 
 public interface ReactiveMachineRepository extends ReactiveNosqlRepository<Machine, MachineId> {
@@ -33,4 +34,13 @@ public interface ReactiveMachineRepository extends ReactiveNosqlRepository<Machi
     
     //Ignore case
     Flux<Machine> findByMachineIdNameIgnoreCase(String name);
+
+    //native
+    @Query("SELECT * FROM Machine m WHERE m" +
+            ".kv_json_.location='newyork'")
+    Flux<Machine> findAllByLocationNative();
+
+    @Query(value = "DECLARE $name STRING; SELECT * FROM Machine AS m " +
+            "WHERE m.name = $name")
+    Flux<Machine> findByMachineIdNameNative(@Param("$name") String name);
 }
