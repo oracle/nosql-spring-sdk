@@ -11,7 +11,6 @@ import oracle.nosql.driver.Durability;
 
 import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
 
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.data.repository.reactive.ReactiveSortingRepository;
