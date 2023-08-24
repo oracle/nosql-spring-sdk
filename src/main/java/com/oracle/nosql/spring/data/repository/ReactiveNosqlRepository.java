@@ -12,11 +12,13 @@ import oracle.nosql.driver.Durability;
 import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
 
 import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.data.repository.reactive.ReactiveSortingRepository;
 
 @NoRepositoryBean
-public interface ReactiveNosqlRepository <T, K>
-    extends ReactiveSortingRepository<T, K> {
+public interface ReactiveNosqlRepository <T, K> extends
+    ReactiveSortingRepository<T, K>,
+    ReactiveCrudRepository<T, K> {
 
     /**
      * Returns the configured request timeout value, in milliseconds, or 0 if

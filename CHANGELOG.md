@@ -3,7 +3,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## [1.7.0]
+## [2.0.0] 
+ - Upgrade dependencies:
+  - Spring framework: 5.3.27 to 6.0.11
+  - Spring Data: 2.7.0 to 3.1.2
+  - Apache commons-lang3: 3.12.0 to 3.13.0
+  - Reactor core: 3.4.19 to 3.5.8
+  - Spring boot starter: 2.7.0 to 3.1.2
+  - Slf4j: 1.7.36 to 2.0.7
+  - maven-compiler-plugin: 2.3.2 to 3.11.0
+  - maven-javadoc-plugin: 3.4.0 to 3.5.0
+  - maven-source-plugin: 3.2.1 to 3.3.0
+  - maven-checkstyle-plugin: 2.17 to 3.0.0
+  - maven-help-plugin: 3.1.0 to 3.4.0
+  - maven-jar-plugin: 3.2.0 to 3.3.0
+  - exec-maven-plugin: 3.0.0 to 3.1.0
+  - maven-surefire-plugin: 3.0.0-M5 to 3.1.2
+
+## [1.7.1]
 ### Added
 - Added the checks to verify entity definition matches with corresponding 
   table in the database during table creation.
