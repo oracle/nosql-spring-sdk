@@ -10,7 +10,7 @@ cluster or to
 
 ## Requirements
 
-Java versions 8 and higher are supported.
+Java versions 17 and higher are supported.
 
 ## Installation
 
@@ -28,7 +28,7 @@ project. The version changes with each release.
 <dependency>
   <groupId>com.oracle.nosql.sdk</groupId>
   <artifactId>spring-data-oracle-nosql</artifactId>
-  <version>1.6.0</version>
+  <version>2.0.0</version>
 </dependency>
 ```
 
@@ -76,7 +76,7 @@ See [CHANGELOG](./CHANGELOG.md) for changes in each release.
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
-      <version>2.7.0</version>
+      <version>3.1.2</version>
     </dependency>
     ```
 
