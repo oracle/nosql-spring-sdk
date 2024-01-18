@@ -337,9 +337,7 @@ public abstract class NosqlTemplateBase
                     entityInformation.getJavaType().getName(),
                     ex.getMessage());
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("JSON Schema of the table is " + jsonSchema);
-            }
+            LOG.debug("JSON Schema of the table is {}", jsonSchema);
             LOG.warn(msg);
         }
 
@@ -505,7 +503,11 @@ public abstract class NosqlTemplateBase
         }
 
         LOG.debug("Q: {}", query);
-        
+        if (LOG.isDebugEnabled() && nosqlParams != null) {
+            for (Map.Entry<String, FieldValue> var : preparedStatement.getVariables().entrySet()) {
+                LOG.debug("   {} = {}", var.getKey(), var.getValue());
+            }
+        }
         return doQuery(qReq);
     }
 
@@ -549,6 +551,11 @@ public abstract class NosqlTemplateBase
 
         LOG.debug("Q: {}", sql);
 //        System.out.println("Q: " + sql);
+        if (LOG.isDebugEnabled() && params != null) {
+            for (Map.Entry<String, FieldValue> var : pStmt.getVariables().entrySet()) {
+                LOG.debug("   {} = {}", var.getKey(), var.getValue());
+            }
+        }
         return doQuery(qReq);
     }
 
@@ -579,11 +586,16 @@ public abstract class NosqlTemplateBase
                 }
             }
 
+            if (LOG.isTraceEnabled()) {
+                pReq.setGetQueryPlan(true);
+            }
+
             try {
                 LOG.debug("Prepare: {}", pReq.getStatement());
                 PrepareResult pRes = nosqlClient.prepare(pReq);
                 preparedStatement = pRes.getPreparedStatement();
                 psCache.put(query, preparedStatement);
+                LOG.trace("  query plan: {}", preparedStatement.getQueryPlan());
             } catch (NoSQLException nse) {
                 LOG.error("Prepare: {}", pReq.getStatement());
                 LOG.error(nse.getMessage());

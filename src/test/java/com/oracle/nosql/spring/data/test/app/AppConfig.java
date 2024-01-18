@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 @Configuration
-/* Looks for configuration properties in a this file. */
+/* Looks for configuration properties in this file. */
 @PropertySource(value = "classpath:application.properties")
 @EnableNosqlRepositories(basePackageClasses =
         {com.oracle.nosql.spring.data.test.TestTTL.class},
