@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## [Unreleased]
 ### Changed
+- Update copyrights to 2024
 - Upgrade NoSQL Java SDK dependency to version 5.4.12.
 
 ## [2.0.0] - 2023-08-29
