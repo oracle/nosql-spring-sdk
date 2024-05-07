@@ -136,14 +136,14 @@ public class NosqlDbConfig {
     }
 
     /**
-     * Sets the capacity of the prepared query cache. By default this is set
+     * Sets the capacity of the prepared query cache. By default, this is set
      * to {@link Constants#DEFAULT_QUERY_CACHE_CAPACITY}. The prepared query
      * cache is controlled by both {@link #setQueryCacheCapacity(int)} and
      * {@link #setQueryCacheLifetime(int)}. If capacity is 0 then entries are
      * only ever removed because they expire. If lifetime is 0 then entries are
      * only ever removed because the cache has reached capacity.
      */
-    NosqlDbConfig setQueryCacheCapacity(int capacity) {
+    public NosqlDbConfig setQueryCacheCapacity(int capacity) {
         queryCacheCapacity = capacity;
         return this;
     }
@@ -159,14 +159,14 @@ public class NosqlDbConfig {
 
     /**
      * Sets the lifetime of the prepared query cache in milliseconds. By
-     * default this is set to {@link Constants#DEFAULT_QUERY_CACHE_LIFETIME_MS}.
+     * default, this is set to {@link Constants#DEFAULT_QUERY_CACHE_LIFETIME_MS}.
      * The prepared query cache is controlled by both
      * {@link #setQueryCacheCapacity(int)} and
      * {@link #setQueryCacheLifetime(int)}. If capacity is 0 then entries are
      * only ever removed because they expire. If lifetime is 0 then entries are
      * only ever removed because the cache has reached capacity.
      */
-    NosqlDbConfig setQueryCacheLifetime(int lifetime) {
+    public NosqlDbConfig setQueryCacheLifetime(int lifetime) {
         queryCacheLifetime = lifetime;
         return this;
     }
