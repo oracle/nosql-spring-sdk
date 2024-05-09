@@ -89,16 +89,21 @@ public abstract class NosqlTemplateBase
         this.nosqlDbFactory = nosqlDbFactory;
         nosqlClient = nosqlDbFactory.getNosqlClient();
         this.mappingNosqlConverter = mappingNosqlConverter;
+        LOG.info("Create cache for prepared statements with capacity " +
+            nosqlDbFactory.getQueryCacheCapacity() + " items and lifetime " +
+            nosqlDbFactory.getQueryCacheLifetime() + " ms.");
         psCache = new LruCache<>(nosqlDbFactory.getQueryCacheCapacity(),
             nosqlDbFactory.getQueryCacheLifetime());
     }
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(ApplicationContext applicationContext)
+        throws BeansException {
         this.applicationContext = applicationContext;
     }
 
-    protected TableResult doTableRequest(NosqlEntityInformation<?, ?> entityInformation,
+    protected TableResult doTableRequest(
+        NosqlEntityInformation<?, ?> entityInformation,
         TableRequest tableReq) {
 
         if (entityInformation != null &&
@@ -482,17 +487,17 @@ public abstract class NosqlTemplateBase
         String query,
         Map<String, FieldValue> nosqlParams) {
 
-        PreparedStatement preparedStatement =
+        PreparedStatement pStmt =
             getPreparedStatement(entityInformation, query);
 
         if (nosqlParams != null) {
             for (Map.Entry<String, FieldValue> e : nosqlParams.entrySet()) {
-                preparedStatement.setVariable(e.getKey(), e.getValue());
+                pStmt.setVariable(e.getKey(), e.getValue());
             }
         }
 
         QueryRequest qReq = new QueryRequest()
-            .setPreparedStatement(preparedStatement);
+            .setPreparedStatement(pStmt);
 
         if (entityInformation != null) {
             if (entityInformation.getTimeout() > 0) {
@@ -504,11 +509,12 @@ public abstract class NosqlTemplateBase
 
         LOG.debug("Q: {}", query);
         if (LOG.isDebugEnabled() && nosqlParams != null) {
-            for (Map.Entry<String, FieldValue> var : preparedStatement.getVariables().entrySet()) {
+            for (Map.Entry<String, FieldValue> var : pStmt.getVariables()
+                .entrySet()) {
                 LOG.debug("   {} = {}", var.getKey(), var.getValue());
             }
         }
-        return doQuery(qReq);
+        return doQuery(psCache, qReq);
     }
 
     protected <T> Iterable<MapValue> doExecuteMapValueQuery(NosqlQuery query,
@@ -552,14 +558,16 @@ public abstract class NosqlTemplateBase
         LOG.debug("Q: {}", sql);
 //        System.out.println("Q: " + sql);
         if (LOG.isDebugEnabled() && params != null) {
-            for (Map.Entry<String, FieldValue> var : pStmt.getVariables().entrySet()) {
+            for (Map.Entry<String, FieldValue> var : pStmt.getVariables()
+                .entrySet()) {
                 LOG.debug("   {} = {}", var.getKey(), var.getValue());
             }
         }
-        return doQuery(qReq);
+        return doQuery(psCache, qReq);
     }
 
-    protected TableResult doGetTable(NosqlEntityInformation<?, ?> entityInformation) {
+    protected TableResult doGetTable(
+        NosqlEntityInformation<?, ?> entityInformation) {
         try {
             GetTableRequest request = new GetTableRequest();
             request.setTableName(entityInformation.getTableName());
@@ -605,8 +613,9 @@ public abstract class NosqlTemplateBase
         return preparedStatement.copyStatement();
     }
 
-    private Iterable<MapValue> doQuery(QueryRequest qReq) {
-        return new IterableUtil.IterableImpl(nosqlClient, qReq);
+    private Iterable<MapValue> doQuery(
+        LruCache<String, PreparedStatement> psCache, QueryRequest qReq) {
+        return new IterableUtil.IterableImpl(nosqlClient, psCache, qReq);
     }
 
     private String getAutoGenType(NosqlEntityInformation<?, ?> entityInformation) {

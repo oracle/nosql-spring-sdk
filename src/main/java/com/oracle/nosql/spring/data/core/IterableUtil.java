@@ -11,8 +11,10 @@ import java.util.stream.Stream;
 
 import oracle.nosql.driver.NoSQLException;
 import oracle.nosql.driver.NoSQLHandle;
+import oracle.nosql.driver.ops.PreparedStatement;
 import oracle.nosql.driver.ops.QueryRequest;
 import oracle.nosql.driver.ops.QueryResult;
+import oracle.nosql.driver.util.LruCache;
 import oracle.nosql.driver.values.MapValue;
 
 import com.oracle.nosql.spring.data.core.convert.MappingNosqlConverter;
@@ -29,15 +31,12 @@ import org.springframework.lang.NonNull;
 public class IterableUtil {
 
     public static class IterableImpl implements Iterable<MapValue> {
-        final NoSQLHandle nosqlClient;
-        final QueryRequest queryRequest;
         final IteratorImpl iter;
 
         IterableImpl(NoSQLHandle nosqlClient,
+            LruCache<String, PreparedStatement> psCache,
             QueryRequest queryRequest) {
-            this.nosqlClient = nosqlClient;
-            this.queryRequest = queryRequest;
-            this.iter = new IteratorImpl(nosqlClient, queryRequest);
+            this.iter = new IteratorImpl(nosqlClient, psCache, queryRequest);
         }
 
         @Override
@@ -52,13 +51,16 @@ public class IterableUtil {
             LoggerFactory.getLogger(IteratorImpl.class);
 
         final NoSQLHandle nosqlClient;
+        final LruCache<String, PreparedStatement> psCache;
         final QueryRequest queryRequest;
         QueryResult queryResult;
         Iterator<MapValue> iterator;
 
         IteratorImpl(NoSQLHandle nosqlClient,
+            LruCache<String, PreparedStatement> psCache,
             QueryRequest queryRequest) {
             this.nosqlClient = nosqlClient;
+            this.psCache = psCache;
             this.queryRequest = queryRequest;
         }
 
@@ -101,9 +103,14 @@ public class IterableUtil {
 
                 return true;
             } catch (NoSQLException nse) {
-                log.error("Query: {}",
-                    queryRequest.getStatement());
+                String sql = queryRequest.getPreparedStatement() != null ?
+                    queryRequest.getPreparedStatement().getSQLText() :
+                    queryRequest.getStatement();
+                log.error("Query: {}", sql);
                 log.error(nse.getMessage());
+
+                psCache.remove(sql);
+                log.info("Removed from prepared statements cache: '{}'", sql);
                 throw MappingNosqlConverter.convert(nse);
             }
         }
