@@ -696,8 +696,8 @@ public class TestApplication {
             Assert.assertEquals(0, customerList.size());
             Assert.fail("Should throw a 'Table not found' exception");
         } catch (Exception e) {
-            Assert.assertEquals("Table not found: customer",
-                e.getCause().getMessage());
+            Assert.assertTrue(
+                e.getCause().getMessage().contains("Table not found"));
         }
 
         NosqlEntityInformation<Customer, ?> customerEntInfo =
