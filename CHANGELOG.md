@@ -3,10 +3,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## [Unreleased]
+## [2.1.0] - 2024-09-19
 ### Changed
 - Update copyrights to 2024
-- Upgrade NoSQL Java SDK dependency to version 5.4.12.
+- Upgrade dependency to latest versions:
+  - NoSQL Java SDK dependency to version 5.4.15
+  - Spring Framework to version 6.1.13
+  - Spring Data to version 3.3.4
+  - Apache Commons lang3 to version3.17.0
+  - Project Reactor to version 3.6.10
+  - Slf4j to version 2.0.16
 
 ## [2.0.0] - 2023-08-29
 ### Changed
