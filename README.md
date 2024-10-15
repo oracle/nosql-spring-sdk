@@ -328,7 +328,7 @@ party notices and licenses.
 
 ## Documentation
 * [API documentation](https://oracle.github.io/nosql-spring-sdk/)
-* [Developer's Guide](https://docs.oracle.com/en/database/other-databases/nosql-database/23.1/springsdk/index.html)
+* [Developer's Guide](https://docs.oracle.com/en/database/other-databases/nosql-database/24.3/springsdk/index.html)
 
 ## Help
 
