@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2024 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 @Configuration
-/* Looks for configuration properties in a this file. */
+/* Looks for configuration properties in this file. */
 @PropertySource(value = "classpath:application.properties")
 @EnableNosqlRepositories(basePackageClasses =
         {com.oracle.nosql.spring.data.test.TestTTL.class},

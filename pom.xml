@@ -6,7 +6,7 @@
 
     <groupId>com.oracle.nosql.sdk</groupId>
     <artifactId>spring-data-oracle-nosql</artifactId>
-    <version>1.6.0</version>
+    <version>2.1.0</version>
 
     <name>Oracle NoSQL Database SDK for Spring Data</name>
     <description>Oracle NoSQL Database SDK for Spring Data</description>
@@ -39,23 +39,23 @@
     </scm>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>MM-dd-HH-mm-ss</maven.build.timestamp.format>
 
-        <nosqldriver.version>5.4.10</nosqldriver.version>
+        <nosqldriver.version>5.4.15</nosqldriver.version>
 
-        <spring.springframework.version>5.3.27</spring.springframework.version>
-        <spring.data.version>2.7.0</spring.data.version>
-        <org.apache.commons.commons-lang3.version>3.12.0</org.apache.commons.commons-lang3.version>
-        <reactor.core.version>3.4.19</reactor.core.version>
+        <spring.springframework.version>6.1.13</spring.springframework.version>
+        <spring.data.version>3.3.4</spring.data.version>
+        <org.apache.commons.commons-lang3.version>3.17.0</org.apache.commons.commons-lang3.version>
+        <reactor.core.version>3.6.10</reactor.core.version>
 
-        <spring.boot.starter.test.version>2.7.0</spring.boot.starter.test.version>
+        <spring.boot.starter.test.version>3.3.4</spring.boot.starter.test.version>
         <junit.junit.version>4.13.2</junit.junit.version>
-        <project.reactor.test.version>3.4.19</project.reactor.test.version>
-        <slf4j.version>1.7.36</slf4j.version>
+        <project.reactor.test.version>3.6.10</project.reactor.test.version>
+        <slf4j.version>2.0.16</slf4j.version>
     </properties>
 
     <dependencies>
@@ -242,16 +242,19 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>3.11.0</version>
                 <configuration>
                     <compilerArgument>-Xlint</compilerArgument>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>3.5.0</version>
                 <configuration>
                     <show>protected</show>
                     <failOnError>false</failOnError>
@@ -276,7 +279,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
+                <version>3.2.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -291,14 +294,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.17</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>validate</id>
                         <phase>validate</phase>
                         <configuration>
                             <configLocation>${project.basedir}/config/checkstyle.xml</configLocation>
-                            <encoding>UTF-8</encoding>
+                            <suppressionsLocation>${project.basedir}/config/checkstyle-suppressions.xml</suppressionsLocation>
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
                             <failOnViolation>true</failOnViolation>
@@ -318,7 +321,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-help-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.4.0</version>
                 <executions>
                     <execution>
                         <id>show-profiles</id>
@@ -333,7 +336,7 @@
             <!-- include info in MANIFEST.MF file -->
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.3.0</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -381,7 +384,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <id>add license files to runtime jar</id>
@@ -438,7 +441,7 @@
             <plugin>
                 <!-- test plugin -->
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M5</version>
+                <version>3.1.2</version>
                 <configuration>
                     <!-- uncomment below to write stdout to files
                          in target/surefire-reports -->

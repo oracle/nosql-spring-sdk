@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2024 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -51,6 +51,8 @@ public class ReactiveMachineApp {
     @Before
     public void setup() {
         template.dropTableIfExists(Machine.class.getSimpleName());
+        template.createTableIfNotExists(template.
+                getNosqlEntityInformation(Machine.class));
         machineCache = new HashMap<>();
         List<IpAddress> routeAddress = new ArrayList<>();
         routeAddress.add(new IpAddress("127.0.0.1"));
@@ -194,5 +196,21 @@ public class ReactiveMachineApp {
         TestCase.assertEquals(4, machines.size());
         machines.forEach(m -> TestCase.assertEquals(machineCache.get(m.getMachineId())
                 , m));
+    }
+
+    @Test
+    public void testNative() {
+        List<Machine> machines = repo.
+                findAllByLocationNative().collectList().block();
+        TestCase.assertEquals(8, machines.size());
+        machines.forEach(m -> {
+            TestCase.assertNotNull(m.getMachineId());
+            TestCase.assertNotNull(m.getMachineId().getName());
+            TestCase.assertNotNull(m.getMachineId().getVersion());
+        });
+
+        machines = repo.findByMachineIdNameNative("name3").collectList().block();
+        TestCase.assertEquals(4, machines.size());
+        machines.forEach(m -> TestCase.assertEquals(machineCache.get(m.getMachineId()), m));
     }
 }

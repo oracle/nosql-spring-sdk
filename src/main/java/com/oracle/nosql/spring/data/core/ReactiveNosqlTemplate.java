@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2024 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -78,8 +78,10 @@ public class ReactiveNosqlTemplate
     public Mono<Boolean> createTableIfNotExists(
         NosqlEntityInformation<?, ?> entityInformation) {
         Assert.notNull(entityInformation, "Entity information should not be null");
-
-        return Mono.just(doCreateTableIfNotExists(entityInformation));
+        boolean isTableExist = doCheckExistingTable(entityInformation);
+        // if table does not exist create
+        return (!isTableExist) ? Mono.just(doCreateTable(entityInformation)) :
+                Mono.just(true);
     }
 
     /**

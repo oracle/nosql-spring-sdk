@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2024 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -463,8 +463,8 @@ public class NosqlEntityInformation <T, ID> extends
     }
 
     private static class ProcessPrimaryKeys {
-        private Map<String, FieldValue.Type> shardKeys;
-        private Map<String, FieldValue.Type> nonShardKeys;
+        private final Map<String, FieldValue.Type> shardKeys;
+        private final Map<String, FieldValue.Type> nonShardKeys;
 
         public ProcessPrimaryKeys(Field idField) {
             shardKeys = new LinkedHashMap<>();
@@ -477,8 +477,8 @@ public class NosqlEntityInformation <T, ID> extends
 
             if (isCompositeKeyType(idField.getType())) {
                 //composite key
-                Map<Integer, SortedSet<String>> shardMap = new TreeMap<>();
-                Map<Integer, SortedSet<String>> nonShardMap = new TreeMap<>();
+                TreeMap<Integer, SortedSet<String>> shardMap = new TreeMap<>();
+                TreeMap<Integer, SortedSet<String>> nonShardMap = new TreeMap<>();
 
                 for (Field primaryKey : idField.getType().getDeclaredFields()) {
                     if (!primaryKey.isAnnotationPresent(Transient.class) &&
@@ -578,10 +578,8 @@ public class NosqlEntityInformation <T, ID> extends
                 }
 
                 if (!nonShardMap.isEmpty()) {
-                    int shardMaxOrder =
-                            (int) ((TreeMap<?, ?>) shardMap).lastKey();
-                    int nonShardMinOrder =
-                            (int) ((TreeMap<?, ?>) nonShardMap).firstKey();
+                    int shardMaxOrder = shardMap.lastKey();
+                    int nonShardMinOrder = nonShardMap.firstKey();
 
                     if (shardMaxOrder != -1 && nonShardMinOrder <= shardMaxOrder) {
                         throw new IllegalArgumentException("Order of non " +

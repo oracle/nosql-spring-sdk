@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2024 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -17,12 +17,14 @@ import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 @NoRepositoryBean
 public interface NosqlRepository<T, ID extends Serializable> extends
-    PagingAndSortingRepository<T, ID> {
+    PagingAndSortingRepository<T, ID>,
+    CrudRepository<T, ID> {
 
     /*
      * (non-Javadoc)

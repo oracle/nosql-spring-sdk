@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2024 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -12,11 +12,13 @@ import oracle.nosql.driver.Durability;
 import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
 
 import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.data.repository.reactive.ReactiveSortingRepository;
 
 @NoRepositoryBean
-public interface ReactiveNosqlRepository <T, K>
-    extends ReactiveSortingRepository<T, K> {
+public interface ReactiveNosqlRepository <T, K> extends
+    ReactiveSortingRepository<T, K>,
+    ReactiveCrudRepository<T, K> {
 
     /**
      * Returns the configured request timeout value, in milliseconds, or 0 if

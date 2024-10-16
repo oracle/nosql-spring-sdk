@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2024 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -25,6 +25,7 @@ import com.oracle.nosql.spring.data.NosqlDbFactory;
 import com.oracle.nosql.spring.data.core.NosqlOperations;
 import com.oracle.nosql.spring.data.core.NosqlTemplate;
 import com.oracle.nosql.spring.data.core.mapping.NosqlCapacityMode;
+import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 import com.oracle.nosql.spring.data.test.app.Address;
 import com.oracle.nosql.spring.data.test.app.AppConfig;
 import com.oracle.nosql.spring.data.test.app.Customer;
@@ -673,5 +674,37 @@ public class TestApplication {
                 System.out.println("      " + Arrays.toString(arr));
             }
         }
+    }
+
+    @Test
+    public void testPrepStmtCacheRemove() throws ClassNotFoundException {
+        // todo: add invalidate prepared statements cache
+        // repo.invalidateCache();
+
+        // Use query, which will cache the prepared statement
+        List<Customer> customerList = repo.findByLastName("Smith");
+        Assert.assertEquals(0, customerList.size());
+
+        // Drop table
+        NosqlTemplate template = NosqlTemplate.create(AppConfig.nosqlDBConfig);
+
+        template.runTableRequest(
+            "DROP TABLE Customer");
+
+        try {
+            customerList = repo.findByLastName("Smith");
+            Assert.assertEquals(0, customerList.size());
+            Assert.fail("Should throw a 'Table not found' exception");
+        } catch (Exception e) {
+            Assert.assertTrue(
+                e.getCause().getMessage().contains("Table not found"));
+        }
+
+        NosqlEntityInformation<Customer, ?> customerEntInfo =
+            template.getNosqlEntityInformation(Customer.class);
+        template.createTableIfNotExists(customerEntInfo);
+
+        customerList = repo.findByLastName("Smith");
+        Assert.assertEquals(0, customerList.size());
     }
 }

@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2023 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2024 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -93,7 +93,9 @@ public class NosqlTemplate
     @Override
     public boolean createTableIfNotExists(
         NosqlEntityInformation<?, ?> entityInformation) {
-        return doCreateTableIfNotExists(entityInformation);
+        boolean isTableExist = doCheckExistingTable(entityInformation);
+        // if table does not exist create
+        return (!isTableExist) ? doCreateTable(entityInformation) : true;
     }
 
     @SuppressWarnings("unchecked")
