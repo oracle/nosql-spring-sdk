@@ -137,7 +137,7 @@ Note: Depending on individual scenario use the appropriate AuthorizationProvider
     ```
 
  - For on-prem configuration use one of the following examples or see
- [documentation](https://docs.oracle.com/en/database/other-databases/nosql-database/23.1/admin/obtaining-nosql-handle.html).
+ [documentation](https://docs.oracle.com/en/database/other-databases/nosql-database/24.3/admin/obtaining-nosql-handle.html).
 
    * For unsecure example:
 
@@ -321,7 +321,6 @@ Tests can be also be run on:
 Copyright (c) 2020, 2024 Oracle and/or its affiliates.
 Released under the Universal Permissive License v1.0 as shown at
 <https://oss.oracle.com/licenses/upl/>.
-
 See the [LICENSE](LICENSE.txt) file.
 
 The [THIRD\_PARTY\_LICENSES](THIRD_PARTY_LICENSES.txt) file contains third
@@ -329,7 +328,7 @@ party notices and licenses.
 
 ## Documentation
 * [API documentation](https://oracle.github.io/nosql-spring-sdk/)
-* [Developer's Guide](https://docs.oracle.com/en/database/other-databases/nosql-database/23.1/springsdk/index.html)
+* [Developer's Guide](https://docs.oracle.com/en/database/other-databases/nosql-database/24.3/springsdk/index.html)
 
 ## Help
 
