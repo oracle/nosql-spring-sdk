@@ -10,7 +10,7 @@ cluster or to
 
 ## Requirements
 
-Java versions 8 and higher are supported.
+Java versions 17 and higher are supported.
 
 ## Installation
 
@@ -28,7 +28,7 @@ project. The version changes with each release.
 <dependency>
   <groupId>com.oracle.nosql.sdk</groupId>
   <artifactId>spring-data-oracle-nosql</artifactId>
-  <version>1.6.0</version>
+  <version>2.1.0</version>
 </dependency>
 ```
 
@@ -76,7 +76,7 @@ See [CHANGELOG](./CHANGELOG.md) for changes in each release.
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
-      <version>2.7.0</version>
+      <version>3.3.4</version>
     </dependency>
     ```
 
@@ -137,7 +137,7 @@ Note: Depending on individual scenario use the appropriate AuthorizationProvider
     ```
 
  - For on-prem configuration use one of the following examples or see
- [documentation](https://docs.oracle.com/en/database/other-databases/nosql-database/23.1/admin/obtaining-nosql-handle.html).
+ [documentation](https://docs.oracle.com/en/database/other-databases/nosql-database/24.3/admin/obtaining-nosql-handle.html).
 
    * For unsecure example:
 
@@ -318,7 +318,7 @@ Tests can be also be run on:
 
 ## License
 
-Copyright (c) 2014б 2023 Oracle and/or its affiliates.
+Copyright (c) 2020, 2024 Oracle and/or its affiliates.
 Released under the Universal Permissive License v1.0 as shown at
 <https://oss.oracle.com/licenses/upl/>.
 See the [LICENSE](LICENSE.txt) file.
