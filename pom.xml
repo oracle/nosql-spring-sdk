@@ -47,7 +47,7 @@
 
         <nosqldriver.version>5.4.15</nosqldriver.version>
 
-        <spring.springframework.version>6.1.13</spring.springframework.version>
+        <spring.springframework.version>6.1.14</spring.springframework.version>
         <spring.data.version>3.3.4</spring.data.version>
         <org.apache.commons.commons-lang3.version>3.17.0</org.apache.commons.commons-lang3.version>
         <reactor.core.version>3.6.10</reactor.core.version>
