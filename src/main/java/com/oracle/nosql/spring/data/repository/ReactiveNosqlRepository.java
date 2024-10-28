@@ -63,4 +63,9 @@ public interface ReactiveNosqlRepository <T, K> extends
      * Note: This applies to On-Prem installations only.
      */
     void setDurability(String durability);
+
+    /**
+     * Clears the prepared statements cache.
+     */
+    void clearPreparedStatementsCache();
 }

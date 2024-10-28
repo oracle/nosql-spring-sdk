@@ -46,13 +46,15 @@ public class ReactiveMachineApp {
     @BeforeClass
     public static void staticSetup() throws ClassNotFoundException {
         template = NosqlTemplate.create(AppConfig.nosqlDBConfig);
+        template.dropTableIfExists(Machine.class.getSimpleName());
+        template.createTableIfNotExists(template.
+            getNosqlEntityInformation(Machine.class));
     }
 
     @Before
     public void setup() {
-        template.dropTableIfExists(Machine.class.getSimpleName());
-        template.createTableIfNotExists(template.
-                getNosqlEntityInformation(Machine.class));
+        repo.clearPreparedStatementsCache();
+        repo.deleteAll();
         machineCache = new HashMap<>();
         List<IpAddress> routeAddress = new ArrayList<>();
         routeAddress.add(new IpAddress("127.0.0.1"));
@@ -78,7 +80,7 @@ public class ReactiveMachineApp {
 
     @After
     public void teardown() {
-        template.dropTableIfExists(Machine.class.getSimpleName());
+        // don't drop table between tests
     }
 
     @Test

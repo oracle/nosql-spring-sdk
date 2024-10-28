@@ -24,6 +24,12 @@ public interface NosqlOperations {
      */
     boolean createTableIfNotExists(NosqlEntityInformation<?, ?> entityInformation);
 
+
+    /**
+     * Clears the cache of prepared statements for this repository.
+     */
+    void clearPreparedStatementsCache();
+
     /**
      * Drops the given table, information about all saved entities is
      * removed.

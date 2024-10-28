@@ -276,4 +276,12 @@ public class SimpleNosqlRepository <T, ID extends Serializable>
     public void setDurability(String durability) {
         entityInformation.setDurability(durability);
     }
+
+
+    /**
+     * @see NosqlRepository#clearPreparedStatementsCache()
+     */
+    public void clearPreparedStatementsCache() {
+        operation.clearPreparedStatementsCache();
+    }
 }

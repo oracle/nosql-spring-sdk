@@ -258,6 +258,7 @@ public class NosqlTemplate
         TableRequest tableReq = new TableRequest().setStatement(sql);
 
         TableResult tableRes = doTableRequest(null, tableReq);
+        psCache.clear();
 
         return tableRes.getTableState() == TableResult.State.DROPPED ||
             tableRes.getTableState() == TableResult.State.DROPPING;
