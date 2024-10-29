@@ -251,4 +251,13 @@ public class SimpleReactiveNosqlRepository <T, ID extends Serializable>
     public void setDurability(String durability) {
         entityInformation.setDurability(durability);
     }
+
+
+    /**
+     * Clears the prepared statements cache.
+     */
+    @Override
+    public void clearPreparedStatementsCache() {
+        nosqlOperations.clearPreparedStatementsCache();
+    }
 }

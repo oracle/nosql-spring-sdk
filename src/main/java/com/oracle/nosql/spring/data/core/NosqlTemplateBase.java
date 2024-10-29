@@ -89,7 +89,7 @@ public abstract class NosqlTemplateBase
         this.nosqlDbFactory = nosqlDbFactory;
         nosqlClient = nosqlDbFactory.getNosqlClient();
         this.mappingNosqlConverter = mappingNosqlConverter;
-        LOG.info("Create cache for prepared statements with capacity " +
+        LOG.debug("Create cache for prepared statements with capacity " +
             nosqlDbFactory.getQueryCacheCapacity() + " items and lifetime " +
             nosqlDbFactory.getQueryCacheLifetime() + " ms.");
         psCache = new LruCache<>(nosqlDbFactory.getQueryCacheCapacity(),
@@ -624,5 +624,12 @@ public abstract class NosqlTemplateBase
                     TEMPLATE_GENERATED_UUID : TEMPLATE_GENERATED_ALWAYS;
         }
         return "";
+    }
+
+    /**
+     * Clears the cache of prepared statements.
+     */
+    public void clearPreparedStatementsCache() {
+        psCache.clear();
     }
 }

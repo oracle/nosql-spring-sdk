@@ -43,6 +43,12 @@ public interface ReactiveNosqlOperations {
      */
     Mono<Boolean> dropTableIfExists(String tableName);
 
+    /**
+     * Clears the cache of prepared statements.
+     */
+    void clearPreparedStatementsCache();
+
+
     <T, ID> Flux<T> findAll(NosqlEntityInformation<T, ID> entityInformation);
 
     <T> Flux<T> findAll(Class<T> entityClass);

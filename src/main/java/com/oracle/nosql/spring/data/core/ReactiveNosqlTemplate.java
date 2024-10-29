@@ -107,6 +107,12 @@ public class ReactiveNosqlTemplate
     }
 
     @Override
+    public void clearPreparedStatementsCache() {
+        super.clearPreparedStatementsCache();
+    }
+
+
+    @Override
     public <T, ID> Flux<T> findAll(
         NosqlEntityInformation<T, ID> entityInformation) {
         Assert.notNull(entityInformation, "EntityInformation should " +
