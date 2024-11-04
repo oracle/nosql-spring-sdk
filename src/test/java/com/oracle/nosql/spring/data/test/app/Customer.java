@@ -76,7 +76,7 @@ public class Customer {
     // Map fields
     public Map<Object, Object> mapField;                   // LinkedHashMap impl
     public Map<Priority, Object> enumMap;                  // LinkedHashMap impl
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"rawtypes"})
     public Map classicMap;                                 // LinkedHashMap impl
     public Map<String, Object[]> arraysMap;                // LinkedHashMap impl
 

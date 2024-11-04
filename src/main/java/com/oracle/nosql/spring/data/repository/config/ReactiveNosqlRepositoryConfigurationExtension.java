@@ -31,6 +31,7 @@ public class ReactiveNosqlRepositoryConfigurationExtension
         return Constants.NOSQLDB_MODULE_NAME;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public String getModulePrefix() {
         return Constants.NOSQLDB_MODULE_PREFIX;

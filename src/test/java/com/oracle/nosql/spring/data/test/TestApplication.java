@@ -661,7 +661,7 @@ public class TestApplication {
         }
 
         System.out.println("map: " + name + ":  " + map.getClass());
-        for (Map.Entry entry : map.entrySet()) {
+        for (Map.Entry<?,?> entry : map.entrySet()) {
             System.out.println("  - k: " +
                 (entry.getKey() == null ? "null" : entry.getKey().getClass()) +
                 " = " + entry.getKey());
