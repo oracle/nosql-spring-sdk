@@ -11,6 +11,7 @@ import com.oracle.nosql.spring.data.test.app.AppConfig;
 import com.oracle.nosql.spring.data.test.reactive.ReactiveAppConfig;
 import junit.framework.TestCase;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -78,9 +79,9 @@ public class ReactiveMachineApp {
         StepVerifier.create(repo.count()).expectNext(Long.valueOf(16)).verifyComplete();
     }
 
-    @After
-    public void teardown() {
-        // don't drop table between tests
+    @AfterClass
+    public static void staticTeardown() {
+        template.dropTableIfExists(Machine.class.getSimpleName());
     }
 
     @Test

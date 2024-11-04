@@ -52,6 +52,8 @@ public class TestTTL {
                 getNosqlEntityInformation(EntityWith10DaysTTL.class));
         template.createTableIfNotExists(template.
                 getNosqlEntityInformation(EntityWithDefaultTTL.class));
+        with10DaysTTLRepo.clearPreparedStatementsCache();
+        defaultTTLRepo.clearPreparedStatementsCache();
     }
 
     @After

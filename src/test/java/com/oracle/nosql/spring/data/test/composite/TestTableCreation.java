@@ -48,6 +48,7 @@ public class TestTableCreation {
                 template.getNosqlEntityInformation(domainClass);
 
         template.dropTableIfExists(domainClass.getSimpleName());
+        template.clearPreparedStatementsCache();
         template.createTableIfNotExists(entityInformation);
 
         String tableDDL = template.getNosqlClient().
@@ -67,6 +68,7 @@ public class TestTableCreation {
                 template.getNosqlEntityInformation(domainClass);
 
         template.dropTableIfExists(domainClass.getSimpleName());
+        template.clearPreparedStatementsCache();
         template.createTableIfNotExists(entityInformation);
 
         String tableDDL = template.getNosqlClient().
@@ -86,6 +88,7 @@ public class TestTableCreation {
                 template.getNosqlEntityInformation(domainClass);
 
         template.dropTableIfExists(domainClass.getSimpleName());
+        template.clearPreparedStatementsCache();
         template.createTableIfNotExists(entityInformation);
 
         String tableDDL = template.getNosqlClient().
@@ -117,6 +120,7 @@ public class TestTableCreation {
                 template.getNosqlEntityInformation(domainClass);
 
         template.dropTableIfExists(domainClass.getSimpleName());
+        template.clearPreparedStatementsCache();
         template.createTableIfNotExists(entityInformation);
 
         String tableDDL = template.getNosqlClient().
@@ -187,6 +191,7 @@ public class TestTableCreation {
                 template.getNosqlEntityInformation(domainClass);
 
         template.dropTableIfExists(domainClass.getSimpleName());
+        template.clearPreparedStatementsCache();
         template.createTableIfNotExists(entityInformation);
 
         String tableDDL = template.getNosqlClient().
@@ -206,6 +211,7 @@ public class TestTableCreation {
                 template.getNosqlEntityInformation(domainClass);
 
         template.dropTableIfExists(domainClass.getSimpleName());
+        template.clearPreparedStatementsCache();
         template.createTableIfNotExists(entityInformation);
 
         String tableDDL = template.getNosqlClient().
@@ -254,6 +260,7 @@ public class TestTableCreation {
         tableRequest.setTableLimits(new TableLimits(100,100,1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
+            template.clearPreparedStatementsCache();
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
             template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
             fail("Expecting IllegalArgumentException but didn't get");
@@ -276,6 +283,7 @@ public class TestTableCreation {
         tableRequest.setTableLimits(new TableLimits(100,100,1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
+            template.clearPreparedStatementsCache();
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
             template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
             fail("Expecting IllegalArgumentException but didn't get");
@@ -297,6 +305,7 @@ public class TestTableCreation {
         tableRequest.setTableLimits(new TableLimits(100,100,1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
+            template.clearPreparedStatementsCache();
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
             template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
             fail("Expecting IllegalArgumentException but didn't get");
@@ -320,6 +329,7 @@ public class TestTableCreation {
         tableRequest.setTableLimits(new TableLimits(100,100,1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
+            template.clearPreparedStatementsCache();
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
             template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
             fail("Expecting IllegalArgumentException but didn't get");
@@ -341,6 +351,7 @@ public class TestTableCreation {
         tableRequest.setTableLimits(new TableLimits(100,100,1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
+            template.clearPreparedStatementsCache();
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
             template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
             fail("Expecting IllegalArgumentException but didn't get");
@@ -361,6 +372,7 @@ public class TestTableCreation {
         tableRequest.setTableLimits(new TableLimits(100,100,1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
+            template.clearPreparedStatementsCache();
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
             template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
             fail("Expecting IllegalArgumentException but didn't get");
@@ -382,6 +394,7 @@ public class TestTableCreation {
         tableRequest.setTableLimits(new TableLimits(100,100,1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
+            template.clearPreparedStatementsCache();
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
             template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
             fail("Expecting IllegalArgumentException but didn't get");
@@ -405,6 +418,7 @@ public class TestTableCreation {
         tableRequest.setTableLimits(new TableLimits(100, 100, 1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
+            template.clearPreparedStatementsCache();
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
             template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
             fail("Expecting IllegalArgumentException but didn't get");
@@ -427,6 +441,7 @@ public class TestTableCreation {
         tableRequest.setTableLimits(new TableLimits(100, 100, 1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
+            template.clearPreparedStatementsCache();
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
             template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
             fail("Expecting IllegalArgumentException but didn't get");
@@ -453,6 +468,7 @@ public class TestTableCreation {
         tableRequest.setTableLimits(new TableLimits(100,100,1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
+            template.clearPreparedStatementsCache();
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
             template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
             fail("Expecting IllegalArgumentException but didn't get");
@@ -475,6 +491,7 @@ public class TestTableCreation {
         tableRequest.setTableLimits(new TableLimits(100,100,1));
         try {
             template.dropTableIfExists(domainClass.getSimpleName());
+            template.clearPreparedStatementsCache();
             template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
             template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
             fail("Expecting IllegalArgumentException but didn't get");
@@ -495,6 +512,7 @@ public class TestTableCreation {
         tableRequest.setStatement(ddl);
         tableRequest.setTableLimits(new TableLimits(100,100,1));
         template.dropTableIfExists(domainClass.getSimpleName());
+        template.clearPreparedStatementsCache();
         template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
         template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
         template.dropTableIfExists(domainClass.getSimpleName());
@@ -511,6 +529,7 @@ public class TestTableCreation {
         tableRequest.setStatement(ddl);
         tableRequest.setTableLimits(new TableLimits(100,100,1));
         template.dropTableIfExists(domainClass.getSimpleName());
+        template.clearPreparedStatementsCache();
         template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
         template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
         template.dropTableIfExists(domainClass.getSimpleName());
@@ -527,6 +546,7 @@ public class TestTableCreation {
         tableRequest.setStatement(ddl);
         tableRequest.setTableLimits(new TableLimits(100,100,1));
         template.dropTableIfExists(domainClass.getSimpleName());
+        template.clearPreparedStatementsCache();
         template.getNosqlClient().doTableRequest(tableRequest, 10000, 2000);
         template.createTableIfNotExists(template.getNosqlEntityInformation(domainClass));
         template.dropTableIfExists(domainClass.getSimpleName());

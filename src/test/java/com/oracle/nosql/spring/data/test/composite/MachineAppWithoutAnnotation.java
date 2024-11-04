@@ -14,6 +14,7 @@ import com.oracle.nosql.spring.data.repository.NosqlRepository;
 import com.oracle.nosql.spring.data.repository.Query;
 import com.oracle.nosql.spring.data.test.app.AppConfig;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -46,17 +47,18 @@ public class MachineAppWithoutAnnotation {
     @BeforeClass
     public static void staticSetup() throws ClassNotFoundException {
         template = NosqlTemplate.create(AppConfig.nosqlDBConfig);
+        template.dropTableIfExists(MachineWithoutAnnotation.class.getSimpleName());
+        template.createTableIfNotExists(template.
+            getNosqlEntityInformation(MachineWithoutAnnotation.class));
     }
 
     @Before
     public void setup() {
-        template.dropTableIfExists(MachineWithoutAnnotation.class.getSimpleName());
-        template.createTableIfNotExists(template.
-                getNosqlEntityInformation(MachineWithoutAnnotation.class));
+        repo.deleteAll();
     }
 
-    @After
-    public void teardown() {
+    @AfterClass
+    public static void staticTeardown() {
         template.dropTableIfExists(MachineWithoutAnnotation.class.getSimpleName());
     }
 

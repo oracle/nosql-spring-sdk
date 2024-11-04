@@ -96,6 +96,7 @@ public class TestApplication {
     @Test
     public void testPojo() {
         repo.setTimeout(20000);
+        repo.clearPreparedStatementsCache();
         repo.deleteAll();
 
         Customer c1 = new Customer("Nosql Alice", "Smith", null);
