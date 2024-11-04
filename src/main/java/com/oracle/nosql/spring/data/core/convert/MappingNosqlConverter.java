@@ -709,7 +709,7 @@ public class MappingNosqlConverter
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private <K, V, E, C> Map<K, V> convertMapValueToMap(MapValue mapValue,
         @Nullable TypeInformation<E> typeInfo) {
 

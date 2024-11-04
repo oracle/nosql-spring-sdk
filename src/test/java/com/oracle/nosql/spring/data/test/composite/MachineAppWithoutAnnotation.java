@@ -213,6 +213,7 @@ public class MachineAppWithoutAnnotation {
     }
 
     public static class MachineIdWithoutAnnotation implements Serializable {
+        private static final long serialVersionUID = 1;
         private String version;
         private String name;
 

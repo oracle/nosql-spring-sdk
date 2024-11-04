@@ -36,6 +36,7 @@ public class NosqlRepositoryConfigurationExtension extends
         return Constants.NOSQLDB_MODULE_NAME;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public String getModulePrefix() {
         return Constants.NOSQLDB_MODULE_PREFIX;

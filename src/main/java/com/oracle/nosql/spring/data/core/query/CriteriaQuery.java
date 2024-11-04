@@ -154,7 +154,7 @@ public class CriteriaQuery extends NosqlQuery {
                     getSqlField(order.getProperty(),
                             mappingContext.getPersistentPropertyPath(
                                     order.getProperty(), entity.getType()).
-                                    getRequiredLeafProperty(),
+                                    getLeafProperty(),
                             mappingContext.getPersistentPropertyPath(
                                     order.getProperty(), entity.getType()).
                                     getBaseProperty()
