@@ -10,6 +10,7 @@ package com.oracle.nosql.spring.data.test.composite;
 import com.oracle.nosql.spring.data.core.NosqlTemplate;
 import com.oracle.nosql.spring.data.test.app.AppConfig;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -82,9 +83,9 @@ public class MachineApp {
         assertEquals(16, repo.count());
     }
 
-    @After
-    public void teardown() {
-        // do not drop table between tests
+    @AfterClass
+    public static void staticTeardown() {
+        template.dropTableIfExists(Machine.class.getSimpleName());
     }
 
     @Test
