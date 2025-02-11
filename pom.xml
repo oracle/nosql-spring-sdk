@@ -10,7 +10,7 @@
 
     <name>Oracle NoSQL Database SDK for Spring Data</name>
     <description>Oracle NoSQL Database SDK for Spring Data</description>
-    <url>https://github.com/oracle/spring-data-oracle-nosql</url>
+    <url>https://github.com/oracle/nosql-spring-sdk</url>
 
     <licenses>
         <license>
@@ -30,7 +30,7 @@
 
     <organization>
         <name>Oracle Corporation</name>
-        <url>http://www.oracle.com</url>
+        <url>https://www.oracle.com</url>
     </organization>
 
     <scm>
