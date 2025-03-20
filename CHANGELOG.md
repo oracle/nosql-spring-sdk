@@ -3,10 +3,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [2.2.0] - 2025-03-20
+### Changed
+- Update copyrights to 2025
+- Add new clearPreparedStatementsCache() method on repository classes
+- Upgrade documentation links
+- Upgrade dependencies to latest versions:
+  - NoSQL Java SDK dependency to version 5.4.17
+  - Spring Framework to version 6.2.5
+  - Spring Data to version 3.4.4
+  - Spring Boot Starter 3.4.3
+  - Project Reactor to version 3.7.4
+  - Slf4j to version 2.0.17
+
 ## [2.1.0] - 2024-09-19
 ### Changed
 - Update copyrights to 2024
-- Upgrade dependency to latest versions:
+- Upgrade dependencies to latest versions:
   - NoSQL Java SDK dependency to version 5.4.15
   - Spring Framework to version 6.1.13
   - Spring Data to version 3.3.4
