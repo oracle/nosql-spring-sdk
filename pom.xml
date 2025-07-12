@@ -49,7 +49,7 @@
 
         <spring.springframework.version>6.2.5</spring.springframework.version>
         <spring.data.version>3.4.4</spring.data.version>
-        <org.apache.commons.commons-lang3.version>3.17.0</org.apache.commons.commons-lang3.version>
+        <org.apache.commons.commons-lang3.version>3.18.0</org.apache.commons.commons-lang3.version>
         <reactor.core.version>3.7.4</reactor.core.version>
 
         <spring.boot.starter.test.version>3.4.3</spring.boot.starter.test.version>
