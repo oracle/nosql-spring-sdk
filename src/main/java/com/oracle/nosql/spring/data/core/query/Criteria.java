@@ -10,8 +10,8 @@ package com.oracle.nosql.spring.data.core.query;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.repository.query.parser.Part;
-import org.springframework.lang.NonNull;
 
 public class Criteria {
 

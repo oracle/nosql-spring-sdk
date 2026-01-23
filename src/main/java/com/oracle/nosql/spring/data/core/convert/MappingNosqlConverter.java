@@ -58,6 +58,8 @@ import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentEntity;
 import com.oracle.nosql.spring.data.core.mapping.NosqlPersistentProperty;
 import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -80,9 +82,7 @@ import org.springframework.data.mapping.model.ConvertingPropertyAccessor;
 import org.springframework.data.mapping.model.EntityInstantiator;
 import org.springframework.data.mapping.model.EntityInstantiators;
 import org.springframework.data.mapping.model.ParameterValueProvider;
-import org.springframework.data.util.TypeInformation;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.springframework.data.core.TypeInformation;
 import org.springframework.util.Assert;
 
 public class MappingNosqlConverter

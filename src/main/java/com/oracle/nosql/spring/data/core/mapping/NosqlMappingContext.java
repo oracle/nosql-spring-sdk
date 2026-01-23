@@ -10,7 +10,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.mapping.context.AbstractMappingContext;
 import org.springframework.data.mapping.model.Property;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
-import org.springframework.data.util.TypeInformation;
+import org.springframework.data.core.TypeInformation;
 
 public class NosqlMappingContext
     extends AbstractMappingContext<BasicNosqlPersistentEntity<?>,

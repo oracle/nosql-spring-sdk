@@ -6,18 +6,20 @@
  */
 package com.oracle.nosql.spring.data.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.oracle.nosql.spring.data.core.NosqlTemplate;
 import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 import com.oracle.nosql.spring.data.test.app.AppConfig;
 import com.oracle.nosql.spring.data.test.app.Customer;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = AppConfig.class)
 public class TestTemplate {
 
@@ -25,18 +27,18 @@ public class TestTemplate {
     public void testCreate()
         throws ClassNotFoundException {
         NosqlTemplate template = NosqlTemplate.create(AppConfig.nosqlDBConfig);
-        Assert.assertNotNull(template);
+        assertNotNull(template);
     }
 
     @Test
     public void testTableNameConverter()
         throws ClassNotFoundException {
         NosqlTemplate template = NosqlTemplate.create(AppConfig.nosqlDBConfig);
-        Assert.assertNotNull(template);
-        Assert.assertEquals("Customer",
+        assertNotNull(template);
+        assertEquals("Customer",
             template.getTableName(Customer.class));
 
-        Assert.assertNotNull(template.getConverter());
+        assertNotNull(template.getConverter());
     }
 
     @SuppressWarnings("unchecked")
@@ -53,7 +55,7 @@ public class TestTemplate {
         template.deleteAll(customerEntInfo);
 
         long count = template.count(customerEntInfo);
-        Assert.assertEquals(0, count);
+        assertEquals(0, count);
 
         Customer c = new Customer("Alice", "Smith", null);
         template.insert(c);
@@ -64,18 +66,18 @@ public class TestTemplate {
         long idBob = c.customerId;
 
         c = template.findById(idAlice, Customer.class);
-        Assert.assertEquals("Alice", c.firstName);
+        assertEquals("Alice", c.firstName);
 
         c = template.findById(idBob, Customer.class);
-        Assert.assertEquals("Bob", c.firstName);
+        assertEquals("Bob", c.firstName);
 
         count = template.count(customerEntInfo);
-        Assert.assertEquals(2, count);
+        assertEquals(2, count);
 
         template.deleteAll(customerEntInfo);
 
         count = template.count(customerEntInfo);
-        Assert.assertEquals(0, count);
+        assertEquals(0, count);
     }
 
     @Test

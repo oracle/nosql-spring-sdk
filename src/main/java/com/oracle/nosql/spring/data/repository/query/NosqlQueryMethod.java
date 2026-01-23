@@ -20,7 +20,7 @@ import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.core.EntityMetadata;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryMethod;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.StringUtils;
 
@@ -35,7 +35,7 @@ public class NosqlQueryMethod extends QueryMethod {
     public NosqlQueryMethod(ApplicationContext applicationContext,
         Method method, RepositoryMetadata metadata, ProjectionFactory factory) {
 
-        super(method, metadata, factory);
+        super(method, metadata, factory, null);
 
         this.method = method;
         this.applicationContext = applicationContext;

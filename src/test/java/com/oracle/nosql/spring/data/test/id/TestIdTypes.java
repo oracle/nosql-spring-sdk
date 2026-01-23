@@ -6,6 +6,11 @@
  */
 package com.oracle.nosql.spring.data.test.id;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -16,15 +21,14 @@ import java.util.List;
 
 import com.oracle.nosql.spring.data.core.NosqlTemplate;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = AppConfig.class)
 public class TestIdTypes {
 
@@ -72,7 +76,7 @@ public class TestIdTypes {
     @Autowired
     private RepoSensorIdInstant idInstantRepo;
 
-    @AfterClass
+    @AfterAll
     public static void after()
         throws ClassNotFoundException {
         NosqlTemplate template = NosqlTemplate.create(AppConfig.nosqlDBConfig);
@@ -96,11 +100,11 @@ public class TestIdTypes {
         e.time = 1;
 
         SensorIdStr r = idStrRepo.save(e);
-        Assert.assertEquals(1, idStrRepo.count());
+        assertEquals(1, idStrRepo.count());
 
-        Assert.assertEquals("key1", r.name);
-        Assert.assertEquals(100, r.temp);
-        Assert.assertEquals(1, r.time);
+        assertEquals("key1", r.name);
+        assertEquals(100, r.temp);
+        assertEquals(1, r.time);
     }
 
     @Test
@@ -110,14 +114,14 @@ public class TestIdTypes {
         e.time = 1;
 
         SensorIdStrGenerated r = idStrGeneratedRepo.save(e);
-        Assert.assertEquals(1, idStrGeneratedRepo.count());
+        assertEquals(1, idStrGeneratedRepo.count());
 
-        Assert.assertNotNull(r);
-        Assert.assertNotNull(r.id);
-        Assert.assertEquals(100, r.temp);
-        Assert.assertEquals(1, r.time);
+        assertNotNull(r);
+        assertNotNull(r.id);
+        assertEquals(100, r.temp);
+        assertEquals(1, r.time);
 
-        Assert.assertEquals(36, e.id.length());
+        assertEquals(36, e.id.length());
     }
 
     @Test
@@ -128,11 +132,11 @@ public class TestIdTypes {
         e.time = 1;
 
         SensorIdInt r = idIntRepo.save(e);
-        Assert.assertEquals(1, idIntRepo.count());
+        assertEquals(1, idIntRepo.count());
 
-        Assert.assertEquals("key1", r.name);
-        Assert.assertEquals(100, r.temp);
-        Assert.assertEquals(1, r.time);
+        assertEquals("key1", r.name);
+        assertEquals(100, r.temp);
+        assertEquals(1, r.time);
     }
 
     @Test
@@ -143,11 +147,11 @@ public class TestIdTypes {
         e.time = 1;
 
         SensorIdLong r = idLongRepo.save(e);
-        Assert.assertEquals(1, idLongRepo.count());
+        assertEquals(1, idLongRepo.count());
 
-        Assert.assertEquals("key1", r.name);
-        Assert.assertEquals(100, r.temp);
-        Assert.assertEquals(1, r.time);
+        assertEquals("key1", r.name);
+        assertEquals(100, r.temp);
+        assertEquals(1, r.time);
     }
 
     @Test
@@ -158,11 +162,11 @@ public class TestIdTypes {
         e.time = 1;
 
         SensorIdDouble r = idDoubleRepo.save(e);
-        Assert.assertEquals(1, idDoubleRepo.count());
+        assertEquals(1, idDoubleRepo.count());
 
-        Assert.assertEquals("event1", r.name);
-        Assert.assertEquals(100.1, r.temp, 0.01);
-        Assert.assertEquals(1, r.time);
+        assertEquals("event1", r.name);
+        assertEquals(100.1, r.temp, 0.01);
+        assertEquals(1, r.time);
     }
 
     @Test
@@ -173,11 +177,11 @@ public class TestIdTypes {
         e.time = 2;
 
         SensorIdFloat r = idFloatRepo.save(e);
-        Assert.assertEquals(1, idFloatRepo.count());
+        assertEquals(1, idFloatRepo.count());
 
-        Assert.assertEquals("event1", r.name);
-        Assert.assertEquals(202.22f, r.temp, 0.001);
-        Assert.assertEquals(2, r.time);
+        assertEquals("event1", r.name);
+        assertEquals(202.22f, r.temp, 0.001);
+        assertEquals(2, r.time);
     }
 
     @Test
@@ -188,11 +192,11 @@ public class TestIdTypes {
         e.time = 1;
 
         SensorIdBigInteger r = idBIRepo.save(e);
-        Assert.assertEquals(1, idBIRepo.count());
+        assertEquals(1, idBIRepo.count());
 
-        Assert.assertEquals("key1", r.name);
-        Assert.assertEquals(BigInteger.valueOf(100), r.temp);
-        Assert.assertEquals(1, r.time);
+        assertEquals("key1", r.name);
+        assertEquals(BigInteger.valueOf(100), r.temp);
+        assertEquals(1, r.time);
     }
 
     @Test
@@ -203,11 +207,11 @@ public class TestIdTypes {
         e.time = 1;
 
         SensorIdBigDecimal r = idBDRepo.save(e);
-        Assert.assertEquals(1, idBDRepo.count());
+        assertEquals(1, idBDRepo.count());
 
-        Assert.assertEquals("key1", r.name);
-        Assert.assertEquals(BigDecimal.valueOf(100.001), r.temp);
-        Assert.assertEquals(1, r.time);
+        assertEquals("key1", r.name);
+        assertEquals(BigDecimal.valueOf(100.001), r.temp);
+        assertEquals(1, r.time);
     }
 
     @Test
@@ -218,16 +222,16 @@ public class TestIdTypes {
         e.time = Date.from(Instant.parse("2020-05-11T15:31:30.01Z"));
 
         SensorIdDate r = idDateRepo.save(e);
-        Assert.assertEquals(1, idDateRepo.count());
+        assertEquals(1, idDateRepo.count());
 
-        Assert.assertEquals("key1", r.name);
-        Assert.assertEquals(100, r.temp);
-        Assert.assertEquals(Date.from(Instant.parse("2020-05-11T15:31:30.01Z")), r.time);
+        assertEquals("key1", r.name);
+        assertEquals(100, r.temp);
+        assertEquals(Date.from(Instant.parse("2020-05-11T15:31:30.01Z")), r.time);
 
         SensorIdDate read = idDateRepo.findById(e.time).get();
-        Assert.assertEquals(e.name, read.name);
-        Assert.assertEquals(e.temp, read.temp);
-        Assert.assertEquals(e.time, read.time);
+        assertEquals(e.name, read.name);
+        assertEquals(e.temp, read.temp);
+        assertEquals(e.time, read.time);
     }
 
     @Test
@@ -259,8 +263,8 @@ public class TestIdTypes {
             Date.from(Instant.parse("2020-08-13T23:59:59.9Z"))
         );
 
-        Assert.assertEquals(2, list.size());
-        Assert.assertTrue(list.containsAll(Arrays.asList(e2, e3)));
+        assertEquals(2, list.size());
+        assertTrue(list.containsAll(Arrays.asList(e2, e3)));
 
         idDateRepo.deleteAll(Arrays.asList(e1, e2, e3, e4));
     }
@@ -273,16 +277,16 @@ public class TestIdTypes {
         e.time = Timestamp.valueOf("2020-08-11 15:31:30");
 
         SensorIdTimestamp r = idTimestampRepo.save(e);
-        Assert.assertEquals(1, idTimestampRepo.count());
+        assertEquals(1, idTimestampRepo.count());
 
-        Assert.assertEquals("key1", r.name);
-        Assert.assertEquals(100, r.temp);
-        Assert.assertEquals(Timestamp.valueOf("2020-08-11 15:31:30"), r.time);
+        assertEquals("key1", r.name);
+        assertEquals(100, r.temp);
+        assertEquals(Timestamp.valueOf("2020-08-11 15:31:30"), r.time);
 
         SensorIdTimestamp read = idTimestampRepo.findById(e.time).get();
-        Assert.assertEquals(e.name, read.name);
-        Assert.assertEquals(e.temp, read.temp);
-        Assert.assertEquals(e.time, read.time);
+        assertEquals(e.name, read.name);
+        assertEquals(e.temp, read.temp);
+        assertEquals(e.time, read.time);
     }
 
     @Test
@@ -293,16 +297,16 @@ public class TestIdTypes {
         e.time = Instant.parse("2020-08-11T15:31:30.01Z");
 
         SensorIdInstant r = idInstantRepo.save(e);
-        Assert.assertEquals(1, idInstantRepo.count());
+        assertEquals(1, idInstantRepo.count());
 
-        Assert.assertEquals("key1", r.name);
-        Assert.assertEquals(100, r.temp);
-        Assert.assertEquals(Instant.parse("2020-08-11T15:31:30.01Z"), r.time);
+        assertEquals("key1", r.name);
+        assertEquals(100, r.temp);
+        assertEquals(Instant.parse("2020-08-11T15:31:30.01Z"), r.time);
 
         SensorIdInstant read = idInstantRepo.findById(e.time).get();
-        Assert.assertEquals(e.name, read.name);
-        Assert.assertEquals(e.temp, read.temp);
-        Assert.assertEquals(e.time, read.time);
+        assertEquals(e.name, read.name);
+        assertEquals(e.temp, read.temp);
+        assertEquals(e.time, read.time);
     }
 
     /** Tests save(entity) with and without id on an entity without generated id */
@@ -310,13 +314,13 @@ public class TestIdTypes {
     public void testUpdate() {
         SensorIdInt s = new SensorIdInt();
         try {
-            Assert.assertEquals(0, s.temp);
+            assertEquals(0, s.temp);
             SensorIdInt saved = idIntRepo.save(s);
             // Since SensorIdInt entity doesn't have an autogenerated field
             // it will be saved.
-            Assert.assertEquals(0, saved.temp);
+            assertEquals(0, saved.temp);
         } catch (IllegalArgumentException iae) {
-            Assert.fail("Failed to throw IllegalArgumentException");
+            fail("Failed to throw IllegalArgumentException");
         }
 
         s.temp = 100;
@@ -325,29 +329,29 @@ public class TestIdTypes {
 
         SensorIdInt s2 = idIntRepo.save(s);
 
-        Assert.assertEquals(s.temp, s2.temp);
-        Assert.assertEquals(s.name, s2.name);
-        Assert.assertEquals(s.time, s2.time);
+        assertEquals(s.temp, s2.temp);
+        assertEquals(s.name, s2.name);
+        assertEquals(s.time, s2.time);
 
-        Assert.assertEquals(s.temp, 100);
-        Assert.assertEquals(s.name, "Boiling Sensor");
-        Assert.assertEquals(s.time, 1);
+        assertEquals(s.temp, 100);
+        assertEquals(s.name, "Boiling Sensor");
+        assertEquals(s.time, 1);
 
         s.name = "Temperature Sensor";
         s2 = idIntRepo.save(s);
 
-        Assert.assertEquals(s.temp, s2.temp);
-        Assert.assertEquals(s.name, s2.name);
-        Assert.assertEquals(s.time, s2.time);
+        assertEquals(s.temp, s2.temp);
+        assertEquals(s.name, s2.name);
+        assertEquals(s.time, s2.time);
 
-        Assert.assertEquals(s.temp, 100);
-        Assert.assertEquals(s.name, "Temperature Sensor");
-        Assert.assertEquals(s.time, 1);
+        assertEquals(s.temp, 100);
+        assertEquals(s.name, "Temperature Sensor");
+        assertEquals(s.time, 1);
 
         s2 = idIntRepo.findById(100).get();
 
-        Assert.assertEquals(s2.temp, 100);
-        Assert.assertEquals(s2.name, "Temperature Sensor");
-        Assert.assertEquals(s2.time, 1);
+        assertEquals(s2.temp, 100);
+        assertEquals(s2.name, "Temperature Sensor");
+        assertEquals(s2.time, 1);
     }
 }

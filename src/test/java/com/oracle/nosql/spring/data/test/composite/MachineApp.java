@@ -9,19 +9,19 @@ package com.oracle.nosql.spring.data.test.composite;
 
 import com.oracle.nosql.spring.data.core.NosqlTemplate;
 import com.oracle.nosql.spring.data.test.app.AppConfig;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,12 +30,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertNull;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = AppConfig.class)
 public class MachineApp {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -46,7 +46,7 @@ public class MachineApp {
 
     private static NosqlTemplate template;
 
-    @BeforeClass
+    @BeforeAll
     public static void staticSetup() throws ClassNotFoundException {
         template = NosqlTemplate.create(AppConfig.nosqlDBConfig);
         template.dropTableIfExists(Machine.class.getSimpleName());
@@ -54,7 +54,7 @@ public class MachineApp {
             getNosqlEntityInformation(Machine.class));
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         repo.clearPreparedStatementsCache();
         repo.deleteAll();
@@ -83,7 +83,7 @@ public class MachineApp {
         assertEquals(16, repo.count());
     }
 
-    @AfterClass
+    @AfterAll
     public static void staticTeardown() {
         template.dropTableIfExists(Machine.class.getSimpleName());
     }

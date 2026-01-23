@@ -9,17 +9,15 @@ package com.oracle.nosql.spring.data.test.composite;
 import com.oracle.nosql.spring.data.core.NosqlTemplate;
 import com.oracle.nosql.spring.data.test.app.AppConfig;
 import com.oracle.nosql.spring.data.test.reactive.ReactiveAppConfig;
-import junit.framework.TestCase;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -29,11 +27,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = ReactiveAppConfig.class)
 
 public class ReactiveMachineApp {
@@ -44,7 +42,7 @@ public class ReactiveMachineApp {
 
     private static NosqlTemplate template;
 
-    @BeforeClass
+    @BeforeAll
     public static void staticSetup() throws ClassNotFoundException {
         template = NosqlTemplate.create(AppConfig.nosqlDBConfig);
         template.dropTableIfExists(Machine.class.getSimpleName());
@@ -52,7 +50,7 @@ public class ReactiveMachineApp {
             getNosqlEntityInformation(Machine.class));
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         repo.clearPreparedStatementsCache();
         repo.deleteAll();
@@ -79,7 +77,7 @@ public class ReactiveMachineApp {
         StepVerifier.create(repo.count()).expectNext(Long.valueOf(16)).verifyComplete();
     }
 
-    @AfterClass
+    @AfterAll
     public static void staticTeardown() {
         template.dropTableIfExists(Machine.class.getSimpleName());
     }
@@ -118,18 +116,18 @@ public class ReactiveMachineApp {
         //find all machines with machineId.version=1
         List<Machine> machines =
                 repo.findByMachineIdVersion("version1").collectList().block();
-        TestCase.assertEquals(4, machines.size());
-        machines.forEach(m -> TestCase.assertEquals(machineCache.get(m.getMachineId()), m));
+        assertEquals(4, machines.size());
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId()), m));
 
         //find all machines with machineID.name=name3
         machines = repo.findByMachineIdName("name3").collectList().block();
-        TestCase.assertEquals(4, machines.size());
-        machines.forEach(m -> TestCase.assertEquals(machineCache.get(m.getMachineId()), m));
+        assertEquals(4, machines.size());
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId()), m));
 
         //find all rows located in london
         machines = repo.findByLocation("london").collectList().block();
-        TestCase.assertEquals(8, machines.size());
-        machines.forEach(m -> TestCase.assertEquals(machineCache.get(m.getMachineId()), m));
+        assertEquals(8, machines.size());
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId()), m));
     }
 
     @Test
@@ -138,24 +136,24 @@ public class ReactiveMachineApp {
         List<Machine> machines = repo.findByMachineIdNameAndMachineIdVersion(
                 "name1",
                 "version1").collectList().block();
-        TestCase.assertEquals(1, machines.size());
-        machines.forEach(m -> TestCase.assertEquals(machineCache.get(m.getMachineId())
+        assertEquals(1, machines.size());
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId())
                 , m));
 
         //find all machines name=name1 or version=1
         machines = repo.findByMachineIdNameOrMachineIdVersion(
                 "name1",
                 "version1").collectList().block();
-        TestCase.assertEquals(7, machines.size());
-        machines.forEach(m -> TestCase.assertEquals(machineCache.get(m.getMachineId())
+        assertEquals(7, machines.size());
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId())
                 , m));
 
         //find all machines name=name1 and location=london
         machines = repo.findByMachineIdNameAndLocation(
                 "name1",
                 "newyork").collectList().block();
-        TestCase.assertEquals(4, machines.size());
-        machines.forEach(m -> TestCase.assertEquals(machineCache.get(m.getMachineId())
+        assertEquals(4, machines.size());
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId())
                 , m));
     }
 
@@ -165,8 +163,8 @@ public class ReactiveMachineApp {
         List<Machine> machines = repo.
                 findByMachineIdVersionOrderByMachineIdNameAsc("version1").
                 collectList().block();
-        TestCase.assertEquals(4, machines.size());
-        machines.forEach(m -> TestCase.assertEquals(machineCache.get(m.getMachineId()), m));
+        assertEquals(4, machines.size());
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId()), m));
         //check sort by name is correct
         String prev = "";
         for (Machine m : machines) {
@@ -174,7 +172,7 @@ public class ReactiveMachineApp {
             assertTrue(cur.compareTo(prev) >= 0);
             prev = cur;
         }
-        machines.forEach(m -> TestCase.assertEquals(machineCache.get(m.getMachineId()), m));
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId()), m));
 
 
         machines = repo.findAll(Sort.by("machineId.name", "machineId" +
@@ -188,7 +186,7 @@ public class ReactiveMachineApp {
 
         List<String> actualNames = new ArrayList<>();
         machines.forEach(m -> actualNames.add(m.getMachineId().getName()));
-        TestCase.assertEquals(expectedNames, actualNames);
+        assertEquals(expectedNames, actualNames);
     }
 
     @Test
@@ -196,8 +194,8 @@ public class ReactiveMachineApp {
         //ignore case
         List<Machine> machines = repo.
                 findByMachineIdNameIgnoreCase("NaMe1").collectList().block();
-        TestCase.assertEquals(4, machines.size());
-        machines.forEach(m -> TestCase.assertEquals(machineCache.get(m.getMachineId())
+        assertEquals(4, machines.size());
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId())
                 , m));
     }
 
@@ -205,15 +203,15 @@ public class ReactiveMachineApp {
     public void testNative() {
         List<Machine> machines = repo.
                 findAllByLocationNative().collectList().block();
-        TestCase.assertEquals(8, machines.size());
+        assertEquals(8, machines.size());
         machines.forEach(m -> {
-            TestCase.assertNotNull(m.getMachineId());
-            TestCase.assertNotNull(m.getMachineId().getName());
-            TestCase.assertNotNull(m.getMachineId().getVersion());
+            assertNotNull(m.getMachineId());
+            assertNotNull(m.getMachineId().getName());
+            assertNotNull(m.getMachineId().getVersion());
         });
 
         machines = repo.findByMachineIdNameNative("name3").collectList().block();
-        TestCase.assertEquals(4, machines.size());
-        machines.forEach(m -> TestCase.assertEquals(machineCache.get(m.getMachineId()), m));
+        assertEquals(4, machines.size());
+        machines.forEach(m -> assertEquals(machineCache.get(m.getMachineId()), m));
     }
 }

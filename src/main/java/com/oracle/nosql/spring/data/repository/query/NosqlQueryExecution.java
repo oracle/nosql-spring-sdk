@@ -20,7 +20,7 @@ import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 public interface NosqlQueryExecution {
 

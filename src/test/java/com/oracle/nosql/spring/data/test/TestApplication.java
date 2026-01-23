@@ -6,6 +6,8 @@
  */
 package com.oracle.nosql.spring.data.test;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -31,18 +33,18 @@ import com.oracle.nosql.spring.data.test.app.AppConfig;
 import com.oracle.nosql.spring.data.test.app.Customer;
 import com.oracle.nosql.spring.data.test.app.CustomerRepository;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = AppConfig.class)
 public class TestApplication {
 
@@ -86,9 +88,9 @@ public class TestApplication {
         // fetch all customers
         for (Customer customer : repo.findAll()) {
             if (customer.customerId == c1.customerId) {
-                Assert.assertEquals(c1, customer);
+                assertEquals(c1, customer);
             } else if (customer.customerId == c2.customerId){
-                Assert.assertEquals(c2, customer);
+                assertEquals(c2, customer);
             }
         }
     }
@@ -110,9 +112,9 @@ public class TestApplication {
         // fetch all customers
         for (Customer customer : repo.findAll()) {
             if (customer.customerId == c1.customerId) {
-                Assert.assertEquals(c1, customer);
+                assertEquals(c1, customer);
             } else if (customer.customerId == c2.customerId){
-                Assert.assertEquals(c2, customer);
+                assertEquals(c2, customer);
             }
         }
     }
@@ -134,9 +136,9 @@ public class TestApplication {
         // fetch all customers
         for (Customer customer : repo.findAll()) {
             if (customer.customerId == c1.customerId) {
-                Assert.assertEquals(c1, customer);
+                assertEquals(c1, customer);
             } else if (customer.customerId == c2.customerId) {
-                Assert.assertEquals(c2, customer);
+                assertEquals(c2, customer);
             }
         }
     }
@@ -182,9 +184,9 @@ public class TestApplication {
         // fetch all customers
         for (Customer customer : repo.findAll()) {
             if (customer.customerId == c1.customerId) {
-                Assert.assertEquals(c1, customer);
+                assertEquals(c1, customer);
             } else if (customer.customerId == c2.customerId){
-                Assert.assertEquals(c2, customer);
+                assertEquals(c2, customer);
             }
         }
     }
@@ -239,26 +241,26 @@ public class TestApplication {
         // fetch all customers
         for (Customer customer : repo.findAll()) {
             if (customer.customerId == c1.customerId) {
-                Assert.assertEquals(c1, customer);
+                assertEquals(c1, customer);
             } else if (customer.customerId == c2.customerId){
-                Assert.assertEquals(c2, customer);
+                assertEquals(c2, customer);
             }
         }
 
-        Assert.assertTrue(repo.findById(c1.customerId).isPresent() &&
+        assertTrue(repo.findById(c1.customerId).isPresent() &&
             c1.customerId == repo.findById(c1.customerId).get().customerId);
-        Assert.assertTrue(repo.findById(c2.customerId).isPresent() &&
+        assertTrue(repo.findById(c2.customerId).isPresent() &&
             c2.customerId == repo.findById(c2.customerId).get().customerId);
 
         repo.deleteById(c1.customerId);
 
-        Assert.assertFalse(repo.existsById(c1.customerId));
-        Assert.assertTrue(repo.existsById(c2.customerId));
+        assertFalse(repo.existsById(c1.customerId));
+        assertTrue(repo.existsById(c2.customerId));
 
         repo.delete(c2);
 
-        Assert.assertFalse(repo.existsById(c1.customerId));
-        Assert.assertFalse(repo.existsById(c2.customerId));
+        assertFalse(repo.existsById(c1.customerId));
+        assertFalse(repo.existsById(c2.customerId));
 
         List<Customer> clist = new ArrayList<>();
         int max = 10;
@@ -271,7 +273,7 @@ public class TestApplication {
 
         long count = StreamSupport.stream(repo.findAll().spliterator(),
             false).count();
-        Assert.assertEquals(max, count);
+        assertEquals(max, count);
 
 
         // Pageable
@@ -279,15 +281,15 @@ public class TestApplication {
             "customerId"));
         Page<Customer> p1 = repo.findAll(firstPageWithTwoElements);
 
-        Assert.assertEquals(max / 2, p1.getTotalPages());
-        Assert.assertEquals(max, p1.getTotalElements());
+        assertEquals(max / 2, p1.getTotalPages());
+        assertEquals(max, p1.getTotalElements());
 
         Pageable secondPageWithFiveElements = PageRequest.of(1, 5,
             Sort.Direction.DESC, "customerId");
         Page<Customer> p2 = repo.findAll(secondPageWithFiveElements);
 
-        Assert.assertEquals(max / 5, p2.getTotalPages());
-        Assert.assertEquals(max, p2.getTotalElements());
+        assertEquals(max / 5, p2.getTotalPages());
+        assertEquals(max, p2.getTotalElements());
 
 
         // Sort
@@ -296,7 +298,7 @@ public class TestApplication {
         for ( Customer ignored : sorted) {
             i++;
         }
-        Assert.assertEquals(max, i);
+        assertEquals(max, i);
 
 
         List<Customer> toFind = clist.stream()
@@ -311,22 +313,22 @@ public class TestApplication {
             repo.findAllById(toFindCustIds).spliterator(),
             false)
             .map( cust -> {
-                Assert.assertTrue(toFindCustIds.contains(cust.customerId));
+                assertTrue(toFindCustIds.contains(cust.customerId));
                 return cust;
             })
             .count();
 
-        Assert.assertEquals(toFindCustIds.size(), count);
+        assertEquals(toFindCustIds.size(), count);
 
         // check null throws IllegalArgumentException
-        Assert.assertThrows(IllegalArgumentException.class,
+        assertThrows(IllegalArgumentException.class,
             () -> repo.findById(null));
 
-        Assert.assertThrows(IllegalArgumentException.class,
+        assertThrows(IllegalArgumentException.class,
             () -> repo.findAllById(null));
 
         List<Long> toDelIds = Arrays.asList(c1.customerId, null, c2.customerId);
-        Assert.assertThrows(IllegalArgumentException.class,
+        assertThrows(IllegalArgumentException.class,
             () -> {
                 // must read to get the exception
                 for (Customer ignored : repo.findAllById(toDelIds)) {
@@ -338,13 +340,13 @@ public class TestApplication {
 
         repo.setTimeout(30000);
         count = repo.count();
-        Assert.assertEquals(max - toFind.size(), count);
+        assertEquals(max - toFind.size(), count);
 
         repo.deleteAll();
 
         // count()
         count = repo.count();
-        Assert.assertEquals(0, count);
+        assertEquals(0, count);
     }
 
     @Test
@@ -362,10 +364,10 @@ public class TestApplication {
         nosqlOps.insert(c);
         long idBob = c.customerId;
         c = nosqlOps.findById(idAlice, Customer.class);
-        Assert.assertEquals("Alice", c.firstName);
+        assertEquals("Alice", c.firstName);
 
         c = nosqlOps.findById(idBob, Customer.class);
-        Assert.assertEquals("Bob", c.firstName);
+        assertEquals("Bob", c.firstName);
     }
 
     /** Tests save(entity) with and without id on an entity with generated id */
@@ -373,11 +375,11 @@ public class TestApplication {
     public void testUpdate() {
         Customer c1 = new Customer("Nosql Alice", "Smith", null);
 
-        Assert.assertEquals(0, c1.customerId);
+        assertEquals(0, c1.customerId);
         repo.save(c1);
         long id = c1.customerId;
 
-        Assert.assertNotEquals(0, c1.customerId);
+        assertNotEquals(0, c1.customerId);
 
         c1.firstName = "Updated Alice";
         c1.lastName = "Cooper";
@@ -385,20 +387,20 @@ public class TestApplication {
         // tests save of
         repo.save(c1);
 
-        Assert.assertEquals(id, c1.customerId);
-        Assert.assertEquals("Updated Alice", c1.firstName);
-        Assert.assertEquals("Cooper", c1.lastName);
+        assertEquals(id, c1.customerId);
+        assertEquals("Updated Alice", c1.firstName);
+        assertEquals("Cooper", c1.lastName);
 
         Customer alice = repo.findById(id).get();
-        Assert.assertEquals("Updated Alice", alice.firstName);
-        Assert.assertEquals("Cooper", alice.lastName);
+        assertEquals("Updated Alice", alice.firstName);
+        assertEquals("Cooper", alice.lastName);
     }
 
     @Test
     public void testDeleteAll() {
         repo.deleteAll();
 
-        Assert.assertEquals(0, repo.count());
+        assertEquals(0, repo.count());
 
         Customer c1 = new Customer("Nosql Alice", "Smith", null);
         repo.save(c1);
@@ -407,74 +409,80 @@ public class TestApplication {
         Customer c2 = new Customer("Nosql Bob", "Smith", null);
         repo.save(c2);
 
-        Assert.assertEquals(2, repo.count());
+        assertEquals(2, repo.count());
 
         List<Customer> customers = new ArrayList<>();
         customers.add(c1);
         customers.add(c1);
 
         repo.deleteAll(customers);
-        Assert.assertEquals(1, repo.count());
+        assertEquals(1, repo.count());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testDeleteAllNull() {
-        List<Customer> customers = new ArrayList<>();
-        customers.add(null);
-        repo.deleteAll(customers);
+        assertThrows(IllegalArgumentException.class, () -> {
+            List<Customer> customers = new ArrayList<>();
+            customers.add(null);
+            repo.deleteAll(customers);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testFindAllNullItem() {
-        List<Long> ids = new ArrayList<>();
-        ids.add(null);
-        repo.findAllById(ids).iterator().next();
+        assertThrows(IllegalArgumentException.class, () -> {
+            List<Long> ids = new ArrayList<>();
+            ids.add(null);
+            repo.findAllById(ids).iterator().next();
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testFindAllNull() {
-        repo.findAllById(null);
+        assertThrows(IllegalArgumentException.class, () -> {
+            repo.findAllById(null);
+        });
     }
 
     @Test
     public void testDefaultValues() {
         NosqlDbFactory factory = NosqlDbFactory.createCloudSimFactory("foo");
-        Assert.assertEquals(NosqlCapacityMode.PROVISIONED,
+        assertEquals(NosqlCapacityMode.PROVISIONED,
             factory.getDefaultCapacityMode());
-        Assert.assertEquals(25, factory.getDefaultStorageGB());
-        Assert.assertEquals(50, factory.getDefaultReadUnits());
-        Assert.assertEquals(50, factory.getDefaultWriteUnits());
+        assertEquals(25, factory.getDefaultStorageGB());
+        assertEquals(50, factory.getDefaultReadUnits());
+        assertEquals(50, factory.getDefaultWriteUnits());
 
 
         // Test AppConfig file settings
-        Assert.assertEquals(NosqlCapacityMode.PROVISIONED,
+        assertEquals(NosqlCapacityMode.PROVISIONED,
             AppConfig.nosqlDBConfig.getDefaultCapacityMode());
-        Assert.assertEquals(2,
+        assertEquals(2,
             AppConfig.nosqlDBConfig.getDefaultStorageGB());
-        Assert.assertEquals(3,
+        assertEquals(3,
             AppConfig.nosqlDBConfig.getDefaultReadUnits());
-        Assert.assertEquals(4,
+        assertEquals(4,
             AppConfig.nosqlDBConfig.getDefaultWriteUnits());
     }
 
     @Test
     public void testConsistencyDurability() {
-        Assert.assertEquals("EVENTUAL", repo.getConsistency());
+        assertEquals("EVENTUAL", repo.getConsistency());
         repo.setConsistency("ABSOLUTE");
-        Assert.assertEquals("ABSOLUTE", repo.getConsistency());
+        assertEquals("ABSOLUTE", repo.getConsistency());
 
-        Assert.assertEquals("COMMIT_NO_SYNC", repo.getDurability());
+        assertEquals("COMMIT_NO_SYNC", repo.getDurability());
         repo.setDurability("COMMIT_WRITE_NO_SYNC");
-        Assert.assertEquals("COMMIT_WRITE_NO_SYNC",
+        assertEquals("COMMIT_WRITE_NO_SYNC",
             repo.getDurability());
 
         //null durability
         repo.setDurability(null);
-        Assert.assertEquals("COMMIT_NO_SYNC", repo.getDurability());
+        assertEquals("COMMIT_NO_SYNC", repo.getDurability());
 
         //invalid durability
         repo.setDurability("INVALID");
-        Assert.assertEquals("COMMIT_NO_SYNC", repo.getDurability());
+        assertEquals("COMMIT_NO_SYNC", repo.getDurability());
     }
 
     @SuppressWarnings("unchecked")
@@ -570,51 +578,51 @@ public class TestApplication {
         long c2Id = c2.customerId;
 
         Optional<Customer> optC1Db = repo.findById(c1Id);
-        Assert.assertTrue(optC1Db.isPresent());
+        assertTrue(optC1Db.isPresent());
         Customer c1Db = optC1Db.get();
-        Assert.assertEquals(c1.customerId, c1Db.customerId);
-        Assert.assertEquals(c1.firstName, c1Db.firstName);
-        Assert.assertEquals(c1.mapField, c1Db.mapField);
-        Assert.assertEquals(c1.enumMap, c1Db.enumMap);
-        Assert.assertEquals(c1.classicMap, c1Db.classicMap);
-        Assert.assertEquals(c1.arraysMap, c1Db.arraysMap);
-        Assert.assertEquals(c1.navigableMap, c1Db.navigableMap);
-        Assert.assertEquals(c1.sortedMap, c1Db.sortedMap);
-        Assert.assertEquals(c1.hashMap, c1Db.hashMap);
-        Assert.assertEquals(c1.linkedHashMap, c1Db.linkedHashMap);
-        Assert.assertEquals(c1.treeMap, c1Db.treeMap);
-        Assert.assertEquals(c1.hashtable, c1Db.hashtable);
+        assertEquals(c1.customerId, c1Db.customerId);
+        assertEquals(c1.firstName, c1Db.firstName);
+        assertEquals(c1.mapField, c1Db.mapField);
+        assertEquals(c1.enumMap, c1Db.enumMap);
+        assertEquals(c1.classicMap, c1Db.classicMap);
+        assertEquals(c1.arraysMap, c1Db.arraysMap);
+        assertEquals(c1.navigableMap, c1Db.navigableMap);
+        assertEquals(c1.sortedMap, c1Db.sortedMap);
+        assertEquals(c1.hashMap, c1Db.hashMap);
+        assertEquals(c1.linkedHashMap, c1Db.linkedHashMap);
+        assertEquals(c1.treeMap, c1Db.treeMap);
+        assertEquals(c1.hashtable, c1Db.hashtable);
 
         Optional<Customer> optC2Db = repo.findById(c2Id);
-        Assert.assertTrue(optC2Db.isPresent());
+        assertTrue(optC2Db.isPresent());
         Customer c2Db = optC2Db.get();
-        Assert.assertEquals(c2.customerId, c2Db.customerId);
-        Assert.assertEquals(c2.firstName, c2Db.firstName);
-        Assert.assertEquals(c2.mapField, c2Db.mapField);
-        Assert.assertTrue("enumMaps should be equal - exp: " + c2.enumMap +
-            "   - act: " + c2Db.enumMap,
-            Customer.mapEquals(c2.enumMap, c2Db.enumMap));
-        Assert.assertTrue("classicMap should be equal equal exp: " +
-            c2.classicMap + " act: " + c2Db.classicMap,
-            Customer.mapEquals(c2.classicMap, c2Db.classicMap));
-        Assert.assertArrayEquals("arraysMap[123] should be equal",
-            c2.arraysMap.get("123"), c2Db.arraysMap.get("123"));
-        Assert.assertTrue("arraysMap should be equal equal exp: " +
-                c2.arraysMap + " act: " + c2Db.arraysMap,
-            Customer.mapEquals(c2.arraysMap, c2Db.arraysMap));
+        assertEquals(c2.customerId, c2Db.customerId);
+        assertEquals(c2.firstName, c2Db.firstName);
+        assertEquals(c2.mapField, c2Db.mapField);
+        assertTrue(Customer.mapEquals(c2.enumMap, c2Db.enumMap),
+            "enumMaps should be equal - exp: " + c2.enumMap +
+            "   - act: " + c2Db.enumMap);
+        assertTrue(Customer.mapEquals(c2.classicMap, c2Db.classicMap),
+            "classicMap should be equal equal exp: " +
+            c2.classicMap + " act: " + c2Db.classicMap);
+        assertArrayEquals(c2.arraysMap.get("123"), c2Db.arraysMap.get("123"),
+            "arraysMap[123] should be equal");
+        assertTrue(Customer.mapEquals(c2.arraysMap, c2Db.arraysMap),
+            "arraysMap should be equal equal exp: " +
+                c2.arraysMap + " act: " + c2Db.arraysMap);
 
-        Assert.assertEquals("navigableMap NOT equal",
-            c2.navigableMap, c2Db.navigableMap);
-        Assert.assertEquals("sortedMap NOT equal",
-            c2.sortedMap, c2Db.sortedMap);
-        Assert.assertEquals("hashMap NOT equal",
-            "" + c2.hashMap, "" + c2Db.hashMap);
-        Assert.assertEquals("linkedHashMap NOT equal",
-            "" + c2.linkedHashMap, "" + c2Db.linkedHashMap);
-        Assert.assertEquals("treeMap NOT equal",
-            "" + c2.treeMap, "" + c2Db.treeMap);
-        Assert.assertEquals("hashtable NOT equal",
-            "" + c2.hashtable, "" + c2Db.hashtable);
+        assertEquals(c2.navigableMap, c2Db.navigableMap,
+            "navigableMap NOT equal");
+        assertEquals(c2.sortedMap, c2Db.sortedMap,
+            "sortedMap NOT equal");
+        assertEquals("" + c2.hashMap, "" + c2Db.hashMap,
+            "hashMap NOT equal");
+        assertEquals("" + c2.linkedHashMap, "" + c2Db.linkedHashMap,
+            "linkedHashMap NOT equal");
+        assertEquals("" + c2.treeMap, "" + c2Db.treeMap,
+            "treeMap NOT equal");
+        assertEquals("" + c2.hashtable, "" + c2Db.hashtable,
+            "hashtable NOT equal");
 
 //        printWithTypes("enumMap", c2Db.enumMap);
 //        printWithTypes("classicMap", c2Db.classicMap);
@@ -626,8 +634,7 @@ public class TestApplication {
 //        printWithTypes("tree", c2Db.treeMap);
 //        printWithTypes("hashtable", c2Db.hashtable);
 
-        Assert.assertTrue("\nExp: " + c2 +
-            "\nAct: " + c2Db, c2.equals(c2Db));
+        assertTrue(c2.equals(c2Db), "\nExp: " + c2 + "\nAct: " + c2Db);
 
         // Check errors when keys are null or other types
         c2.classicMap.put(null, "value for null key");
@@ -649,9 +656,9 @@ public class TestApplication {
     private void checkError(Customer c2, String msg) {
         try {
             repo.save(c2);
-            Assert.fail("repo.save didn't throw expected error: " + msg);
+            fail("repo.save didn't throw expected error: " + msg);
         } catch (IllegalArgumentException e) {
-            Assert.assertEquals(msg, e.getMessage());
+            assertEquals(msg, e.getMessage());
         }
     }
 
@@ -662,7 +669,7 @@ public class TestApplication {
         }
 
         System.out.println("map: " + name + ":  " + map.getClass());
-        for (Map.Entry<?,?> entry : map.entrySet()) {
+        for (Map.Entry<?, ?> entry : map.entrySet()) {
             System.out.println("  - k: " +
                 (entry.getKey() == null ? "null" : entry.getKey().getClass()) +
                 " = " + entry.getKey());
@@ -684,7 +691,7 @@ public class TestApplication {
 
         // Use query, which will cache the prepared statement
         List<Customer> customerList = repo.findByLastName("Smith");
-        Assert.assertEquals(0, customerList.size());
+        assertEquals(0, customerList.size());
 
         // Drop table
         NosqlTemplate template = NosqlTemplate.create(AppConfig.nosqlDBConfig);
@@ -694,10 +701,10 @@ public class TestApplication {
 
         try {
             customerList = repo.findByLastName("Smith");
-            Assert.assertEquals(0, customerList.size());
-            Assert.fail("Should throw a 'Table not found' exception");
+            assertEquals(0, customerList.size());
+            fail("Should throw a 'Table not found' exception");
         } catch (Exception e) {
-            Assert.assertTrue(
+            assertTrue(
                 e.getCause().getMessage().contains("Table not found"));
         }
 
@@ -706,6 +713,6 @@ public class TestApplication {
         template.createTableIfNotExists(customerEntInfo);
 
         customerList = repo.findByLastName("Smith");
-        Assert.assertEquals(0, customerList.size());
+        assertEquals(0, customerList.size());
     }
 }

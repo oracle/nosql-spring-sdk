@@ -22,7 +22,7 @@ import org.springframework.data.repository.query.ReturnedType;
 import org.springframework.data.repository.query.parser.AbstractQueryCreator;
 import org.springframework.data.repository.query.parser.Part;
 import org.springframework.data.repository.query.parser.PartTree;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 
 public class NosqlQueryCreator  extends

@@ -12,7 +12,7 @@ import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 
 import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.repository.query.ResultProcessor;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public abstract class AbstractNosqlQuery implements RepositoryQuery {
 

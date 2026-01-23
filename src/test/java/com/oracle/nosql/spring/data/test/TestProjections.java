@@ -7,6 +7,9 @@
 package com.oracle.nosql.spring.data.test;
 
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
@@ -23,17 +26,17 @@ import com.oracle.nosql.spring.data.test.app.CustomerRepository;
 import com.oracle.nosql.spring.data.test.app.CustomerView;
 import com.oracle.nosql.spring.data.test.app.CustomerViewWithId;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.geo.Point;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = AppConfig.class)
 public class TestProjections {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -85,7 +88,7 @@ public class TestProjections {
         c = new Customer[]{c1, c2, c3, c4, c5, c6, c7};
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         nosqlRepo.deleteAll();
         c1.customerId = c2.customerId = c3.customerId =
@@ -93,7 +96,7 @@ public class TestProjections {
         nosqlRepo.saveAll(Arrays.asList(c));
     }
 
-    @After
+    @AfterEach
     public void after() {
         nosqlRepo.deleteAll();
     }
@@ -104,8 +107,8 @@ public class TestProjections {
     public void testCustomerProjectionView() {
         List<CustomerView> smiths = nosqlRepo.findAllByLastName("Smith");
 
-        Assert.assertEquals(3, smiths.size());
-        Assert.assertTrue(smiths.stream()
+        assertEquals(3, smiths.size());
+        assertTrue(smiths.stream()
             .allMatch( cv -> "Smith".equals(cv.getLastName())));
     }
 
@@ -113,8 +116,8 @@ public class TestProjections {
     public void testCustomerProjection() {
         List<CustomerProjection> smiths = nosqlRepo.getAllByLastName("Smith");
 
-        Assert.assertEquals(3, smiths.size());
-        Assert.assertTrue(smiths.stream()
+        assertEquals(3, smiths.size());
+        assertTrue(smiths.stream()
             .allMatch( cv -> "Smith".equals(cv.getLastName())));
     }
 
@@ -123,8 +126,8 @@ public class TestProjections {
         List<CustomerView> smiths =
             nosqlRepo.findAllDistinctByLastName("Smith");
 
-        Assert.assertEquals(1, smiths.size());
-        Assert.assertTrue(smiths.stream()
+        assertEquals(1, smiths.size());
+        assertTrue(smiths.stream()
             .allMatch( cv -> "Smith".equals(cv.getLastName())));
     }
 
@@ -133,8 +136,8 @@ public class TestProjections {
         List<CustomerProjection> smiths =
             nosqlRepo.getAllDistinctByLastName("Smith");
 
-        Assert.assertEquals(2, smiths.size());
-        Assert.assertTrue(smiths.stream()
+        assertEquals(2, smiths.size());
+        assertTrue(smiths.stream()
             .allMatch( cv -> "Smith".equals(cv.getLastName())));
     }
 
@@ -143,8 +146,8 @@ public class TestProjections {
     public void testCustomerProjectionViewId() {
         List<CustomerViewWithId> smiths = nosqlRepo.queryByLastName("Smith");
 
-        Assert.assertEquals(3, smiths.size());
-        Assert.assertTrue(smiths.stream()
+        assertEquals(3, smiths.size());
+        assertTrue(smiths.stream()
             .allMatch( cv -> "Smith".equals(cv.getLastName())));
     }
 
@@ -152,8 +155,8 @@ public class TestProjections {
     public void testCustomerProjectionId() {
         List<CustomerProjectionWithId> smiths = nosqlRepo.readByLastName("Smith");
 
-        Assert.assertEquals(3, smiths.size());
-        Assert.assertTrue(smiths.stream()
+        assertEquals(3, smiths.size());
+        assertTrue(smiths.stream()
             .allMatch( cv -> "Smith".equals(cv.getLastName())));
     }
 
@@ -162,8 +165,8 @@ public class TestProjections {
         List<CustomerViewWithId> smiths =
             nosqlRepo.getDistinctByLastName("Smith");
 
-        Assert.assertEquals(3, smiths.size());
-        Assert.assertTrue(smiths.stream()
+        assertEquals(3, smiths.size());
+        assertTrue(smiths.stream()
             .allMatch( cv -> "Smith".equals(cv.getLastName())));
     }
 
@@ -172,8 +175,8 @@ public class TestProjections {
         List<CustomerProjectionWithId> smiths =
             nosqlRepo.queryDistinctByLastName("Smith");
 
-        Assert.assertEquals(3, smiths.size());
-        Assert.assertTrue(smiths.stream()
+        assertEquals(3, smiths.size());
+        assertTrue(smiths.stream()
             .allMatch( cv -> "Smith".equals(cv.getLastName())));
     }
 }

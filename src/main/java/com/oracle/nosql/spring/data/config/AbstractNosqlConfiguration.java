@@ -13,7 +13,7 @@ import com.oracle.nosql.spring.data.core.convert.MappingNosqlConverter;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 @Configuration
 public class AbstractNosqlConfiguration extends

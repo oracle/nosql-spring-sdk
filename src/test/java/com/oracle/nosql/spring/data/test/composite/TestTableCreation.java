@@ -16,27 +16,27 @@ import com.oracle.nosql.spring.data.test.app.AppConfig;
 import oracle.nosql.driver.ops.GetTableRequest;
 import oracle.nosql.driver.ops.TableLimits;
 import oracle.nosql.driver.ops.TableRequest;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
-import static junit.framework.TestCase.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests for composite key table creation DDL
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = AppConfig.class)
 public class TestTableCreation {
     private static final String CLOUD_SIM_NAMESPACE = "in.valid.iac.name" +
             ".space:";
     private static NosqlTemplate template;
 
-    @BeforeClass
+    @BeforeAll
     public static void staticSetup() throws ClassNotFoundException {
         template = NosqlTemplate.create(AppConfig.nosqlDBConfig);
     }

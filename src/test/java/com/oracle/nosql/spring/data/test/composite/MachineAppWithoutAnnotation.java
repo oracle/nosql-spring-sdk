@@ -13,19 +13,19 @@ import com.oracle.nosql.spring.data.core.mapping.NosqlTable;
 import com.oracle.nosql.spring.data.repository.NosqlRepository;
 import com.oracle.nosql.spring.data.repository.Query;
 import com.oracle.nosql.spring.data.test.app.AppConfig;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -33,10 +33,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = AppConfig.class)
 public class MachineAppWithoutAnnotation {
     @Autowired
@@ -44,7 +44,7 @@ public class MachineAppWithoutAnnotation {
 
     private static NosqlTemplate template;
 
-    @BeforeClass
+    @BeforeAll
     public static void staticSetup() throws ClassNotFoundException {
         template = NosqlTemplate.create(AppConfig.nosqlDBConfig);
         template.dropTableIfExists(MachineWithoutAnnotation.class.getSimpleName());
@@ -52,12 +52,12 @@ public class MachineAppWithoutAnnotation {
             getNosqlEntityInformation(MachineWithoutAnnotation.class));
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         repo.deleteAll();
     }
 
-    @AfterClass
+    @AfterAll
     public static void staticTeardown() {
         template.dropTableIfExists(MachineWithoutAnnotation.class.getSimpleName());
     }

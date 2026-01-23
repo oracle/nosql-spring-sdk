@@ -22,7 +22,7 @@ import com.oracle.nosql.spring.data.core.convert.MappingNosqlConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.util.StreamUtils;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Set of helping classes and methods to get Iterable, Iterator, Stream based

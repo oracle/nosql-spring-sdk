@@ -14,9 +14,9 @@ import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mapping.MappingException;
 import org.springframework.data.mapping.model.BasicPersistentEntity;
-import org.springframework.data.util.TypeInformation;
+import org.springframework.data.core.TypeInformation;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class BasicNosqlPersistentEntity<T>
     extends BasicPersistentEntity<T, NosqlPersistentProperty>

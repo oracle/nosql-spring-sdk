@@ -46,7 +46,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.util.Assert;
 
 public class NosqlTemplate

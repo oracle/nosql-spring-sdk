@@ -14,20 +14,22 @@ import com.oracle.nosql.spring.data.repository.NosqlRepository;
 import com.oracle.nosql.spring.data.repository.support.NosqlEntityInformation;
 import com.oracle.nosql.spring.data.test.app.AppConfig;
 import oracle.nosql.driver.TimeToLive;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = AppConfig.class)
 public class TestTTL {
     @Autowired
@@ -37,12 +39,12 @@ public class TestTTL {
 
     private static NosqlTemplate template;
 
-    @BeforeClass
+    @BeforeAll
     public static void staticSetup() throws ClassNotFoundException {
         template = NosqlTemplate.create(AppConfig.nosqlDBConfig);
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         template.dropTableIfExists(EntityWith10DaysTTL.class.getSimpleName());
         template.dropTableIfExists(EntityWithDefaultTTL.class.getSimpleName());
@@ -56,7 +58,7 @@ public class TestTTL {
         defaultTTLRepo.clearPreparedStatementsCache();
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         template.dropTableIfExists(EntityWith10DaysTTL.class.getSimpleName());
         template.dropTableIfExists(EntityWithDefaultTTL.class.getSimpleName());
