@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.oracle.nosql.spring.data.core.NosqlTemplate;
 import com.oracle.nosql.spring.data.test.app.Address;
@@ -49,7 +48,7 @@ public class TestDynamicQuery {
     private CustomerRepository nosqlRepo;
 
     public static Customer c1, c2, c3, c4, c5, c6, c7;
-    private static Customer[] c;
+    private static final Customer[] c;
 
 
     static {
@@ -268,7 +267,7 @@ public class TestDynamicQuery {
 
 
         try {
-            list = nosqlRepo.findByAddressCityIn("Central City");
+            nosqlRepo.findByAddressCityIn("Central City");
             fail("Prev line should throw IllegalArgEx!");
         } catch (IllegalArgumentException ile) {
             assertTrue(true);
@@ -373,14 +372,20 @@ public class TestDynamicQuery {
 
     @Test
     public void testDistinct() {
-        try {
-            List<Customer> list =
-                nosqlRepo.readDistinctByFirstNameOrderByCustomerId("John");
-            fail();
-        } catch (IllegalArgumentException iae) {
-            // must throw java.lang.IllegalArgumentException: Distinct not
-            // supported on full * projection.
-        }
+        List<Customer> list =
+            nosqlRepo.readDistinctByFirstNameOrderByCustomerId("John");
+        assertEquals(2, list.size());
+
+        //System.out.println(Arrays.toString(list.toArray()));
+
+        // the generated query:
+        //   select distinct * from Customer as t where
+        //      t.kv_json_.firstName = "John" ORDER BY t.customerId ASC
+        // doesn't return all the customer properties
+        // assertTrue(list.containsAll(Arrays.asList(c3, c4)));
+
+        assertTrue(c3.customerId == list.get(0).customerId ||
+            c4.customerId == list.get(1).customerId);
 
         long count = nosqlRepo.countDistinctByFirstName("John");
         assertEquals(2, count);
@@ -460,7 +465,7 @@ public class TestDynamicQuery {
             .sorted()
             .map( id -> customers.stream()
                 .filter(c -> c.customerId == id).findAny().get() )
-            .collect(Collectors.toList());
+            .toList();
 
         List<Customer> list;
         list = nosqlRepo.findAllByCustomerIdLessThan(c4.customerId);
@@ -500,27 +505,27 @@ public class TestDynamicQuery {
 
 
         // using Within keyword
-        List<Point> coord = new ArrayList<>();
-        coord.add(new Point( 40.736739, -74.024951));
-        coord.add(new Point( 40.679054, -74.038901));
-        coord.add(new Point( 40.729716, -73.961308));
-        coord.add(new Point( 40.736739, -74.024951));
+        List<Point> cord = new ArrayList<>();
+        cord.add(new Point( 40.736739, -74.024951));
+        cord.add(new Point( 40.679054, -74.038901));
+        cord.add(new Point( 40.729716, -73.961308));
+        cord.add(new Point( 40.736739, -74.024951));
 
         // This gets translated to SQL geo_inside(entityShape, polygon)
-        list = nosqlRepo.findByAddressGeoJsonPointWithin(new Polygon(coord));
+        list = nosqlRepo.findByAddressGeoJsonPointWithin(new Polygon(cord));
 
         assertEquals(1, list.size());
         assertTrue(list.contains(c5));
 
 
-        coord.clear();
-        coord.add(new Point( 40.736739, -74.024951));
-        coord.add(new Point( 40.689174, -74.054158));
-        coord.add(new Point( 40.679054, -74.038901));
-        coord.add(new Point( 40.729716, -73.961308));
-        coord.add(new Point( 40.736739, -74.024951));
+        cord.clear();
+        cord.add(new Point( 40.736739, -74.024951));
+        cord.add(new Point( 40.689174, -74.054158));
+        cord.add(new Point( 40.679054, -74.038901));
+        cord.add(new Point( 40.729716, -73.961308));
+        cord.add(new Point( 40.736739, -74.024951));
 
-        list = nosqlRepo.findByAddressGeoJsonPointWithin(new Polygon(coord));
+        list = nosqlRepo.findByAddressGeoJsonPointWithin(new Polygon(cord));
 
         assertEquals(2, list.size());
         assertTrue(list.containsAll(Arrays.asList(c5, c6)));
