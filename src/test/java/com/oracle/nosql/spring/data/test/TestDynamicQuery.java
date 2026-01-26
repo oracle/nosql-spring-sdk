@@ -464,7 +464,7 @@ public class TestDynamicQuery {
             .filter( id -> id < c4.customerId)
             .sorted()
             .map( id -> customers.stream()
-                .filter(c -> c.customerId == id).findAny().get() )
+                .filter(c -> c.customerId == id).findAny().orElseThrow())
             .toList();
 
         List<Customer> list;

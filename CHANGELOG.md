@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [2.3.0] - 2026-01-26
+### Changed
+- Upgrade dependencies to latest versions:
+  - NoSQL Java SDK dependency to version 5.4.19
+  - Spring Framework to version 7.0.3
+  - Spring Data to version 4.0.2
+  - Spring Boot Starter 4.0.2
+  - Project Reactor to version 3.8.2
+  - exec-maven-plugin to version 3.6.3  
+  - maven-surefire-plugin to version 3.5.4
+  - Upgraded tests to JUnit 6 and use version 6.0.2
+- Fixed using new Spring Data 4 APIs.
+- Fixed deprecation warnings in NosqlRepositoryFactory and ReactiveNosqlRepositoryFactory.
+- Updated TestDynamic#testDistinct to work with NoSQL server 26.1
+
 ## [2.2.0] - 2025-03-20
 ### Changed
 - Update copyrights to 2025

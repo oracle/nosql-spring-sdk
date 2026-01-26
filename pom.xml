@@ -55,7 +55,7 @@
 
         <spring.boot.starter.test.version>4.0.2</spring.boot.starter.test.version>
         <junit.junit.version>6.0.2</junit.junit.version>
-        <project.reactor.test.version>3.6.8</project.reactor.test.version>
+        <project.reactor.test.version>3.8.2</project.reactor.test.version>
         <slf4j.version>2.0.17</slf4j.version>
     </properties>
 
