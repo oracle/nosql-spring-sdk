@@ -397,7 +397,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.6.3</version>
                 <executions>
                     <execution>
                         <id>add license files to runtime jar</id>
@@ -454,7 +454,7 @@
             <plugin>
                 <!-- test plugin -->
                 <artifactId>maven-surefire-plugin</artifactId>
-<!--                <version>3.5.4</version>-->
+                <version>3.5.4</version>
                 <configuration>
                     <!-- uncomment below to write stdout to files
                          in target/surefire-reports -->

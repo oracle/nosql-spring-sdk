@@ -6,7 +6,6 @@
  */
 package com.oracle.nosql.spring.data.repository.support;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
@@ -23,7 +22,6 @@ import org.springframework.data.repository.core.RepositoryInformation;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.core.support.ReactiveRepositoryFactorySupport;
 import org.springframework.data.repository.query.QueryLookupStrategy;
-import org.springframework.data.repository.query.QueryMethodValueEvaluationContextAccessor;
 import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.repository.query.ValueExpressionDelegate;
 import org.springframework.util.Assert;
@@ -41,14 +39,16 @@ public class ReactiveNosqlRepositoryFactory  extends
     }
 
     @Override
-    public <T, ID> EntityInformation<T, ID> getEntityInformation(Class<T> domainClass) {
-        return new NosqlEntityInformation<>(applicationContext, domainClass);
+    public EntityInformation<?, ?> getEntityInformation(
+        RepositoryMetadata metadata) {
+        return new NosqlEntityInformation<>(applicationContext,
+            metadata.getDomainType());
     }
 
     @Override
     protected Object getTargetRepository(RepositoryInformation information) {
-        final EntityInformation<?, Serializable> entityInformation =
-            getEntityInformation(information.getDomainType());
+        final EntityInformation<?, ?> entityInformation =
+            getEntityInformation(information);
         return getTargetRepositoryViaReflection(information, entityInformation,
             this.applicationContext);
     }

@@ -6,7 +6,6 @@
  */
 package com.oracle.nosql.spring.data.repository.support;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
@@ -46,16 +45,17 @@ public class NosqlRepositoryFactory extends RepositoryFactorySupport {
 
     @Override
     protected Object getTargetRepository(RepositoryInformation information) {
-        final EntityInformation<?, Serializable> entityInformation =
-            getEntityInformation(information.getDomainType());
+        final EntityInformation<?, ?> entityInformation =
+            getEntityInformation(information);
         return getTargetRepositoryViaReflection(information, entityInformation,
             applicationContext);
     }
 
     @Override
-    public <T, ID> EntityInformation<T, ID> getEntityInformation(
-        Class<T> domainClass) {
-        return new NosqlEntityInformation<>(applicationContext, domainClass);
+    public EntityInformation<?, ?> getEntityInformation(
+        RepositoryMetadata metadata) {
+        return new NosqlEntityInformation<>(applicationContext,
+            metadata.getDomainType());
     }
 
     @Override
