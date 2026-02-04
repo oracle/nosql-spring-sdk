@@ -1,12 +1,11 @@
 /*-
- * Copyright (c) 2020, 2025 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2026 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
  */
 package com.oracle.nosql.spring.data.repository.support;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
@@ -23,8 +22,8 @@ import org.springframework.data.repository.core.RepositoryInformation;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.core.support.RepositoryFactorySupport;
 import org.springframework.data.repository.query.QueryLookupStrategy;
-import org.springframework.data.repository.query.QueryMethodEvaluationContextProvider;
 import org.springframework.data.repository.query.RepositoryQuery;
+import org.springframework.data.repository.query.ValueExpressionDelegate;
 import org.springframework.util.Assert;
 
 public class NosqlRepositoryFactory extends RepositoryFactorySupport {
@@ -46,41 +45,42 @@ public class NosqlRepositoryFactory extends RepositoryFactorySupport {
 
     @Override
     protected Object getTargetRepository(RepositoryInformation information) {
-        final EntityInformation<?, Serializable> entityInformation =
-            getEntityInformation(information.getDomainType());
+        final EntityInformation<?, ?> entityInformation =
+            getEntityInformation(information);
         return getTargetRepositoryViaReflection(information, entityInformation,
             applicationContext);
     }
 
     @Override
-    public <T, ID> EntityInformation<T, ID> getEntityInformation(
-        Class<T> domainClass) {
-        return new NosqlEntityInformation<>(applicationContext, domainClass);
+    public EntityInformation<?, ?> getEntityInformation(
+        RepositoryMetadata metadata) {
+        return new NosqlEntityInformation<>(applicationContext,
+            metadata.getDomainType());
     }
 
     @Override
     protected Optional<QueryLookupStrategy> getQueryLookupStrategy(
         QueryLookupStrategy.Key key,
-        QueryMethodEvaluationContextProvider evaluationContextProvider) {
+        ValueExpressionDelegate valueExpressionDelegate) {
         return Optional.of(
             new NosqlDbQueryLookupStrategy(applicationContext, nosqlOperations,
-                evaluationContextProvider));
+                valueExpressionDelegate));
     }
 
     private static class NosqlDbQueryLookupStrategy
         implements QueryLookupStrategy {
         private final ApplicationContext applicationContext;
         private final NosqlOperations dbOperations;
-        private final QueryMethodEvaluationContextProvider
-            evaluationContextProvider;
+        private final ValueExpressionDelegate
+            valueExpressionDelegate;
 
         public NosqlDbQueryLookupStrategy(
             ApplicationContext applicationContext,
             NosqlOperations operations,
-            QueryMethodEvaluationContextProvider provider) {
+            ValueExpressionDelegate valueExpressionDelegate) {
             this.applicationContext = applicationContext;
             this.dbOperations = operations;
-            this.evaluationContextProvider = provider;
+            this.valueExpressionDelegate = valueExpressionDelegate;
         }
 
         @Override
@@ -98,10 +98,10 @@ public class NosqlRepositoryFactory extends RepositoryFactorySupport {
             if (namedQueries.hasQuery(namedQueryName)) {
                 String namedQuery = namedQueries.getQuery(namedQueryName);
                 return new StringBasedNosqlQuery(namedQuery, queryMethod,
-                    dbOperations, evaluationContextProvider);
+                    dbOperations, valueExpressionDelegate);
             } else if (queryMethod.hasAnnotatedQuery()) {
                 return new StringBasedNosqlQuery(queryMethod, dbOperations,
-                    evaluationContextProvider);
+                    valueExpressionDelegate);
             } else {
                 return new PartTreeNosqlQuery(queryMethod, dbOperations);
             }

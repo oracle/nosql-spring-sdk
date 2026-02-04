@@ -1,10 +1,12 @@
 /*-
- * Copyright (c) 2020, 2025 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2026 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
  */
 package com.oracle.nosql.spring.data.test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,16 +16,15 @@ import com.oracle.nosql.spring.data.test.app.AppConfig;
 import com.oracle.nosql.spring.data.test.app.Customer;
 import com.oracle.nosql.spring.data.test.app.CustomerRepository;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = AppConfig.class)
 public class TestNativeQuery {
 
@@ -54,7 +55,7 @@ public class TestNativeQuery {
     }
 
 
-    @Before
+    @BeforeEach
     public void before() {
         nosqlRepo.deleteAll();
         c1.customerId = c2.customerId = c3.customerId =
@@ -63,7 +64,7 @@ public class TestNativeQuery {
     }
 
 
-    @After
+    @AfterEach
     public void after() {
         nosqlRepo.deleteAll();
     }
@@ -72,14 +73,14 @@ public class TestNativeQuery {
     public void testSimple() {
         final List<Customer> johns = nosqlRepo.findCustomersByFirstNameJohn();
 
-        Assert.assertTrue(johns.contains(c3) && johns.contains(c4));
+        assertTrue(johns.contains(c3) && johns.contains(c4));
     }
 
     @Test
     public void testWithOneParam() {
         final List<Customer> johns = nosqlRepo.findCustomersByFirstName("John");
 
-        Assert.assertTrue(johns.size() == 2 &&
+        assertTrue(johns.size() == 2 &&
             johns.contains(c3) && johns.contains(c4));
     }
 
@@ -89,7 +90,7 @@ public class TestNativeQuery {
             nosqlRepo.findCustomersWithLastAndFirstNames(
             "Doe", "John");
 
-        Assert.assertTrue(johns.size() == 1 && johns.contains(c4));
+        assertTrue(johns.size() == 1 && johns.contains(c4));
     }
 
 // todo Enable when positional bind params are supported
@@ -99,7 +100,7 @@ public class TestNativeQuery {
 //        List<Customer> johns = nosqlRepo.findCustomersWithFirstLast(
 //            "John", "Doe");
 //
-//        Assert.assertTrue(johns.size() == 1 && johns.contains(c4));
+//        assertTrue(johns.size() == 1 && johns.contains(c4));
 //    }
 
     @Test
@@ -108,6 +109,6 @@ public class TestNativeQuery {
             nosqlRepo.findCustomersWithLastAndFirstNosqlValues(
             new StringValue("Smith"), new StringValue("John"));
 
-        Assert.assertTrue(johns.size() == 1 && johns.contains(c3));
+        assertTrue(johns.size() == 1 && johns.contains(c3));
     }
 }

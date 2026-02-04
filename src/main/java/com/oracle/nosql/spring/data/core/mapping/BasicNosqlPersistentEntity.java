@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2025 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2026 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -14,9 +14,9 @@ import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mapping.MappingException;
 import org.springframework.data.mapping.model.BasicPersistentEntity;
-import org.springframework.data.util.TypeInformation;
+import org.springframework.data.core.TypeInformation;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class BasicNosqlPersistentEntity<T>
     extends BasicPersistentEntity<T, NosqlPersistentProperty>

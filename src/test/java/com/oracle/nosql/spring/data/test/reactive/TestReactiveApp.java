@@ -1,10 +1,13 @@
 /*-
- * Copyright (c) 2020, 2025 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2026 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
  */
 package com.oracle.nosql.spring.data.test.reactive;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -16,19 +19,18 @@ import java.util.stream.Collectors;
 
 import com.oracle.nosql.spring.data.test.app.Customer;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = ReactiveAppConfig.class)
 public class TestReactiveApp {
 
@@ -40,7 +42,7 @@ public class TestReactiveApp {
     public void testRepo() {
         // get/setTimeout()
         repo.setTimeout(20000);
-        Assert.assertEquals(20000, repo.getTimeout());
+        assertEquals(20000, repo.getTimeout());
 
         // deleteAll
         repo.deleteAll();
@@ -78,8 +80,8 @@ public class TestReactiveApp {
         flux = repo.findAll();
 
         List<Customer> list = flux.collectList().block();
-        Assert.assertEquals(2, list.size());
-        Assert.assertTrue(list.containsAll(Arrays.asList(c1, c2)));
+        assertEquals(2, list.size());
+        assertTrue(list.containsAll(Arrays.asList(c1, c2)));
 
         Customer c3 = new Customer("John", "Smith", null);
         c3.kids = 3;
@@ -172,15 +174,15 @@ public class TestReactiveApp {
         //native queries
         List<Customer> johns =
                 repo.findCustomersByFirstNameJohn().collectList().block();
-        Assert.assertTrue(johns.contains(c3) && johns.contains(c4));
+        assertTrue(johns.contains(c3) && johns.contains(c4));
 
         johns = repo.findCustomersByFirstName("John").collectList().block();
-        Assert.assertTrue(johns.size() == 2 &&
+        assertTrue(johns.size() == 2 &&
                 johns.contains(c3) && johns.contains(c4));
 
         johns = repo.findCustomersWithLastAndFirstNames("Doe", "John").
                         collectList().block();
-        Assert.assertTrue(johns.size() == 1 && johns.contains(c4));
+        assertTrue(johns.size() == 1 && johns.contains(c4));
 
         // deleteById
         repo.deleteById(c7.customerId).subscribe();

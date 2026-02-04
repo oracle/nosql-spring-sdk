@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2025 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2026 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -11,7 +11,8 @@ import com.oracle.nosql.spring.data.core.query.NosqlQuery;
 import com.oracle.nosql.spring.data.core.query.StringQuery;
 import com.oracle.nosql.spring.data.repository.Query;
 
-import org.springframework.data.repository.query.QueryMethodEvaluationContextProvider;
+import org.springframework.data.repository.query.QueryMethodValueEvaluationContextAccessor;
+import org.springframework.data.repository.query.ValueExpressionDelegate;
 
 /**
  * Class implements native queries that come from {@link Query} annotation.
@@ -25,14 +26,14 @@ public class StringBasedNosqlQuery extends AbstractNosqlQuery {
 
     public StringBasedNosqlQuery(NosqlQueryMethod method,
         NosqlOperations dbOperations,
-        QueryMethodEvaluationContextProvider evaluationContextProvider) {
+        ValueExpressionDelegate valueExpressionDelegate) {
         this(method.getAnnotatedQuery(), method, dbOperations,
-            evaluationContextProvider);
+            valueExpressionDelegate);
     }
 
     public StringBasedNosqlQuery(String query, NosqlQueryMethod method,
         NosqlOperations dbOperations,
-        QueryMethodEvaluationContextProvider evaluationContextProvider) {
+        ValueExpressionDelegate valueExpressionDelegate) {
         super(method, dbOperations);
 
         this.query = query;

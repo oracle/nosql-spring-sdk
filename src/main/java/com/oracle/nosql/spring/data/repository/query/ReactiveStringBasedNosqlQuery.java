@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2025 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2026 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -11,7 +11,7 @@ import com.oracle.nosql.spring.data.core.ReactiveNosqlOperations;
 import com.oracle.nosql.spring.data.core.query.NosqlQuery;
 import com.oracle.nosql.spring.data.core.query.StringQuery;
 import com.oracle.nosql.spring.data.repository.Query;
-import org.springframework.data.repository.query.QueryMethodEvaluationContextProvider;
+import org.springframework.data.repository.query.ValueExpressionDelegate;
 
 import static com.oracle.nosql.spring.data.repository.query.StringBasedNosqlQuery.hasAmbiguousProjectionFlags;
 
@@ -24,15 +24,15 @@ public class ReactiveStringBasedNosqlQuery extends AbstractReactiveNosqlQuery {
 
     public ReactiveStringBasedNosqlQuery(NosqlQueryMethod method,
          ReactiveNosqlOperations operations,
-         QueryMethodEvaluationContextProvider evaluationContextProvider) {
+        ValueExpressionDelegate valueExpressionDelegate) {
         this(method.getAnnotatedQuery(), method, operations,
-                evaluationContextProvider);
+                valueExpressionDelegate);
     }
 
     public ReactiveStringBasedNosqlQuery(String query,
         NosqlQueryMethod method,
         ReactiveNosqlOperations operations,
-        QueryMethodEvaluationContextProvider evaluationContextProvider) {
+        ValueExpressionDelegate valueExpressionDelegate) {
         super(method, operations);
         this.query = query;
         if (method.hasAnnotatedQuery()) {

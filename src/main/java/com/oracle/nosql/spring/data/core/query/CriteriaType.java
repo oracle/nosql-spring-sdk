@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2020, 2025 Oracle and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2020, 2026 Oracle and/or its affiliates.  All rights reserved.
  *
  * Licensed under the Universal Permissive License v 1.0 as shown at
  *  https://oss.oracle.com/licenses/upl/
@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.data.repository.query.parser.Part;
-import org.springframework.lang.NonNull;
 
 public enum CriteriaType {
 
@@ -98,8 +97,7 @@ public enum CriteriaType {
      *
      * @return True if unsupported, or false.
      */
-    public static boolean isPartTypeUnSupported(@NonNull
-        Part.Type partType) {
+    public static boolean isPartTypeUnSupported(Part.Type partType) {
         return !isPartTypeSupported(partType);
     }
 
@@ -108,11 +106,11 @@ public enum CriteriaType {
      *
      * @return True if supported, or false.
      */
-    public static boolean isPartTypeSupported(@NonNull Part.Type partType) {
+    public static boolean isPartTypeSupported(Part.Type partType) {
         return PART_TREE_TYPE_TO_CRITERIA.containsKey(partType);
     }
 
-    public static CriteriaType toCriteriaType(@NonNull Part.Type partType) {
+    public static CriteriaType toCriteriaType(Part.Type partType) {
         final CriteriaType criteriaType = PART_TREE_TYPE_TO_CRITERIA.get(partType);
 
         if (criteriaType == null) {
