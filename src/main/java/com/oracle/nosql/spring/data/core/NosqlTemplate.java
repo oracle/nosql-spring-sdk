@@ -81,6 +81,8 @@ public class NosqlTemplate
     @Override
     public void setApplicationContext(ApplicationContext applicationContext)
         throws BeansException {
+        super.setApplicationContext(applicationContext);
+        projectionFactory.setBeanFactory(applicationContext);
     }
 
     @Override
@@ -228,10 +230,11 @@ public class NosqlTemplate
 
         String idColumnName = getIdColumnName(entityClass);
 
-        StreamSupport.stream(ids.spliterator(), true)
-            .map(id -> mappingNosqlConverter.convertIdToPrimaryKey(idColumnName, id))
-            .map(pk -> new DeleteRequest().setKey(pk).setTableName(tableName))
-            .forEach(dr -> wmReq.add(dr, false));
+        ids.forEach(id -> {
+            MapValue pk = mappingNosqlConverter.convertIdToPrimaryKey(idColumnName, id);
+            DeleteRequest deleteRequest = new DeleteRequest().setKey(pk).setTableName(tableName);
+            wmReq.add(deleteRequest, false);
+        });
 
         try {
             nosqlClient.writeMultiple(wmReq);

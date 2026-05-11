@@ -307,8 +307,8 @@ public class MappingNosqlConverter
             convertedValue = new TimestampValue((Timestamp) javaObj);
             break;
         case INSTANT:
-            convertedValue = new TimestampValue(
-                ((Instant) javaObj).toEpochMilli());
+            convertedValue = new TimestampValue(Timestamp.from(
+                ((Instant) javaObj)));
             break;
         case ENUM:
             convertedValue = new StringValue(((Enum) javaObj).name());

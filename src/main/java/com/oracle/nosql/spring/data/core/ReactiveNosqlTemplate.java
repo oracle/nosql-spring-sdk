@@ -62,6 +62,7 @@ public class ReactiveNosqlTemplate
     @Override
     public void setApplicationContext(ApplicationContext applicationContext)
         throws BeansException {
+        super.setApplicationContext(applicationContext);
     }
 
     @Override
