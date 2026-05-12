@@ -36,7 +36,7 @@ public class NosqlDbConfig {
 
     public NosqlDbConfig(String endpoint,
         AuthorizationProvider authorizationProvider) {
-        this(new NoSQLHandleConfig(endpoint).setAuthorizationProvider(authorizationProvider));
+        this(new NoSQLHandleConfig(endpoint, authorizationProvider));
     }
 
     public NosqlDbConfig(NoSQLHandleConfig nosqlHandleConfig) {
@@ -68,11 +68,11 @@ public class NosqlDbConfig {
      *
      * @param endpoint Endpoint of service.
      *                 Example: {@link Region#endpoint()}
-     * @param configFile Path to config file. Example: "~/.oci/config"
-     * @param profileName The name of the profile defined in config file.
+     * @param configFile Path to the config file. Example: "~/.oci/config"
+     * @param profileName The name of the profile defined in the config file.
      *                    Example: "DEFAULT".
      * @return returns the NosqlDbConfig object.
-     * @throws IOException if config file cannot be accessed.
+     * @throws IOException if the config file cannot be accessed.
      */
     public static NosqlDbConfig createCloudConfig(String endpoint,
         String configFile, String profileName)

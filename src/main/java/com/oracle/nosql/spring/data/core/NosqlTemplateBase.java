@@ -344,6 +344,7 @@ public abstract class NosqlTemplateBase
 
             LOG.debug("JSON Schema of the table is {}", jsonSchema);
             LOG.warn(msg);
+            errors.add(msg);
         }
 
         if (!errors.isEmpty()) {
@@ -505,6 +506,7 @@ public abstract class NosqlTemplateBase
             }
 
             qReq.setConsistency(entityInformation.getConsistency());
+            qReq.setDurability(entityInformation.getDurability());
         }
 
         LOG.debug("Q: {}", query);
@@ -550,6 +552,7 @@ public abstract class NosqlTemplateBase
         }
 
         qReq.setConsistency(entityInformation.getConsistency());
+        qReq.setDurability(entityInformation.getDurability());
 
         if (query.isCount()) {
             qReq.setLimit(1);

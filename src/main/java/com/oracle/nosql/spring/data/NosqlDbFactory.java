@@ -23,7 +23,7 @@ import org.springframework.util.Assert;
  * Factory class for connecting to an Oracle NoSQL Database on premise
  * database or cloud service.
  */
-public class NosqlDbFactory {
+public class NosqlDbFactory implements AutoCloseable {
 
     private static final String libraryVersion = findVersion();
     private  static final String userAgent = findUserAgent();
@@ -216,6 +216,12 @@ public class NosqlDbFactory {
         String libVersion = findVersion();
         return Constants.USER_AGENT +
             (libVersion == null ? "" : "/" + libVersion);
+    }
+
+    @Override public void close() throws Exception {
+        if (handle != null ) {
+            handle.close();
+        }
     }
 
     /**
