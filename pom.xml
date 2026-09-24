@@ -45,7 +45,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>MM-dd-HH-mm-ss</maven.build.timestamp.format>
 
-        <nosqldriver.version>5.4.19</nosqldriver.version>
+        <nosqldriver.version>5.4.24</nosqldriver.version>
 
         <spring.springframework.version>7.0.8</spring.springframework.version>
         <spring.data.version>4.0.6</spring.data.version>

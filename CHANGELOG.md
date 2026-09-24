@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Unreleased
+- Upgrade dependency versions:
+  - NoSQL SDK 5.4.24
+  - Spring Framework 7.0.8
+  - Spring Data 4.0.6
+
 ## [2.3.0] - 2026-01-26
 ### Changed
 - Update copyrights to 2026
