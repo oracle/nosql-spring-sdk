@@ -25,8 +25,11 @@ import org.springframework.context.annotation.PropertySource;
         considerNestedRepositories = true)
 public class AppConfig extends AppConfigBase {
 
+    protected static String OPENSSL_GROUPS = "test.openssl.groups";
+
+
     /* Get values specified in application.properties file or use
-    specified default otherwise. */
+        specified default otherwise. */
     @Value("${test.config.defaultStorageGB:25}")
     private int defaultStorageGB;
     @Value("${test.config.defaultCapacityMode:PROVISIONED}")
@@ -46,7 +49,7 @@ public class AppConfig extends AppConfigBase {
 
 
 //// Configuration for cloud service:
-//// Note: Requires account to access Oracle NoSQL Cloud Service.
+//// Note: Requires an account to access Oracle NoSQL Cloud Service.
 //// Use these pages to configure your setup:
 ////   - blog entry: 15 minutes to Hello World:
 ////       https://blogs.oracle.com/nosql/15-minutes-to-hello-world
@@ -94,6 +97,12 @@ public class AppConfig extends AppConfigBase {
 
         nosqlDBConfig.setTableReqTimeout(DEFAULT_REQ_TIMEOUT);
         nosqlDBConfig.setTableReqPollInterval(DEFAULT_REQ_POLL_INTERVAL);
+
+        String sslGroups = System.getProperty(OPENSSL_GROUPS);
+        if (sslGroups != null) {
+            nosqlDBConfig.getNosqlHandleConfig().setSSLGroups(sslGroups);
+            System.out.println("DBG: Using SSL groups: " + sslGroups);
+        }
     }
 
 
