@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
   - commons.logging 1.4.0
   - JUnit 6.1.3
   - Slf4j 2.0.20
+- Several small fixes.
 
 ## [2.3.0] - 2026-01-26
 ### Changed
