@@ -3,3 +3,4 @@ build/**
 lib/**
 .idea/**
 /*.iml
+logging.properties

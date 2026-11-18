@@ -3,11 +3,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## Unreleased
+## [2.3.1] - 2026-11-18
 - Upgrade dependency versions:
-  - NoSQL SDK 5.4.24
-  - Spring Framework 7.0.8
-  - Spring Data 4.0.6
+  - NoSQL SDK 5.4.25
+  - Spring Framework 7.0.10
+  - Spring Data 4.1.2
+  - Project Reactor 3.8.8
+  - commons-lang3 3.22.0
+  - commons.logging 1.4.0
+  - JUnit 6.1.3
+  - Slf4j 2.0.20
 
 ## [2.3.0] - 2026-01-26
 ### Changed

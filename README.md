@@ -28,7 +28,7 @@ project. The version changes with each release.
 <dependency>
   <groupId>com.oracle.nosql.sdk</groupId>
   <artifactId>spring-data-oracle-nosql</artifactId>
-  <version>2.3.0</version>
+  <version>2.3.1</version>
 </dependency>
 ```
 
@@ -76,7 +76,7 @@ See [CHANGELOG](./CHANGELOG.md) for changes in each release.
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
-      <version>3.4.3</version>
+      <version>4.1.2</version>
     </dependency>
     ```
 
